@@ -49,6 +49,6 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(HttpMessageNotReadableException.class)
     public String handleHttpMessageNotReadableException(HttpMessageNotReadableException ex) {
-        return "Message not Readeable!";
+        return "Request Body is Empty!";
     }
 }
