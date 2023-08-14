@@ -18,4 +18,6 @@ public interface StateService {
     String softDeleteStateById(int id);
 
     String restoreStateById(int id);
+
+    List<StateDto> getStateByCountryId(int countryId);
 }

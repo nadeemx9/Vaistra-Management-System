@@ -62,4 +62,10 @@ public class StateController {
     public ResponseEntity<String> restoreStateById(@PathVariable int stateId) {
         return new ResponseEntity<>(stateService.restoreStateById(stateId), HttpStatus.OK);
     }
+
+    @GetMapping("countryId/{countryId}")
+    public ResponseEntity<List<StateDto>> getStateByCountryId(@PathVariable int countryId)
+    {
+        return new ResponseEntity<>(stateService.getStateByCountryId(countryId), HttpStatus.OK);
+    }
 }

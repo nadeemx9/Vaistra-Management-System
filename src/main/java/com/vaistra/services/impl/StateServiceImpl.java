@@ -127,4 +127,12 @@ public class StateServiceImpl implements StateService {
         stateRepository.save(state);
         return "State with id " + id + "' Restored!";
     }
+
+    @Override
+    public List<StateDto> getStateByCountryId(int countryId) {
+
+        countryRepository.findById(countryId).orElseThrow(() -> new ResourceNotFoundException("Country with id '" + countryId + "' not found!"));
+
+        return statesToDtos(stateRepository.findByCountry_CountryId(countryId));
+    }
 }
