@@ -13,6 +13,8 @@ import java.util.List;
 @RestController
 @RequestMapping("user")
 public class UserController {
+
+    //---------------------------------------------------CONSTRUCTOR INJECTION------------------------------------------
     private final UserService userService;
 
     @Autowired
@@ -20,6 +22,9 @@ public class UserController {
     {
         this.userService = userService;
     }
+
+
+    //---------------------------------------------------URL ENDPOINTS--------------------------------------------------
     @PostMapping
     public ResponseEntity<UserDto> addUser(@Valid @RequestBody UserDto userDto)
     {

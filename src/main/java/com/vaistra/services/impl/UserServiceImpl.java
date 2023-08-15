@@ -80,7 +80,7 @@ public class UserServiceImpl implements UserService {
         user.setUserName(userDto.getUserName());
         user.setPassword(passwordEncoder.encode(userDto.getPassword()));
         user.setRole(userDto.getRole());
-        return userToDto(userRepository.save(dtoToUser(userDto)));
+        return userToDto(userRepository.save(user));
     }
 
     @Override
