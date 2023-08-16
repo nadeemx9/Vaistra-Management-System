@@ -2,6 +2,7 @@ package com.vaistra.services.impl;
 
 import com.vaistra.entities.District;
 import com.vaistra.entities.State;
+import com.vaistra.exception.CustomNullPointerException;
 import com.vaistra.exception.InactiveStatusException;
 import com.vaistra.exception.ResourceNotFoundException;
 import com.vaistra.payloads.DistrictDto;
@@ -58,12 +59,14 @@ public class DistrictServiceImpl implements DistrictService {
     public DistrictDto addDistrict(DistrictDto districtDto) {
 
         int stateId = districtDto.getState().getStateId();
-        State state = stateRepository.findById(stateId).orElseThrow(()->new ResourceNotFoundException("State with Id '"+stateId+"' not found!"));
+        State state = stateRepository.findById(stateId)
+                .orElseThrow(()->new ResourceNotFoundException("State with Id '"+stateId+"' not found!"));
 
         //  IS STATE STATUS ACTIVE ?
         if(!state.isStatus())
             throw new InactiveStatusException("State with id '"+stateId+"' is not active!");
-
+        if(districtDto.getState()==null)
+            throw new CustomNullPointerException("State Id should not be null!");
         districtDto.setDistrictName(districtDto.getDistrictName().toUpperCase());
         districtDto.setState(StateServiceImpl.stateToDto(state));
 
