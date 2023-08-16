@@ -3,6 +3,7 @@ package com.vaistra.services.impl;
 import com.vaistra.entities.District;
 import com.vaistra.entities.State;
 import com.vaistra.exception.CustomNullPointerException;
+import com.vaistra.exception.DuplicateEntryException;
 import com.vaistra.exception.InactiveStatusException;
 import com.vaistra.exception.ResourceNotFoundException;
 import com.vaistra.payloads.DistrictDto;
@@ -58,15 +59,29 @@ public class DistrictServiceImpl implements DistrictService {
     @Override
     public DistrictDto addDistrict(DistrictDto districtDto) {
 
-        int stateId = districtDto.getState().getStateId();
+        // HANDLE IF DUPLICATE DISTRICT NAME
+        if(districtRepository.findByDistrictName(districtDto.getDistrictName()) != null)
+            throw new DuplicateEntryException("District with name '"+districtDto.getDistrictName()+"' already exist!");
+
+        // HANDLE IF STATE IS NULL
+        int stateId;
+        try {
+            stateId = districtDto.getState().getStateId();
+        }
+        catch (Exception ex)
+        {
+            throw new CustomNullPointerException("State Id should not be empty!");
+        }
+
+        // HANDLE IF STATE EXIST BY ID
         State state = stateRepository.findById(stateId)
-                .orElseThrow(()->new ResourceNotFoundException("State with Id '"+stateId+"' not found!"));
+                .orElseThrow(()->new ResourceNotFoundException("State with Id '"+stateId+" not found!"));
 
         //  IS STATE STATUS ACTIVE ?
         if(!state.isStatus())
             throw new InactiveStatusException("State with id '"+stateId+"' is not active!");
-        if(districtDto.getState()==null)
-            throw new CustomNullPointerException("State Id should not be null!");
+
+
         districtDto.setDistrictName(districtDto.getDistrictName().toUpperCase());
         districtDto.setState(StateServiceImpl.stateToDto(state));
 
@@ -91,15 +106,29 @@ public class DistrictServiceImpl implements DistrictService {
 
     @Override
     public DistrictDto updateDistrict(DistrictDto districtDto, int id) {
+        // HANDLE IF DISTRICT EXIST BY ID
         District district = districtRepository.findById(id)
                 .orElseThrow(()->new ResourceNotFoundException("District with id '"+id+"' not found!"));
 
-        int stateId = district.getState().getStateId();
-        State state = stateRepository.findById(stateId).orElseThrow(()->new ResourceNotFoundException("State with id '"+stateId+"' not found!"));;
+        // HANDLE IF DUPLICATE DISTRICT NAME
+        if(districtRepository.findByDistrictName(districtDto.getDistrictName()) != null)
+            throw new DuplicateEntryException("District with name '"+districtDto.getDistrictName()+"' already exist!");
+
+        // HANDLE IF STATE IS EMPTY
+        int stateId;
+        try {
+            stateId = districtDto.getState().getStateId();
+        }
+        catch (Exception ex){
+            throw new CustomNullPointerException("State id should not empty!");
+        }
+
+        // HANDLE IF STATE EXIST BY ID
+        stateRepository.findById(stateId)
+                .orElseThrow(()->new ResourceNotFoundException("State with id '"+stateId+"' not found!"));;
 
 
         district.setDistrictName(districtDto.getDistrictName().toUpperCase());
-        district.setState(state);
 
         return districtToDto(districtRepository.save(district));
     }

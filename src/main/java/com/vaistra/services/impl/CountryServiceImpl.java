@@ -1,6 +1,7 @@
 package com.vaistra.services.impl;
 
 import com.vaistra.entities.Country;
+import com.vaistra.exception.DuplicateEntryException;
 import com.vaistra.exception.ResourceNotFoundException;
 import com.vaistra.payloads.CountryDto;
 import com.vaistra.repositories.CountryRepository;
@@ -59,6 +60,11 @@ public class CountryServiceImpl implements CountryService {
     @Override
     public CountryDto addCountry(CountryDto c) {
 
+        // HANDLE DUPLICATE NAME ENTRY EXCEPTION
+        Country country = countryRepository.findByCountryName(c.getCountryName());
+        if(country != null)
+            throw new DuplicateEntryException("Country with name '"+c.getCountryName()+"' already exist!");
+
         c.setCountryName(c.getCountryName().toUpperCase());
         return countryToDto(countryRepository.save(dtoToCountry(c)));
     }
@@ -81,9 +87,14 @@ public class CountryServiceImpl implements CountryService {
 
     @Override
     public CountryDto updateCountry(CountryDto c, int id) {
-
+        // HANDLE IF COUNTRY EXIST BY ID
         Country country = countryRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Country with Id '" + id + "' not found!"));
+
+        // HANDLE DUPLICATE ENTRY EXCEPTION
+        Country existedCountry = countryRepository.findByCountryName(c.getCountryName());
+        if(existedCountry != null)
+            throw new DuplicateEntryException("Country with name '"+c.getCountryName()+"' already exist!");
 
         country.setCountryName(c.getCountryName().toUpperCase());
         country.setStatus(c.isStatus());

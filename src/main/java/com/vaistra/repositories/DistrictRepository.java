@@ -11,4 +11,6 @@ public interface DistrictRepository extends JpaRepository<District, Integer> {
     List<District> findByState_StateId(int stateId);
     List<District> findByState_Country_CountryId(int countryId);
 
+    District findByDistrictName(String name);
+
 }

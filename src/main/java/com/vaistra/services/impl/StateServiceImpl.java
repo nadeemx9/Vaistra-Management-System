@@ -2,6 +2,8 @@ package com.vaistra.services.impl;
 
 import com.vaistra.entities.Country;
 import com.vaistra.entities.State;
+import com.vaistra.exception.CustomNullPointerException;
+import com.vaistra.exception.DuplicateEntryException;
 import com.vaistra.exception.InactiveStatusException;
 import com.vaistra.exception.ResourceNotFoundException;
 import com.vaistra.payloads.StateDto;
@@ -62,8 +64,23 @@ public class StateServiceImpl implements StateService {
     //----------------------------------------------------SERVICE METHODS-----------------------------------------------
     @Override
     public StateDto addState(StateDto stateDto) {
-        int countryId = stateDto.getCountry().getCountryId();
 
+        //  HANDLE DUPLICATE ENTRY STATE NAME
+        State existedState = stateRepository.findByStateName(stateDto.getStateName());
+        if(existedState != null)
+            throw new DuplicateEntryException(("State with name '"+stateDto.getStateName()+"' already exist!"));
+
+        //  HANDLE IF COUNTRY IS NULL
+        int countryId;
+        try {
+            countryId = stateDto.getCountry().getCountryId();
+        }
+        catch (Exception ex)
+        {
+            throw new CustomNullPointerException("Country id should not be empty");
+        }
+
+        //  HANDLE IF COUNTRY IS NULL
         Country country = countryRepository.findById(countryId)
                 .orElseThrow(() -> new ResourceNotFoundException("Country with id '" + countryId + "' not found"));
 
@@ -96,13 +113,29 @@ public class StateServiceImpl implements StateService {
     @Override
     public StateDto updateState(StateDto stateDto, int id) {
 
+        //  HANDLE IF STATE EXIST BY ID
         State state = stateRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("State with id '" + id + "' not found!"));
-        int countryId = stateDto.getCountry().getCountryId();
-        Country country = countryRepository.findById(countryId)
-                .orElseThrow(()->new ResourceNotFoundException("Country with id "+countryId+"' not found!"));
+
+        //  HANDLE DUPLICATE ENTRY STATE NAME
+        State existedState = stateRepository.findByStateName(stateDto.getStateName());
+        if(existedState != null)
+            throw new DuplicateEntryException(("State with name '"+stateDto.getStateName()+"' already exist!"));
+
+
+        //  HANDLE IF COUNTRY IS NULL
+        int countryId;
+        try {
+             countryId = stateDto.getCountry().getCountryId();
+        }
+        catch (Exception ex){
+            throw new CustomNullPointerException("Country id should not be empty!");
+        }
+
+        //  HANDLE IF COUNTRY EXIST
+        countryRepository.findById(countryId)
+                .orElseThrow(()->new ResourceNotFoundException("Country with id '"+countryId+"' not found!"));
 
         state.setStateName(stateDto.getStateName().toUpperCase());
-        state.setCountry(country);
 
         return stateToDto(stateRepository.save(state));
     }

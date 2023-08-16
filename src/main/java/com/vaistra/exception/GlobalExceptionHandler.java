@@ -5,6 +5,7 @@ import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -56,17 +57,31 @@ public class GlobalExceptionHandler {
     public String handleHttpMessageNotReadableException(HttpMessageNotReadableException ex) {
         return "Request Body is Empty!";
     }
-
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    @ExceptionHandler(NullPointerException.class)
-    public String handleNullPointerException(NullPointerException ex)
-    {
-        return ex.getMessage();
-    }
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(CustomNullPointerException.class)
     public String handleCustomNullPointerException(CustomNullPointerException ex)
     {
         return ex.getMessage();
+    }
+    @ResponseStatus(HttpStatus.CONFLICT)
+    @ExceptionHandler(NullPointerException.class)
+    public String handleNullPointerException(NullPointerException ex)
+    {
+        return ex.getMessage();
+    }
+
+
+    @ResponseStatus(HttpStatus.CONFLICT)
+    @ExceptionHandler(DuplicateEntryException.class)
+    public String handleDuplicateEntryException(DuplicateEntryException ex)
+    {
+        return ex.getMessage();
+    }
+
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
+    public String handleHttpRequestMethodNotSupportedException(HttpRequestMethodNotSupportedException ex)
+    {
+        return "Invalid Argument Format!";
     }
 }
