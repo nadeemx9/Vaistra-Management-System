@@ -1,31 +1,23 @@
-package com.vaistra.entities;
+package com.vaistra.payloads;
 
-import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.Size;
 
-@Entity
-public class District {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "district_id")
+public class DistrictDto {
     private Integer districtId;
-
-    @Column(name = "district_name")
+    @NotEmpty(message = "District name Should not be Empty!")
+    @NotBlank(message = "District name Should not be Blank!")
+    @Size(min = 3, message = "District name should be at least 3 characters!")
     private String districtName;
 
-    @Column(name = "status")
     private boolean status = true;
-    @Column(name = "deleted")
     private boolean deleted = false;
-
-    @ManyToOne(cascade = CascadeType.MERGE)
-    @JoinColumn(name = "state_id")
-    private State state;
-
-    public District() {
+    private StateDto state;
+    public DistrictDto() {
     }
 
-    public District(Integer districtId, String districtName, boolean status, boolean deleted, State state) {
+    public DistrictDto(Integer districtId, String districtName, boolean status, boolean deleted, StateDto state) {
         this.districtId = districtId;
         this.districtName = districtName;
         this.status = status;
@@ -57,11 +49,11 @@ public class District {
         this.status = status;
     }
 
-    public State getState() {
+    public StateDto getState() {
         return state;
     }
 
-    public void setState(State state) {
+    public void setState(StateDto state) {
         this.state = state;
     }
 
@@ -83,4 +75,5 @@ public class District {
                 ", state=" + state +
                 '}';
     }
+
 }

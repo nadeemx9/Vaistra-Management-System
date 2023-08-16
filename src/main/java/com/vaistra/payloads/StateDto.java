@@ -5,7 +5,7 @@ import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Size;
 
 public class StateDto {
-    private int stateId;
+    private Integer stateId;
 
     @NotEmpty(message = "State name Should not be Empty!")
     @NotBlank(message = "State name Should not be Blank!")
@@ -19,24 +19,24 @@ public class StateDto {
 //    @NotBlank(message = "Country Should not be Blank!")
 //    @Valid
 //    @NotNull(message = "Country should not be Null!")
-    private CountryDto countryDto;
+    private CountryDto country;
 
     public StateDto() {
     }
 
-    public StateDto(int stateId, String stateName, boolean status, boolean deleted, CountryDto countryDto) {
+    public StateDto(Integer stateId, String stateName, boolean status, boolean deleted, CountryDto country) {
         this.stateId = stateId;
         this.stateName = stateName;
         this.status = status;
         this.deleted = deleted;
-        this.countryDto = countryDto;
+        this.country = country;
     }
 
-    public int getStateId() {
+    public Integer getStateId() {
         return stateId;
     }
 
-    public void setStateId(int stateId) {
+    public void setStateId(Integer stateId) {
         this.stateId = stateId;
     }
 
@@ -57,11 +57,11 @@ public class StateDto {
     }
 
     public CountryDto getCountry() {
-        return countryDto;
+        return country;
     }
 
     public void setCountry(CountryDto countryDto) {
-        this.countryDto = countryDto;
+        this.country = countryDto;
     }
 
     public boolean isDeleted() {
@@ -79,7 +79,7 @@ public class StateDto {
                 ", stateName='" + stateName + '\'' +
                 ", status=" + status +
                 ", deleted=" + deleted +
-                ", countryDto=" + countryDto +
+                ", countryDto=" + country +
                 '}';
     }
 }

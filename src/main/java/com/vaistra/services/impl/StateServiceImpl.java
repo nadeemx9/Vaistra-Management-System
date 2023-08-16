@@ -97,10 +97,12 @@ public class StateServiceImpl implements StateService {
     public StateDto updateState(StateDto stateDto, int id) {
 
         State state = stateRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("State with id '" + id + "' not found!"));
-        state.setStateName(stateDto.getStateName());
-        state.setStatus(stateDto.isStatus());
-        state.setDeleted(stateDto.isDeleted());
-        state.setCountry(CountryServiceImpl.dtoToCountry(stateDto.getCountry()));
+        int countryId = stateDto.getCountry().getCountryId();
+        Country country = countryRepository.findById(countryId)
+                .orElseThrow(()->new ResourceNotFoundException("Country with id "+countryId+"' not found!"));
+
+        state.setStateName(stateDto.getStateName().toUpperCase());
+        state.setCountry(country);
 
         return stateToDto(stateRepository.save(state));
     }

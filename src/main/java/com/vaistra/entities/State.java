@@ -8,13 +8,13 @@ public class State {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "state_id")
-    private int stateId;
+    private Integer stateId;
 
     @Column(name = "state_name")
     private String stateName;
 
     @Column(name = "status")
-    private boolean status;
+    private boolean status = true;
     @Column(name = "deleted")
     private boolean deleted = false;
 
@@ -25,7 +25,7 @@ public class State {
     public State() {
     }
 
-    public State(int stateId, String stateName, boolean status, boolean deleted, Country country) {
+    public State(Integer stateId, String stateName, boolean status, boolean deleted, Country country) {
         this.stateId = stateId;
         this.stateName = stateName;
         this.status = status;
@@ -33,11 +33,11 @@ public class State {
         this.country = country;
     }
 
-    public int getStateId() {
+    public Integer getStateId() {
         return stateId;
     }
 
-    public void setStateId(int stateId) {
+    public void setStateId(Integer stateId) {
         this.stateId = stateId;
     }
 
