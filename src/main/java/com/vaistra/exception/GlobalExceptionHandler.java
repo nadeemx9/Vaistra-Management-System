@@ -33,8 +33,10 @@ public class GlobalExceptionHandler {
 
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)
-    public String handleMethodArgumentTypeMismatchException(MethodArgumentTypeMismatchException ex) {
-        return "Invalid Argument Format";
+    public Map<String, String> handleMethodArgumentTypeMismatchException(MethodArgumentTypeMismatchException ex) {
+        Map<String, String> errors = new HashMap<>();
+        errors.put("error", "Invalid Argument Format!");
+        return errors;
     }
 
     @ResponseStatus(HttpStatus.NOT_FOUND)
@@ -42,46 +44,58 @@ public class GlobalExceptionHandler {
     public Map<String, String> handleResourceNotFoundException(ResourceNotFoundException e) {
 
         Map<String, String> errors = new HashMap<>();
-        errors.put("errorMessage", e.getMessage());
+        errors.put("error", e.getMessage());
         return errors;
     }
 
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(InactiveStatusException.class)
-    public String handleInactiveStatusException(InactiveStatusException ex) {
-        return ex.getMessage();
+    public Map<String, String> handleInactiveStatusException(InactiveStatusException ex) {
+        Map<String, String> errors = new HashMap<>();
+        errors.put("error", ex.getMessage());
+        return errors;
     }
 
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(HttpMessageNotReadableException.class)
-    public String handleHttpMessageNotReadableException(HttpMessageNotReadableException ex) {
-        return "Request Body is Empty!";
+    public Map<String, String> handleHttpMessageNotReadableException(HttpMessageNotReadableException ex) {
+        Map<String, String> errors = new HashMap<>();
+        errors.put("error", "Request Body is Empty!");
+        return errors;
     }
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(CustomNullPointerException.class)
-    public String handleCustomNullPointerException(CustomNullPointerException ex)
+    public Map<String, String> handleCustomNullPointerException(CustomNullPointerException ex)
     {
-        return ex.getMessage();
+        Map<String, String> errors = new HashMap<>();
+        errors.put("error", ex.getMessage());
+        return errors;
     }
     @ResponseStatus(HttpStatus.CONFLICT)
     @ExceptionHandler(NullPointerException.class)
-    public String handleNullPointerException(NullPointerException ex)
+    public Map<String, String> handleNullPointerException(NullPointerException ex)
     {
-        return ex.getMessage();
+        Map<String, String> errors = new HashMap<>();
+        errors.put("error", ex.getMessage());
+        return errors;
     }
 
 
     @ResponseStatus(HttpStatus.CONFLICT)
     @ExceptionHandler(DuplicateEntryException.class)
-    public String handleDuplicateEntryException(DuplicateEntryException ex)
+    public Map<String, String> handleDuplicateEntryException(DuplicateEntryException ex)
     {
-        return ex.getMessage();
+        Map<String, String> errors = new HashMap<>();
+        errors.put("error", ex.getMessage());
+        return errors;
     }
 
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
-    public String handleHttpRequestMethodNotSupportedException(HttpRequestMethodNotSupportedException ex)
+    public Map<String, String> handleHttpRequestMethodNotSupportedException(HttpRequestMethodNotSupportedException ex)
     {
-        return "Invalid Argument Format!";
+        Map<String, String> errors = new HashMap<>();
+        errors.put("error", "Invalid Argument Format!");
+        return errors;
     }
 }
