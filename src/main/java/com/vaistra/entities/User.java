@@ -1,15 +1,15 @@
 package com.vaistra.entities;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Entity
 public class User implements UserDetails {
@@ -19,24 +19,31 @@ public class User implements UserDetails {
     private int userId;
     private String userName;
     private String password;
-    private String role;
-    private boolean deleted;
 
+    @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.MERGE)
+    @JoinTable(
+            name = "user_roles",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "role_id")
+    )
+    private Set<Role> roles = new HashSet<>();
+    private boolean deleted = false;
     public User() {
     }
 
-    public User(int userId, String userName, String password, String role, boolean deleted) {
+    public User(int userId, String userName, String password, Set<Role> roles, boolean deleted) {
         this.userId = userId;
         this.userName = userName;
         this.password = password;
-        this.role = role;
+        this.roles = roles;
         this.deleted = deleted;
     }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        SimpleGrantedAuthority simpleGrantedAuthority = new SimpleGrantedAuthority(getRole());
-        return List.of(simpleGrantedAuthority);
+        return roles.stream()
+                .map(role -> new SimpleGrantedAuthority(role.getRoleName()))
+                .collect(Collectors.toSet());
     }
 
     @Override
@@ -89,12 +96,12 @@ public class User implements UserDetails {
         this.password = password;
     }
 
-    public String getRole() {
-        return role;
+    public Set<Role> getRoles() {
+        return roles;
     }
 
-    public void setRole(String role) {
-        this.role = role;
+    public void setRoles(Set<Role> roles) {
+        this.roles = roles;
     }
 
     public boolean isDeleted() {
@@ -111,7 +118,7 @@ public class User implements UserDetails {
                 "userId=" + userId +
                 ", userName='" + userName + '\'' +
                 ", password='" + password + '\'' +
-                ", role='" + role + '\'' +
+                ", roles=" + roles +
                 ", deleted=" + deleted +
                 '}';
     }

@@ -1,8 +1,12 @@
 package com.vaistra.payloads;
 
+import com.vaistra.entities.Role;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Size;
+
+import java.util.HashSet;
+import java.util.Set;
 
 public class UserDto {
     private int userId;
@@ -14,21 +18,22 @@ public class UserDto {
     @NotBlank(message = "Password Should not be Blank!")
     @Size(min = 3, message = "Password name should be at least 3 characters!")
     private String password;
-    @NotEmpty(message = "Role Should not be Empty!")
-    @NotBlank(message = "Role Should not be Blank!")
-    @Size(min = 3, message = "Role name should be at least 3 characters!")
-    private String role;
+//    @NotEmpty(message = "Role Should not be Empty!")
+//    @NotBlank(message = "Role Should not be Blank!")
+//    @Size(min = 3, message = "Role name should be at least 3 characters!")
+    private Set<RoleDto> roles = new HashSet<>();
 
     private boolean deleted;
 
     public UserDto() {
     }
 
-    public UserDto(int userId, String userName, String password, String role, boolean deleted) {
+    public UserDto(int userId, String userName, String password, Set<RoleDto> roles, boolean deleted) {
         this.userId = userId;
         this.userName = userName;
         this.password = password;
-        this.role = role;
+        this.roles = roles;
+        this.deleted = deleted;
     }
 
     public int getUserId() {
@@ -55,12 +60,12 @@ public class UserDto {
         this.password = password;
     }
 
-    public String getRole() {
-        return role;
+    public Set<RoleDto> getRoles() {
+        return roles;
     }
 
-    public void setRole(String role) {
-        this.role = role;
+    public void setRoles(Set<RoleDto> roles) {
+        this.roles = roles;
     }
 
     public boolean isDeleted() {
@@ -71,14 +76,5 @@ public class UserDto {
         this.deleted = deleted;
     }
 
-    @Override
-    public String toString() {
-        return "UserDto{" +
-                "userId=" + userId +
-                ", userName='" + userName + '\'' +
-                ", password='" + password + '\'' +
-                ", role='" + role + '\'' +
-                ", deleted=" + deleted +
-                '}';
-    }
+
 }

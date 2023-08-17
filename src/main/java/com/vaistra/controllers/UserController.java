@@ -1,6 +1,7 @@
 package com.vaistra.controllers;
 
 import com.vaistra.payloads.UserDto;
+import com.vaistra.payloads.UserRequest;
 import com.vaistra.services.UserService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,9 +27,9 @@ public class UserController {
 
     //---------------------------------------------------URL ENDPOINTS--------------------------------------------------
     @PostMapping
-    public ResponseEntity<UserDto> addUser(@Valid @RequestBody UserDto userDto)
+    public ResponseEntity<UserDto> addUser(@RequestBody UserRequest userRequest)
     {
-        return new ResponseEntity<>(userService.addUser(userDto), HttpStatus.CREATED);
+        return new ResponseEntity<>(userService.addUser(userRequest), HttpStatus.CREATED);
     }
 
     @GetMapping("{userId}")
