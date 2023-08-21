@@ -1,0 +1,17 @@
+spring:
+  datasource:
+    url: jdbc:mysql://containers-us-west-182.railway.app:6384/railway
+    username: root
+    password: xqXJIt0xN40nwOuKe7zu
+  jpa:
+    hibernate:
+      ddl-auto: update
+
+SERVER_PORT: 8080
+
+#EMAIL CONFIG
+EMAIL_HOST: smtp.gmail.com
+EMAIL_PORT: 587
+EMAIL_ID: nadeempalkhiwala9@gmail.com
+EMAIL_PASSWORD: akxotpqucexvsflw
+VERIFY_EMAIL_HOST: https://vaistra-management-system.up.railway.app

@@ -13,5 +13,6 @@ public interface UserService {
     UserDto updateUser(UserDto userDto, int id);
     String softDeleteUserById(int id);
     String hardDeleteUserById(int id);
-    String restoreUserbyId(int id);
+    String restoreUserById(int id);
+    Boolean verifyToken(String token);
 }

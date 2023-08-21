@@ -15,10 +15,8 @@ public class RoleDto {
 
     @NotEmpty(message = "Role Should not be Empty!")
     @NotBlank(message = "Role Should not be Blank!")
-    @Size(min = 3, message = "Role name should be at least 3 characters!")
+    @Size(min = 2, message = "Role name should be at least 3 characters!")
     private String roleName;
-
-
 
     public RoleDto() {
     }

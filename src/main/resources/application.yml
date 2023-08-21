@@ -1,0 +1,47 @@
+server:
+  port: ${SERVER_PORT:8080}
+
+spring:
+  profiles:
+    active: ${ENV:dev}
+
+  mail:
+#    host: ${EMAIL_HOST}
+#    port: ${EMAIL_PORT}
+#    username: ${EMAIL_ID}
+#    password: ${EMAIL_PASSWORD}
+#    default-encoding: UTF-8
+#    properties:
+#      mail:
+#      smtp:
+#        writetimeout: 1000
+#        connectiontimeout: 1000
+#        timeout: 1000
+#        auth: true;
+#        starttls:
+#          enable: true
+#          required: true
+#        transport:
+#          protocol: smtp
+#        debug: true
+#        mime:
+#          charset: UTF
+#
+#    verify:
+#      host: ${VERIFY_EMAIL_HOST}
+    host: ${EMAIL_HOST}
+    port: ${EMAIL_PORT}
+    username: ${EMAIL_ID}
+    password: ${EMAIL_PASSWORD}
+    properties:
+      mail:
+        debug: true
+        transport:
+          protocol: smtp
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+            required: true
+
+host_url: ${VERIFY_EMAIL_HOST}

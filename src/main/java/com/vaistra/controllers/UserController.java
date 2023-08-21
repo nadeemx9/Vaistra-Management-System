@@ -1,5 +1,6 @@
 package com.vaistra.controllers;
 
+import com.vaistra.payloads.HttpResponse;
 import com.vaistra.payloads.UserDto;
 import com.vaistra.payloads.UserRequest;
 import com.vaistra.services.UserService;
@@ -9,7 +10,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.net.URI;
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("user")
@@ -27,9 +31,31 @@ public class UserController {
 
     //---------------------------------------------------URL ENDPOINTS--------------------------------------------------
     @PostMapping
-    public ResponseEntity<UserDto> addUser(@RequestBody UserRequest userRequest)
+    public ResponseEntity<HttpResponse> addUser(@Valid @RequestBody UserRequest userRequest)
     {
-        return new ResponseEntity<>(userService.addUser(userRequest), HttpStatus.CREATED);
+        UserDto user = userService.addUser(userRequest);
+        return ResponseEntity.created(URI.create("")).body(
+                HttpResponse.builder()
+                        .timeStamp(LocalDateTime.now().toString())
+                        .status(HttpStatus.CREATED)
+                        .message("User Created")
+                        .data(Map.of("User", user))
+                        .build()
+        );
+    }
+
+    @GetMapping("verify")
+    public ResponseEntity<HttpResponse> verify(@RequestParam("token") String token)
+    {
+        Boolean isSuccess = userService.verifyToken(token);
+        return ResponseEntity.ok().body(
+                HttpResponse.builder()
+                        .timeStamp(LocalDateTime.now().toString())
+                        .status(HttpStatus.OK)
+                        .message("User Verified!")
+                        .data(Map.of("Success", isSuccess))
+                        .build()
+        );
     }
 
     @GetMapping("{userId}")
@@ -68,7 +94,7 @@ public class UserController {
     @PutMapping("restore/{userId}")
     public ResponseEntity<String> restoreUserById(@PathVariable int userId)
     {
-        return new ResponseEntity<>(userService.restoreUserbyId(userId), HttpStatus.OK);
+        return new ResponseEntity<>(userService.restoreUserById(userId), HttpStatus.OK);
     }
 
 }

@@ -2,6 +2,7 @@ package com.vaistra.services.impl;
 
 import com.vaistra.entities.Role;
 import com.vaistra.entities.User;
+import com.vaistra.exception.DuplicateEntryException;
 import com.vaistra.exception.ResourceNotFoundException;
 import com.vaistra.payloads.RoleDto;
 import com.vaistra.payloads.UserDto;
@@ -67,24 +68,26 @@ public class RoleServiceImpl implements RoleService {
         return dto;
     }
 
-
     //----------------------------------------------------SERVICE METHODS-----------------------------------------------
     @Override
     public RoleDto addRole(RoleDto roleDto) {
-        Role role = new Role();
-        role.setRoleName("ROLE_"+roleDto.getRoleName().toUpperCase());
+        roleDto.setRoleName("ROLE_"+roleDto.getRoleName().toUpperCase());
+        Role role = roleRepository.findByRoleName(roleDto.getRoleName());
+        if(role != null)
+            throw new DuplicateEntryException("Role '"+roleDto.getRoleName()+"' already exist");
 
-        return roleToDto(roleRepository.save(role));
+        return roleToDto(roleRepository.save(dtoToRole(roleDto)));
     }
 
     @Override
     public RoleDto getRoleById(int id) {
-        return roleToDto(roleRepository.findById(id).orElseThrow(()->new ResourceNotFoundException("Role with id '"+id+"' not found!")));
+        return roleToDto(roleRepository.findById(id)
+                .orElseThrow(()->new ResourceNotFoundException("Role with id '"+id+"' not found!")));
     }
 
     @Override
     public List<RoleDto> getAllRoles() {
-        return null;
+        return rolesToDtos(roleRepository.findAll());
     }
 
     @Override
