@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -16,13 +17,14 @@ public class EmailServiceImpl implements EmailService {
     private final JavaMailSender emailSender;
 
     @Value("${host_url}")
-    private String host = "http://localhost:8080";
+    private String host;
 
     @Value("${spring.mail.username}")
     private String fromEmail;
 
 
     @Override
+    @Async
     public void sendSimpleMailMessage(String name, String to, String token) {
         try{
             SimpleMailMessage message = new SimpleMailMessage();
