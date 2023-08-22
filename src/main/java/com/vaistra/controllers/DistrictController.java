@@ -33,13 +33,21 @@ public class DistrictController {
         return new ResponseEntity<>(districtService.getDistrictById(districtId), HttpStatus.FOUND);
     }
 
-    @GetMapping
+    @GetMapping("all")
     public ResponseEntity<List<DistrictDto>> getAllDistricts(@RequestParam(value = "pageNumber", defaultValue = "0", required = false) Integer pageNumber,
                                                              @RequestParam(value = "pageSize", defaultValue = "5", required = false) Integer pageSize,
                                                              @RequestParam(value = "sortBy", defaultValue = "districtId", required = false) String sortBy,
                                                              @RequestParam(value = "sortDirection", defaultValue = "asc", required = false) String sortDirection)
     {
         return new ResponseEntity<>(districtService.getAllDistricts(pageNumber, pageSize, sortBy, sortDirection), HttpStatus.FOUND);
+    }
+    @GetMapping
+    public ResponseEntity<List<DistrictDto>> getAllDistrictsByDeleted(@RequestParam(value = "pageNumber", defaultValue = "0", required = false) Integer pageNumber,
+                                                             @RequestParam(value = "pageSize", defaultValue = "5", required = false) Integer pageSize,
+                                                             @RequestParam(value = "sortBy", defaultValue = "districtId", required = false) String sortBy,
+                                                             @RequestParam(value = "sortDirection", defaultValue = "asc", required = false) String sortDirection)
+    {
+        return new ResponseEntity<>(districtService.getAllDistrictsByDeleted(pageNumber, pageSize, sortBy, sortDirection), HttpStatus.FOUND);
     }
 
     @GetMapping("stateId/{stateId}")

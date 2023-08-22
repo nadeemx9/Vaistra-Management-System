@@ -11,6 +11,8 @@ public interface DistrictService {
     DistrictDto getDistrictById(int id);
 
     List<DistrictDto> getAllDistricts(int pageNumber, int pageSize, String sortBy, String sortDirection);
+    List<DistrictDto> getAllDistrictsByDeleted(int pageNumber, int pageSize, String sortBy, String sortDirection);
+
 
     DistrictDto updateDistrict(DistrictDto districtDto, int id);
 

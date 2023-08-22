@@ -8,6 +8,7 @@ import com.vaistra.payloads.RoleDto;
 import com.vaistra.payloads.UserDto;
 import com.vaistra.repositories.RoleRepository;
 import com.vaistra.services.RoleService;
+import com.vaistra.utils.AppUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -28,45 +29,6 @@ public class RoleServiceImpl implements RoleService {
         this.roleRepository = roleRepository;
     }
 
-    //    -------------------------------------------------UTILITY METHODS----------------------------------------------
-    public static RoleDto roleToDto(Role role)
-    {
-        return new RoleDto(role.getRoleId(), role.getRoleName());
-    }
-    public static Role dtoToRole(RoleDto roleDto)
-    {
-        return new Role(roleDto.getRoleId(), roleDto.getRoleName());
-    }
-
-
-    public static Set<RoleDto> setOfRolesToSetOfRolesDto(Set<Role> roles)
-    {
-        Set<RoleDto> roleDtos = new HashSet<>();
-        for(Role role : roles)
-        {
-            roleDtos.add(new RoleDto(role.getRoleId(),role.getRoleName()));
-        }
-        return roleDtos;
-    }
-    public static Set<Role> setOfRolesDtoToSetOfRoles(Set<RoleDto> dtos)
-    {
-        Set<Role> roles = new HashSet<>();
-        for(RoleDto dto : dtos)
-        {
-            roles.add(new Role(dto.getRoleId(),dto.getRoleName()));
-        }
-        return roles;
-    }
-
-    public static List<RoleDto> rolesToDtos(List<Role> roles)
-    {
-        List<RoleDto> dto = new ArrayList<>();
-        for (Role r : roles)
-        {
-            dto.add(new RoleDto(r.getRoleId(), r.getRoleName()));
-        }
-        return dto;
-    }
 
     //----------------------------------------------------SERVICE METHODS-----------------------------------------------
     @Override
@@ -76,18 +38,18 @@ public class RoleServiceImpl implements RoleService {
         if(role != null)
             throw new DuplicateEntryException("Role '"+roleDto.getRoleName()+"' already exist");
 
-        return roleToDto(roleRepository.save(dtoToRole(roleDto)));
+        return AppUtils.roleToDto(roleRepository.save(AppUtils.dtoToRole(roleDto)));
     }
 
     @Override
     public RoleDto getRoleById(int id) {
-        return roleToDto(roleRepository.findById(id)
+        return AppUtils.roleToDto(roleRepository.findById(id)
                 .orElseThrow(()->new ResourceNotFoundException("Role with id '"+id+"' not found!")));
     }
 
     @Override
     public List<RoleDto> getAllRoles() {
-        return rolesToDtos(roleRepository.findAll());
+        return AppUtils.rolesToDtos(roleRepository.findAll());
     }
 
     @Override

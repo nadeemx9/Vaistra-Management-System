@@ -11,6 +11,7 @@ import com.vaistra.repositories.CountryRepository;
 import com.vaistra.repositories.DistrictRepository;
 import com.vaistra.repositories.StateRepository;
 import com.vaistra.services.DistrictService;
+import com.vaistra.utils.AppUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -37,23 +38,6 @@ public class DistrictServiceImpl implements DistrictService {
         this.countryRepository = countryRepository;
     }
 
-    //------------------------------------------------------UTILITY METHODS---------------------------------------------
-    public static DistrictDto districtToDto(District district) {
-        return new DistrictDto(district.getDistrictId(), district.getDistrictName(), district.isStatus(), district.isDeleted(), StateServiceImpl.stateToDto(district.getState()));
-    }
-
-    public static District dtoToDistrict(DistrictDto dto) {
-        return new District(dto.getDistrictId(), dto.getDistrictName(), dto.isStatus(), dto.isDeleted(), StateServiceImpl.dtoToState(dto.getState()));
-    }
-
-    public static List<DistrictDto> districtsToDtos(List<District> districts) {
-        List<DistrictDto> dtos = new ArrayList<>();
-
-        for (District d : districts)
-            dtos.add(new DistrictDto(d.getDistrictId(), d.getDistrictName(), d.isStatus(), d.isDeleted(), StateServiceImpl.stateToDto(d.getState())));
-
-        return dtos;
-    }
 
     //----------------------------------------------------SERVICE METHODS-----------------------------------------------
     @Override
@@ -83,14 +67,14 @@ public class DistrictServiceImpl implements DistrictService {
 
 
         districtDto.setDistrictName(districtDto.getDistrictName().toUpperCase());
-        districtDto.setState(StateServiceImpl.stateToDto(state));
+        districtDto.setState(AppUtils.stateToDto(state));
 
-        return districtToDto(districtRepository.save(dtoToDistrict(districtDto)));
+        return AppUtils.districtToDto(districtRepository.save(AppUtils.dtoToDistrict(districtDto)));
     }
 
     @Override
     public DistrictDto getDistrictById(int id) {
-        return districtToDto(districtRepository.findById(id)
+        return AppUtils.districtToDto(districtRepository.findById(id)
                 .orElseThrow(()->new ResourceNotFoundException("District with id '"+id+"' not found!")));
     }
 
@@ -101,7 +85,16 @@ public class DistrictServiceImpl implements DistrictService {
 
         Pageable pageable = PageRequest.of(pageNumber, pageSize, sort);
         Page<District> pageDistrict = districtRepository.findAll(pageable);
-        return districtsToDtos(pageDistrict.getContent());
+        return AppUtils.districtsToDtos(pageDistrict.getContent());
+    }
+    @Override
+    public List<DistrictDto> getAllDistrictsByDeleted(int pageNumber, int pageSize, String sortBy, String sortDirection) {
+        Sort sort = (sortDirection.equalsIgnoreCase("asc")) ?
+                Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
+
+        Pageable pageable = PageRequest.of(pageNumber, pageSize, sort);
+        Page<District> pageDistrict = districtRepository.findAllByDeleted(false, pageable);
+        return AppUtils.districtsToDtos(pageDistrict.getContent());
     }
 
     @Override
@@ -130,7 +123,7 @@ public class DistrictServiceImpl implements DistrictService {
 
         district.setDistrictName(districtDto.getDistrictName().toUpperCase());
 
-        return districtToDto(districtRepository.save(district));
+        return AppUtils.districtToDto(districtRepository.save(district));
     }
 
     @Override
@@ -164,13 +157,13 @@ public class DistrictServiceImpl implements DistrictService {
 
         stateRepository.findById(stateId).
                 orElseThrow(()->new ResourceNotFoundException("State with id '"+stateId+"' not found!"));
-        return districtsToDtos(districtRepository.findByState_StateId(stateId));
+        return AppUtils.districtsToDtos(districtRepository.findByState_StateId(stateId));
     }
 
     @Override
     public List<DistrictDto> getDistrictByCountryId(int countryId) {
         countryRepository.findById(countryId)
                 .orElseThrow(()->new ResourceNotFoundException("Country with id '"+countryId+"' not found!"));
-        return districtsToDtos(districtRepository.findByState_Country_CountryId(countryId));
+        return AppUtils.districtsToDtos(districtRepository.findByState_Country_CountryId(countryId));
     }
 }

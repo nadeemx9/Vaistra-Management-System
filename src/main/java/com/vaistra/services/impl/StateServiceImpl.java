@@ -10,6 +10,7 @@ import com.vaistra.payloads.StateDto;
 import com.vaistra.repositories.CountryRepository;
 import com.vaistra.repositories.StateRepository;
 import com.vaistra.services.StateService;
+import com.vaistra.utils.AppUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -34,31 +35,6 @@ public class StateServiceImpl implements StateService {
     }
 
 
-    //------------------------------------------------------UTILITY METHODS---------------------------------------------
-    public static StateDto stateToDto(State state) {
-        return new StateDto(state.getStateId(), state.getStateName(), state.isStatus(), state.isDeleted(), CountryServiceImpl.countryToDto(state.getCountry()));
-    }
-
-    public static State dtoToState(StateDto dto) {
-        return new State(dto.getStateId(), dto.getStateName(), dto.isStatus(), dto.isDeleted(), CountryServiceImpl.dtoToCountry(dto.getCountry()));
-    }
-
-    public static List<StateDto> statesToDtos(List<State> states) {
-        List<StateDto> dtos = new ArrayList<>();
-
-        for (State s : states)
-            dtos.add(new StateDto(s.getStateId(), s.getStateName(), s.isStatus(), s.isDeleted(), CountryServiceImpl.countryToDto(s.getCountry())));
-
-        return dtos;
-    }
-
-    public static List<State> dtosToStates(List<StateDto> dtos) {
-        List<State> states = new ArrayList<>();
-        for (StateDto d : dtos)
-            states.add(new State(d.getStateId(), d.getStateName(), d.isStatus(), d.isDeleted(), CountryServiceImpl.dtoToCountry(d.getCountry())));
-
-        return states;
-    }
 
 
     //----------------------------------------------------SERVICE METHODS-----------------------------------------------
@@ -89,13 +65,13 @@ public class StateServiceImpl implements StateService {
             throw new InactiveStatusException("Country with id '" + countryId + "' is not active!");
 
         stateDto.setStateName(stateDto.getStateName().toUpperCase());
-        stateDto.setCountry(CountryServiceImpl.countryToDto(country));
-        return stateToDto(stateRepository.save(dtoToState(stateDto)));
+        stateDto.setCountry(AppUtils.countryToDto(country));
+        return AppUtils.stateToDto(stateRepository.save(AppUtils.dtoToState(stateDto)));
     }
 
     @Override
     public StateDto getStateById(int id) {
-        return stateToDto(stateRepository.findById(id)
+        return AppUtils.stateToDto(stateRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("State with id '" + id + "' not found!")));
     }
 
@@ -107,7 +83,17 @@ public class StateServiceImpl implements StateService {
         Pageable pageable = PageRequest.of(pageNumber, pageSize, sort);
         Page<State> pageState = stateRepository.findAll(pageable);
 
-        return statesToDtos(pageState.getContent());
+        return AppUtils.statesToDtos(pageState.getContent());
+    }
+    @Override
+    public List<StateDto> getAllStatesByDeleted(int pageNumber, int pageSize, String sortBy, String sortDirection) {
+        Sort sort = (sortDirection.equalsIgnoreCase("asc")) ?
+                Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
+
+        Pageable pageable = PageRequest.of(pageNumber, pageSize, sort);
+        Page<State> pageState = stateRepository.findAllByDeleted(false, pageable);
+
+        return AppUtils.statesToDtos(pageState.getContent());
     }
 
     @Override
@@ -137,7 +123,7 @@ public class StateServiceImpl implements StateService {
 
         state.setStateName(stateDto.getStateName().toUpperCase());
 
-        return stateToDto(stateRepository.save(state));
+        return AppUtils.stateToDto(stateRepository.save(state));
     }
 
     @Override
@@ -168,6 +154,6 @@ public class StateServiceImpl implements StateService {
 
         countryRepository.findById(countryId).orElseThrow(() -> new ResourceNotFoundException("Country with id '" + countryId + "' not found!"));
 
-        return statesToDtos(stateRepository.findByCountry_CountryId(countryId));
+        return AppUtils.statesToDtos(stateRepository.findByCountry_CountryId(countryId));
     }
 }

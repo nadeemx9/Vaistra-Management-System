@@ -15,6 +15,7 @@ import com.vaistra.repositories.RoleRepository;
 import com.vaistra.repositories.UserRepository;
 import com.vaistra.services.EmailService;
 import com.vaistra.services.UserService;
+import com.vaistra.utils.AppUtils;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -54,53 +55,6 @@ public class UserServiceImpl implements UserService {
         this.emailService = emailService;
     }
 
-    //    -------------------------------------------------UTILITY METHODS----------------------------------------------
-    public static UserDto userToDto(User user) {
-        return new UserDto(user.getUserId(), user.getUsername(), user.getPassword(), user.getFirstName(), user.getLastName(),
-                user.getEmail(), user.getPhoneNumber(), user.getGender(), user.getAddress(), user.isStatus(), user.getCreatedAt(),
-                user.isDeleted(), user.getLastLogin(), user.getLastAccessIp(), RoleServiceImpl.setOfRolesToSetOfRolesDto(user.getRoles()));
-
-
-    }
-
-    public static User dtoToUser(UserDto dto) {
-        return new User(dto.getUserId(), dto.getUserName(), dto.getPassword(), dto.getFirstName(), dto.getLastName(), dto.getEmail(),
-                dto.getPhoneNumber(), dto.getGender(), dto.getAddress(), dto.isStatus(), dto.getCreatedAt(), dto.isDeleted(), dto.getLastLogin(),
-                dto.getLastAccessIp(), RoleServiceImpl.setOfRolesDtoToSetOfRoles(dto.getRoles()));
-    }
-
-    public static List<UserDto> usersToDtos(List<User> users) {
-        List<UserDto> dtos = new ArrayList<>();
-        for (User u : users) {
-            dtos.add(new UserDto(u.getUserId(), u.getUsername(), u.getPassword(), u.getFirstName(), u.getLastName(), u.getEmail(),
-                    u.getPhoneNumber(), u.getGender(), u.getAddress(), u.isStatus(), u.getCreatedAt(), u.isDeleted(), u.getLastLogin(),
-                    u.getLastAccessIp(), RoleServiceImpl.setOfRolesToSetOfRolesDto(u.getRoles())));
-        }
-        return dtos;
-    }
-    public static Set<UserDto> setOfUsersToSetOfUsersDto(Set<User> users)
-    {
-        Set<UserDto> dto = new HashSet<>();
-        for (User u : users)
-        {
-            dto.add(new UserDto(u.getUserId(), u.getUsername(), u.getPassword(), u.getFirstName(), u.getLastName(), u.getEmail(),
-                    u.getPhoneNumber(), u.getGender(), u.getAddress(), u.isStatus(), u.getCreatedAt(), u.isDeleted(), u.getLastLogin(),
-                    u.getLastAccessIp(), RoleServiceImpl.setOfRolesToSetOfRolesDto(u.getRoles())));
-        }
-        return dto;
-    }
-    public static Set<User> setOfUsersDtoToSetOfUsers(Set<UserDto> dto)
-    {
-        Set<User> users = new HashSet<>();
-        for (UserDto d : dto)
-        {
-            users.add(new User(d.getUserId(), d.getUserName(), d.getPassword(), d.getFirstName(), d.getLastName(), d.getEmail(),
-                    d.getPhoneNumber(), d.getGender(), d.getAddress(), d.isStatus(), d.getCreatedAt(),d.isDeleted(),d.getLastLogin(),
-                    d.getLastAccessIp(), RoleServiceImpl.setOfRolesDtoToSetOfRoles(d.getRoles())));
-        }
-        return users;
-    }
-
 
     //----------------------------------------------------SERVICE METHODS-----------------------------------------------
     @Override
@@ -113,7 +67,7 @@ public class UserServiceImpl implements UserService {
             if(userRequest.getRoles().isEmpty())
                 userRequest.getRoles().add("user");
         }catch (Exception ex){
-
+            System.out.println("Role is empty");
         }
 
         Set<Role> roles = new HashSet<>();
@@ -149,12 +103,12 @@ public class UserServiceImpl implements UserService {
 
        /* TODO : Send email to user with Token */
             emailService.sendSimpleMailMessage(newUser.getUsername(), newUser.getEmail(), confirmation.getToken());
-        return userToDto(newUser);
+        return AppUtils.userToDto(newUser);
     }
 
     @Override
     public UserDto getUserById(int id) {
-        return userToDto(userRepository.findById(id).
+        return AppUtils.userToDto(userRepository.findById(id).
                 orElseThrow(()->new ResourceNotFoundException("User with id '"+id+"' not found!")));
     }
 
@@ -165,7 +119,8 @@ public class UserServiceImpl implements UserService {
         Pageable pageable = PageRequest.of(pageNumber, pageSize, sort);
 
         Page<User> pageUser = userRepository.findAll(pageable);
-        return usersToDtos(pageUser.getContent());
+
+        return AppUtils.usersToDtos(pageUser.getContent());
     }
 
     @Override
@@ -175,8 +130,8 @@ public class UserServiceImpl implements UserService {
 
         user.setUserName(userDto.getUserName());
         user.setPassword(passwordEncoder.encode(userDto.getPassword()));
-        user.setRoles(RoleServiceImpl.setOfRolesDtoToSetOfRoles(userDto.getRoles()));
-        return userToDto(userRepository.save(user));
+        user.setRoles(AppUtils.setOfRolesDtoToSetOfRoles(userDto.getRoles()));
+        return AppUtils.userToDto(userRepository.save(user));
     }
 
     @Override

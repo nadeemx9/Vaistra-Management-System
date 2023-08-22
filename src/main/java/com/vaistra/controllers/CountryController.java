@@ -29,6 +29,14 @@ public class CountryController {
     }
 
     @GetMapping
+    public ResponseEntity<List<CountryDto>> getAllCountriesByDeleted(@RequestParam(value = "pageNumber", defaultValue = "0", required = false) Integer pageNumber,
+                                                            @RequestParam(value = "pageSize", defaultValue = "5", required = false) Integer pageSize,
+                                                            @RequestParam(value = "sortBy", defaultValue = "countryId", required = false) String sortBy,
+                                                            @RequestParam(value = "sortDirection", defaultValue = "asc", required = false) String sortDirection) {
+
+        return new ResponseEntity<>(countryService.getAllCountriesByDeleted(pageNumber, pageSize, sortBy, sortDirection), HttpStatus.OK);
+    }
+    @GetMapping("all")
     public ResponseEntity<List<CountryDto>> getAllCountries(@RequestParam(value = "pageNumber", defaultValue = "0", required = false) Integer pageNumber,
                                                             @RequestParam(value = "pageSize", defaultValue = "5", required = false) Integer pageSize,
                                                             @RequestParam(value = "sortBy", defaultValue = "countryId", required = false) String sortBy,
@@ -47,12 +55,12 @@ public class CountryController {
         return new ResponseEntity<>(countryService.updateCountry(country, countryId), HttpStatus.ACCEPTED);
     }
 
-    @DeleteMapping("hardDelete/{countryId}")
+    @DeleteMapping("{countryId}")
     public ResponseEntity<String> deleteCountryById(@PathVariable int countryId) {
         return new ResponseEntity<>(countryService.deleteCountryById(countryId), HttpStatus.OK);
     }
 
-    @DeleteMapping("{countryId}")
+    @PutMapping("softDelete/{countryId}")
     public ResponseEntity<String> softDeleteById(@PathVariable int countryId) {
         return new ResponseEntity<>(countryService.softDeleteCountryById(countryId), HttpStatus.OK);
     }
