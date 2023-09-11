@@ -11,7 +11,7 @@ public interface CountryService {
 
     List<CountryDto> getAllCountries(int pageNumber, int pageSize, String sortBy, String sortDirection);
 
-    List<CountryDto> getAllCountriesByDeleted(int pageNumber, int pageSize, String sortBy, String sortDirection);
+    List<CountryDto> getAllCountriesByActive(int pageNumber, int pageSize, String sortBy, String sortDirection);
 
     CountryDto updateCountry(CountryDto country, int id);
 

@@ -1,8 +1,16 @@
 package com.vaistra.entities;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Entity
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
 public class District {
 
     @Id
@@ -22,65 +30,4 @@ public class District {
     @JoinColumn(name = "state_id")
     private State state;
 
-    public District() {
-    }
-
-    public District(Integer districtId, String districtName, boolean status, boolean deleted, State state) {
-        this.districtId = districtId;
-        this.districtName = districtName;
-        this.status = status;
-        this.deleted = deleted;
-        this.state = state;
-    }
-
-    public Integer getDistrictId() {
-        return districtId;
-    }
-
-    public void setDistrictId(Integer districtId) {
-        this.districtId = districtId;
-    }
-
-    public String getDistrictName() {
-        return districtName;
-    }
-
-    public void setDistrictName(String districtName) {
-        this.districtName = districtName;
-    }
-
-    public boolean isStatus() {
-        return status;
-    }
-
-    public void setStatus(boolean status) {
-        this.status = status;
-    }
-
-    public State getState() {
-        return state;
-    }
-
-    public void setState(State state) {
-        this.state = state;
-    }
-
-    public boolean isDeleted() {
-        return deleted;
-    }
-
-    public void setDeleted(boolean deleted) {
-        this.deleted = deleted;
-    }
-
-    @Override
-    public String toString() {
-        return "District{" +
-                "districtId=" + districtId +
-                ", districtName='" + districtName + '\'' +
-                ", status=" + status +
-                ", deleted=" + deleted +
-                ", state=" + state +
-                '}';
-    }
 }

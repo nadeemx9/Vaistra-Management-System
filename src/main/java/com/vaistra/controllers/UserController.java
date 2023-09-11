@@ -1,8 +1,6 @@
 package com.vaistra.controllers;
 
-import com.vaistra.payloads.HttpResponse;
 import com.vaistra.payloads.UserDto;
-import com.vaistra.payloads.UserRequest;
 import com.vaistra.services.UserService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,10 +8,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.net.URI;
-import java.time.LocalDateTime;
+
 import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequestMapping("user")
@@ -31,31 +27,16 @@ public class UserController {
 
     //---------------------------------------------------URL ENDPOINTS--------------------------------------------------
     @PostMapping
-    public ResponseEntity<HttpResponse> addUser(@Valid @RequestBody UserRequest userRequest)
+    public ResponseEntity<UserDto> addUser(@Valid @RequestBody UserDto userDto)
     {
-        UserDto user = userService.addUser(userRequest);
-        return ResponseEntity.created(URI.create("")).body(
-                HttpResponse.builder()
-                        .timeStamp(LocalDateTime.now().toString())
-                        .status(HttpStatus.CREATED)
-                        .message("User Created")
-                        .data(Map.of("User", user))
-                        .build()
-        );
+        return new ResponseEntity<>(userService.addUser(userDto), HttpStatus.CREATED);
     }
 
     @GetMapping("verify")
-    public ResponseEntity<HttpResponse> verify(@RequestParam("token") String token)
+    public ResponseEntity<String> verify(@RequestParam("token") String token)
     {
         Boolean isSuccess = userService.verifyToken(token);
-        return ResponseEntity.ok().body(
-                HttpResponse.builder()
-                        .timeStamp(LocalDateTime.now().toString())
-                        .status(HttpStatus.OK)
-                        .message("User Verified!")
-                        .data(Map.of("Success", isSuccess))
-                        .build()
-        );
+        return null;
     }
 
     @GetMapping("{userId}")
@@ -79,22 +60,5 @@ public class UserController {
         return new ResponseEntity<>(userService.updateUser(userDto, userId), HttpStatus.OK);
     }
 
-    @PutMapping("softDelete/{userId}")
-    public ResponseEntity<String> softDeleteUserById(@PathVariable int userId)
-    {
-        return new ResponseEntity<>(userService.softDeleteUserById(userId), HttpStatus.OK);
-    }
-
-    @DeleteMapping("{userId}")
-    public ResponseEntity<String> hardDeleteUserById(@PathVariable int userId)
-    {
-        return new ResponseEntity<>(userService.hardDeleteUserById(userId), HttpStatus.OK);
-    }
-
-    @PutMapping("restore/{userId}")
-    public ResponseEntity<String> restoreUserById(@PathVariable int userId)
-    {
-        return new ResponseEntity<>(userService.restoreUserById(userId), HttpStatus.OK);
-    }
 
 }

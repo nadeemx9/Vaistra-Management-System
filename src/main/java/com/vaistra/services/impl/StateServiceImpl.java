@@ -27,11 +27,14 @@ public class StateServiceImpl implements StateService {
     //---------------------------------------------------CONSTRUCTOR INJECTION------------------------------------------
     private final StateRepository stateRepository;
     private final CountryRepository countryRepository;
+    private final AppUtils appUtils;
+
 
     @Autowired
-    public StateServiceImpl(StateRepository stateRepository, CountryRepository countryRepository) {
+    public StateServiceImpl(StateRepository stateRepository, CountryRepository countryRepository, AppUtils appUtils) {
         this.stateRepository = stateRepository;
         this.countryRepository = countryRepository;
+        this.appUtils = appUtils;
     }
 
 
@@ -65,13 +68,13 @@ public class StateServiceImpl implements StateService {
             throw new InactiveStatusException("Country with id '" + countryId + "' is not active!");
 
         stateDto.setStateName(stateDto.getStateName().toUpperCase());
-        stateDto.setCountry(AppUtils.countryToDto(country));
-        return AppUtils.stateToDto(stateRepository.save(AppUtils.dtoToState(stateDto)));
+        stateDto.setCountry(appUtils.countryToDto(country));
+        return appUtils.stateToDto(stateRepository.save(appUtils.dtoToState(stateDto)));
     }
 
     @Override
     public StateDto getStateById(int id) {
-        return AppUtils.stateToDto(stateRepository.findById(id)
+        return appUtils.stateToDto(stateRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("State with id '" + id + "' not found!")));
     }
 
@@ -83,7 +86,7 @@ public class StateServiceImpl implements StateService {
         Pageable pageable = PageRequest.of(pageNumber, pageSize, sort);
         Page<State> pageState = stateRepository.findAll(pageable);
 
-        return AppUtils.statesToDtos(pageState.getContent());
+        return appUtils.statesToDtos(pageState.getContent());
     }
     @Override
     public List<StateDto> getAllStatesByDeleted(int pageNumber, int pageSize, String sortBy, String sortDirection) {
@@ -93,7 +96,7 @@ public class StateServiceImpl implements StateService {
         Pageable pageable = PageRequest.of(pageNumber, pageSize, sort);
         Page<State> pageState = stateRepository.findAllByDeleted(false, pageable);
 
-        return AppUtils.statesToDtos(pageState.getContent());
+        return appUtils.statesToDtos(pageState.getContent());
     }
 
     @Override
@@ -123,7 +126,7 @@ public class StateServiceImpl implements StateService {
 
         state.setStateName(stateDto.getStateName().toUpperCase());
 
-        return AppUtils.stateToDto(stateRepository.save(state));
+        return appUtils.stateToDto(stateRepository.save(state));
     }
 
     @Override
@@ -154,6 +157,6 @@ public class StateServiceImpl implements StateService {
 
         countryRepository.findById(countryId).orElseThrow(() -> new ResourceNotFoundException("Country with id '" + countryId + "' not found!"));
 
-        return AppUtils.statesToDtos(stateRepository.findByCountry_CountryId(countryId));
+        return appUtils.statesToDtos(stateRepository.findByCountry_CountryId(countryId));
     }
 }

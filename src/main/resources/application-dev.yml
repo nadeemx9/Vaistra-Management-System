@@ -1,7 +1,9 @@
 spring:
   datasource:
-    url: jdbc:mysql://localhost:3306/vaistra-management-system
-    username: root
+    url: jdbc:postgresql://localhost:5432/vaistra-management-system
+    username: postgres
+    password: root
+
   jpa:
     hibernate:
       ddl-auto: update

@@ -1,10 +1,16 @@
 package com.vaistra.exception;
 
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.io.DecodingException;
+import io.jsonwebtoken.security.SignatureException;
 import jakarta.validation.constraints.Null;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.validation.FieldError;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -12,90 +18,114 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
 @RestControllerAdvice
-@Order(Ordered.HIGHEST_PRECEDENCE)
 public class GlobalExceptionHandler {
 
 
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    @ExceptionHandler(value = MethodArgumentNotValidException.class)
-    public Map<String, String> handleMethodArgumentNotValidException(MethodArgumentNotValidException ex) {
-        Map<String, String> errors = new HashMap<>();
-        ex.getBindingResult().getFieldErrors().forEach(fieldError -> {
-            errors.put(fieldError.getField(), fieldError.getDefaultMessage());
-        });
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public Map<String, String> handleGlobalRegularException(MethodArgumentNotValidException ex) {
 
-        return errors;
-    }
+        Map<String, String> errorMap = new HashMap<>();
 
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
-    public Map<String, String> handleMethodArgumentTypeMismatchException(MethodArgumentTypeMismatchException ex) {
-        Map<String, String> errors = new HashMap<>();
-        errors.put("error", "Invalid Argument Format!");
-        return errors;
-    }
+        for (FieldError fieldError : ex.getBindingResult().getFieldErrors()) {
+            errorMap.put(fieldError.getField(), fieldError.getDefaultMessage());
+        }
 
-    @ResponseStatus(HttpStatus.NOT_FOUND)
-    @ExceptionHandler(value = ResourceNotFoundException.class)
-    public Map<String, String> handleResourceNotFoundException(ResourceNotFoundException e) {
+        return errorMap;
 
-        Map<String, String> errors = new HashMap<>();
-        errors.put("error", e.getMessage());
-        return errors;
-    }
-
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    @ExceptionHandler(InactiveStatusException.class)
-    public Map<String, String> handleInactiveStatusException(InactiveStatusException ex) {
-        Map<String, String> errors = new HashMap<>();
-        errors.put("error", ex.getMessage());
-        return errors;
     }
 
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(HttpMessageNotReadableException.class)
-    public Map<String, String> handleHttpMessageNotReadableException(HttpMessageNotReadableException ex) {
-        Map<String, String> errors = new HashMap<>();
-        errors.put("error", "Request Body is Empty!");
-        return errors;
+    public Map<String, String> handleMessageNotReadableException(HttpMessageNotReadableException ex)
+    {
+        return Map.of("errorMessage", "Request body cannot be empty");
     }
+
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    @ExceptionHandler(CustomNullPointerException.class)
-    public Map<String, String> handleCustomNullPointerException(CustomNullPointerException ex)
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    public Map<String, String> handleMethodArgumentTypeMismatchException(MethodArgumentTypeMismatchException ex)
     {
-        Map<String, String> errors = new HashMap<>();
-        errors.put("error", ex.getMessage());
-        return errors;
-    }
-    @ResponseStatus(HttpStatus.CONFLICT)
-    @ExceptionHandler(NullPointerException.class)
-    public Map<String, String> handleNullPointerException(NullPointerException ex)
-    {
-        Map<String, String> errors = new HashMap<>();
-        errors.put("error", ex.getMessage());
-        return errors;
-    }
-
-
-    @ResponseStatus(HttpStatus.CONFLICT)
-    @ExceptionHandler(DuplicateEntryException.class)
-    public Map<String, String> handleDuplicateEntryException(DuplicateEntryException ex)
-    {
-        Map<String, String> errors = new HashMap<>();
-        errors.put("error", ex.getMessage());
-        return errors;
+        return Map.of("errorMessage", "Invalid Argument!");
     }
 
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
     public Map<String, String> handleHttpRequestMethodNotSupportedException(HttpRequestMethodNotSupportedException ex)
     {
-        Map<String, String> errors = new HashMap<>();
-        errors.put("error", "Invalid Argument Format!");
-        return errors;
+        return Map.of("errorMessage", "Invalid Argument!");
+    }
+
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ExceptionHandler(ResourceNotFoundException.class)
+    public Map<String, String> handleResourceNotFound(ResourceNotFoundException ex)
+    {
+        return Map.of("errorMessage", ex.getMessage());
+    }
+
+    @ExceptionHandler(DuplicateEntryException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public Map<String, String> handleDuplicateEntryException(DuplicateEntryException ex)
+    {
+        return Map.of("errorMessage", ex.getMessage());
+
+    }
+
+
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ExceptionHandler(InactiveStatusException.class)
+    public Map<String, String> handleIsActiveException(InactiveStatusException ex)
+    {
+        return Map.of("errorMessage", ex.getMessage());
+    }
+
+
+
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ExceptionHandler(IOException.class)
+    public Map<String, String> handleIoException(IOException ex)
+    {
+        return Map.of("errorMessage", ex.getMessage());
+    }
+
+    // JWT Exception Handling
+
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    @ExceptionHandler(BadCredentialsException.class)
+    public Map<String, String> handleBadCredentialsException(BadCredentialsException ex)
+    {
+        return Map.of("errorMessage", ex.getMessage());
+    }
+
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    @ExceptionHandler(AccessDeniedException.class)
+    public Map<String, String> handleAccessDeniedException(AccessDeniedException ex)
+    {
+        return Map.of("errorMessage", ex.getMessage());
+    }
+
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    @ExceptionHandler(SignatureException.class)
+    public Map<String, String> handleSignatureException(SignatureException ex)
+    {
+        return Map.of("errorMessage", "Invalid JWT Token");
+    }
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    @ExceptionHandler(ExpiredJwtException.class)
+    public Map<String, String> handleExpiredJwtException(ExpiredJwtException ex)
+    {
+        return Map.of("errorMessage", ex.getMessage());
+    }
+
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    @ExceptionHandler(DecodingException.class)
+    public Map<String, String> handleDecodingException(DecodingException ex)
+    {
+        return Map.of("errorMessage", ex.getMessage());
     }
 }

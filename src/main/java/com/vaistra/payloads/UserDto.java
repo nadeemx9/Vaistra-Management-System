@@ -1,54 +1,29 @@
 package com.vaistra.payloads;
-
-import com.vaistra.entities.Role;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotEmpty;
-import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.*;
 import lombok.*;
 
-import java.time.LocalDateTime;
-import java.util.HashSet;
-import java.util.Set;
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@ToString
 public class UserDto {
     private int userId;
 
-    @NotEmpty(message = "Username Should not be Empty!")
-    @NotBlank(message = "Username Should not be Blank!")
-    @Size(min = 3, message = "Username name should be at least 3 characters!")
-    private String userName;
+    @NotEmpty(message = "Email Should not be Empty!")
+    @NotBlank(message = "Email Should not be Blank!")
+    @Email(message = "Invalid Email!")
+    private String email;
 
     @NotEmpty(message = "Password Should not be Empty!")
     @NotBlank(message = "Password Should not be Blank!")
-    @Size(min = 3, message = "Password name should be at least 3 characters!")
+    @Pattern(regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@#$%^&+=!]).{8,}$",
+            message = "Password Must be 8 characters Long and contain a-z,A-Z,Special Character and Numbers")
     private String password;
 
+    @NotNull(message = "First Name should not be null!")
     private String firstName;
 
+    @NotNull(message = "Last Name should not be null!")
     private String lastName;
-
-    private String email;
-
-    private String phoneNumber;
-
-    private String gender;
-
-    private String address;
-
-    private boolean status;
-
-    private LocalDateTime createdAt;
-
-    private boolean deleted = false;
-
-    private LocalDateTime lastLogin;
-
-    private String lastAccessIp;
-
-    private Set<RoleDto> roles = new HashSet<>();
 
 }

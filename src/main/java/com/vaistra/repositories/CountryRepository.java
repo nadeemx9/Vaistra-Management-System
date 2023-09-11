@@ -11,5 +11,7 @@ import java.util.List;
 @Repository
 public interface CountryRepository extends JpaRepository<Country, Integer> {
     Country findByCountryName(String name);
-    Page<Country> findAllByDeleted(Boolean b, Pageable p);
+    Page<Country> findAllByStatus(Boolean b, Pageable p);
+
+    boolean existsByCountryName(String name);
 }

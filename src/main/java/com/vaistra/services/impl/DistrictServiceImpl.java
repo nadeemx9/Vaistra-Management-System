@@ -29,13 +29,17 @@ public class DistrictServiceImpl implements DistrictService {
     private final DistrictRepository districtRepository;
     private final StateRepository stateRepository;
     private final CountryRepository countryRepository;
+    private final AppUtils appUtils;
+
 
     @Autowired
-    public DistrictServiceImpl(DistrictRepository districtRepository, StateRepository stateRepository, CountryRepository countryRepository)
+    public DistrictServiceImpl(DistrictRepository districtRepository, StateRepository stateRepository, CountryRepository countryRepository,
+                               AppUtils appUtils)
     {
         this.districtRepository = districtRepository;
         this.stateRepository = stateRepository;
         this.countryRepository = countryRepository;
+        this.appUtils = appUtils;
     }
 
 
@@ -67,14 +71,14 @@ public class DistrictServiceImpl implements DistrictService {
 
 
         districtDto.setDistrictName(districtDto.getDistrictName().toUpperCase());
-        districtDto.setState(AppUtils.stateToDto(state));
+        districtDto.setState(appUtils.stateToDto(state));
 
-        return AppUtils.districtToDto(districtRepository.save(AppUtils.dtoToDistrict(districtDto)));
+        return appUtils.districtToDto(districtRepository.save(appUtils.dtoToDistrict(districtDto)));
     }
 
     @Override
     public DistrictDto getDistrictById(int id) {
-        return AppUtils.districtToDto(districtRepository.findById(id)
+        return appUtils.districtToDto(districtRepository.findById(id)
                 .orElseThrow(()->new ResourceNotFoundException("District with id '"+id+"' not found!")));
     }
 
@@ -85,7 +89,7 @@ public class DistrictServiceImpl implements DistrictService {
 
         Pageable pageable = PageRequest.of(pageNumber, pageSize, sort);
         Page<District> pageDistrict = districtRepository.findAll(pageable);
-        return AppUtils.districtsToDtos(pageDistrict.getContent());
+        return appUtils.districtsToDtos(pageDistrict.getContent());
     }
     @Override
     public List<DistrictDto> getAllDistrictsByDeleted(int pageNumber, int pageSize, String sortBy, String sortDirection) {
@@ -94,7 +98,7 @@ public class DistrictServiceImpl implements DistrictService {
 
         Pageable pageable = PageRequest.of(pageNumber, pageSize, sort);
         Page<District> pageDistrict = districtRepository.findAllByDeleted(false, pageable);
-        return AppUtils.districtsToDtos(pageDistrict.getContent());
+        return appUtils.districtsToDtos(pageDistrict.getContent());
     }
 
     @Override
@@ -123,7 +127,7 @@ public class DistrictServiceImpl implements DistrictService {
 
         district.setDistrictName(districtDto.getDistrictName().toUpperCase());
 
-        return AppUtils.districtToDto(districtRepository.save(district));
+        return appUtils.districtToDto(districtRepository.save(district));
     }
 
     @Override
@@ -157,13 +161,13 @@ public class DistrictServiceImpl implements DistrictService {
 
         stateRepository.findById(stateId).
                 orElseThrow(()->new ResourceNotFoundException("State with id '"+stateId+"' not found!"));
-        return AppUtils.districtsToDtos(districtRepository.findByState_StateId(stateId));
+        return appUtils.districtsToDtos(districtRepository.findByState_StateId(stateId));
     }
 
     @Override
     public List<DistrictDto> getDistrictByCountryId(int countryId) {
         countryRepository.findById(countryId)
                 .orElseThrow(()->new ResourceNotFoundException("Country with id '"+countryId+"' not found!"));
-        return AppUtils.districtsToDtos(districtRepository.findByState_Country_CountryId(countryId));
+        return appUtils.districtsToDtos(districtRepository.findByState_Country_CountryId(countryId));
     }
 }

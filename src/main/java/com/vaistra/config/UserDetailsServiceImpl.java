@@ -1,8 +1,9 @@
 package com.vaistra.config;
 
+import com.vaistra.entities.User;
+import com.vaistra.exception.ResourceNotFoundException;
 import com.vaistra.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -20,6 +21,11 @@ public class UserDetailsServiceImpl implements UserDetailsService {
     }
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        return userRepository.findByUserName(username);
+        User user =  userRepository.findByEmailIgnoreCase(username);
+        if(user == null)
+        {
+            throw new ResourceNotFoundException("User with email '"+username+"' not found!");
+        }
+        return user;
     }
 }

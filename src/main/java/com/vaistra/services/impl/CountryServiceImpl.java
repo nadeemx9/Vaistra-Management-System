@@ -23,10 +23,12 @@ public class CountryServiceImpl implements CountryService {
     //---------------------------------------------------CONSTRUCTOR INJECTION------------------------------------------
 
     private final CountryRepository countryRepository;
+    private final AppUtils appUtils;
 
     @Autowired
-    public CountryServiceImpl(CountryRepository countryRepository) {
+    public CountryServiceImpl(CountryRepository countryRepository, AppUtils appUtils) {
         this.countryRepository = countryRepository;
+        this.appUtils = appUtils;
     }
 
 
@@ -35,18 +37,22 @@ public class CountryServiceImpl implements CountryService {
     @Override
     public CountryDto addCountry(CountryDto c) {
 
+        c.setCountryName(c.getCountryName().toUpperCase().trim());
+
         // HANDLE DUPLICATE NAME ENTRY EXCEPTION
-        Country country = countryRepository.findByCountryName(c.getCountryName());
-        if(country != null)
+        if(countryRepository.existsByCountryName(c.getCountryName()))
             throw new DuplicateEntryException("Country with name '"+c.getCountryName()+"' already exist!");
 
-        c.setCountryName(c.getCountryName().toUpperCase());
-        return AppUtils.countryToDto(countryRepository.save(AppUtils.dtoToCountry(c)));
+        Country country = new Country();
+        country.setCountryName(c.getCountryName());
+        country.setStatus(true);
+
+        return appUtils.countryToDto(countryRepository.save(country));
     }
 
     @Override
     public CountryDto getCountryById(int id) {
-        return AppUtils.countryToDto(countryRepository.findById(id)
+        return appUtils.countryToDto(countryRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Country with id '" + id + "' Not Found!")));
     }
 
@@ -57,18 +63,18 @@ public class CountryServiceImpl implements CountryService {
 
         Pageable pageable = PageRequest.of(pageNumber, pageSize, sort);
         Page<Country> pageCountry = countryRepository.findAll(pageable);
-        return AppUtils.countriesToDtos(pageCountry.getContent());
+        return appUtils.countriesToDtos(pageCountry.getContent());
     }
 
     @Override
-    public List<CountryDto> getAllCountriesByDeleted(int pageNumber, int pageSize, String sortBy, String sortDirection) {
+    public List<CountryDto> getAllCountriesByActive(int pageNumber, int pageSize, String sortBy, String sortDirection) {
         Sort sort = (sortDirection.equalsIgnoreCase("asc")) ?
                 Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
 
         Pageable pageable = PageRequest.of(pageNumber, pageSize, sort);
-        Page<Country> pageCountry = countryRepository.findAllByDeleted(false,pageable);
+        Page<Country> pageCountry = countryRepository.findAllByStatus(true,pageable);
 
-        return AppUtils.countriesToDtos(pageCountry.getContent());
+        return appUtils.countriesToDtos(pageCountry.getContent());
     }
 
     @Override
@@ -77,15 +83,15 @@ public class CountryServiceImpl implements CountryService {
         Country country = countryRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Country with Id '" + id + "' not found!"));
 
+
         // HANDLE DUPLICATE ENTRY EXCEPTION
         Country existedCountry = countryRepository.findByCountryName(c.getCountryName());
         if(existedCountry != null)
             throw new DuplicateEntryException("Country with name '"+c.getCountryName()+"' already exist!");
 
         country.setCountryName(c.getCountryName().toUpperCase());
-        country.setStatus(c.isStatus());
-        country.setDeleted(c.isDeleted());
-        return AppUtils.countryToDto(countryRepository.save(country));
+
+        return appUtils.countryToDto(countryRepository.save(country));
 
     }
 
@@ -100,17 +106,22 @@ public class CountryServiceImpl implements CountryService {
     @Override
     public String softDeleteCountryById(int id) {
 
-        Country country = countryRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Country with Id '" + id + "' not found!"));
-        country.setDeleted(true);
-        countryRepository.save(country);
-        return "Country with Id '" + id + "' Soft Deleted";
+//        Country country = countryRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Country with Id '" + id + "' not found!"));
+//        country.setDeleted(true);
+//        countryRepository.save(country);
+//        return "Country with Id '" + id + "' Soft Deleted";
+
+        return null;
     }
 
     @Override
     public String restoreCountryById(int id) {
-        Country country = countryRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Country with Id '" + id + "' not found!"));
-        country.setDeleted(false);
-        countryRepository.save(country);
-        return "Country with id '" + id + "' restored!";
+//        Country country = countryRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Country with Id '" + id + "' not found!"));
+//        country.setDeleted(false);
+//        countryRepository.save(country);
+//        return "Country with id '" + id + "' restored!";
+
+        return null;
+
     }
 }
