@@ -63,7 +63,7 @@ public class UserServiceImpl implements UserService {
         confirmationRepository.save(confirmation);
 
        /* TODO : Send email to user with Token */
-            emailService.sendSimpleMailMessage(newUser.getEmail(), newUser.getEmail(), confirmation.getToken());
+//            emailService.sendSimpleMailMessage(newUser.getEmail(), newUser.getEmail(), confirmation.getToken());
         return appUtils.userToDto(newUser);
     }
 

@@ -6,6 +6,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Entity
 @Getter
 @Setter
@@ -23,11 +26,17 @@ public class State {
 
     @Column(name = "status")
     private boolean status = true;
-    @Column(name = "deleted")
-    private boolean deleted = false;
 
     @ManyToOne
     @JoinColumn(name = "country_id")
     private Country country;
+
+    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @JoinTable(
+            name = "state_districts",
+            joinColumns = @JoinColumn(name = "stateId"),
+            inverseJoinColumns = @JoinColumn(name = "districtId")
+    )
+    private List<District> districts = new ArrayList<>();
 
 }

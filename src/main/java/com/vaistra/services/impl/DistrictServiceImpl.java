@@ -19,7 +19,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -33,8 +32,8 @@ public class DistrictServiceImpl implements DistrictService {
 
 
     @Autowired
-    public DistrictServiceImpl(DistrictRepository districtRepository, StateRepository stateRepository, CountryRepository countryRepository,
-                               AppUtils appUtils)
+    public DistrictServiceImpl(DistrictRepository districtRepository, StateRepository stateRepository,
+                               CountryRepository countryRepository, AppUtils appUtils)
     {
         this.districtRepository = districtRepository;
         this.stateRepository = stateRepository;
@@ -47,33 +46,27 @@ public class DistrictServiceImpl implements DistrictService {
     @Override
     public DistrictDto addDistrict(DistrictDto districtDto) {
 
+        districtDto.setDistrictName(districtDto.getDistrictName().trim().toUpperCase());
+
         // HANDLE IF DUPLICATE DISTRICT NAME
-        if(districtRepository.findByDistrictName(districtDto.getDistrictName()) != null)
+        if(districtRepository.existsByDistrictName(districtDto.getDistrictName()))
             throw new DuplicateEntryException("District with name '"+districtDto.getDistrictName()+"' already exist!");
 
-        // HANDLE IF STATE IS NULL
-        int stateId;
-        try {
-            stateId = districtDto.getState().getStateId();
-        }
-        catch (Exception ex)
-        {
-            throw new CustomNullPointerException("State Id should not be empty!");
-        }
-
         // HANDLE IF STATE EXIST BY ID
-        State state = stateRepository.findById(stateId)
-                .orElseThrow(()->new ResourceNotFoundException("State with Id '"+stateId+" not found!"));
+        State state = stateRepository.findById(districtDto.getStateId())
+                .orElseThrow(()->new ResourceNotFoundException("State with Id '"+districtDto.getStateId()+" not found!"));
 
         //  IS STATE STATUS ACTIVE ?
         if(!state.isStatus())
-            throw new InactiveStatusException("State with id '"+stateId+"' is not active!");
+            throw new InactiveStatusException("State with id '"+districtDto.getStateId()+"' is not active!");
 
 
-        districtDto.setDistrictName(districtDto.getDistrictName().toUpperCase());
-        districtDto.setState(appUtils.stateToDto(state));
+        District district = new District();
+        district.setDistrictName(districtDto.getDistrictName());
+        district.setState(state);
+        district.setStatus(true);
 
-        return appUtils.districtToDto(districtRepository.save(appUtils.dtoToDistrict(districtDto)));
+        return appUtils.districtToDto(districtRepository.save(district));
     }
 
     @Override
@@ -92,40 +85,28 @@ public class DistrictServiceImpl implements DistrictService {
         return appUtils.districtsToDtos(pageDistrict.getContent());
     }
     @Override
-    public List<DistrictDto> getAllDistrictsByDeleted(int pageNumber, int pageSize, String sortBy, String sortDirection) {
+    public List<DistrictDto> getAllDistrictsByActive(int pageNumber, int pageSize, String sortBy, String sortDirection) {
         Sort sort = (sortDirection.equalsIgnoreCase("asc")) ?
                 Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
 
         Pageable pageable = PageRequest.of(pageNumber, pageSize, sort);
-        Page<District> pageDistrict = districtRepository.findAllByDeleted(false, pageable);
+        Page<District> pageDistrict = districtRepository.findAllByStatus(true, pageable);
         return appUtils.districtsToDtos(pageDistrict.getContent());
     }
 
     @Override
     public DistrictDto updateDistrict(DistrictDto districtDto, int id) {
+
+        districtDto.setDistrictName(districtDto.getDistrictName().trim().toUpperCase());
         // HANDLE IF DISTRICT EXIST BY ID
         District district = districtRepository.findById(id)
                 .orElseThrow(()->new ResourceNotFoundException("District with id '"+id+"' not found!"));
 
         // HANDLE IF DUPLICATE DISTRICT NAME
-        if(districtRepository.findByDistrictName(districtDto.getDistrictName()) != null)
+        if(districtRepository.existsByDistrictName(districtDto.getDistrictName()))
             throw new DuplicateEntryException("District with name '"+districtDto.getDistrictName()+"' already exist!");
 
-        // HANDLE IF STATE IS EMPTY
-        int stateId;
-        try {
-            stateId = districtDto.getState().getStateId();
-        }
-        catch (Exception ex){
-            throw new CustomNullPointerException("State id should not empty!");
-        }
-
-        // HANDLE IF STATE EXIST BY ID
-        stateRepository.findById(stateId)
-                .orElseThrow(()->new ResourceNotFoundException("State with id '"+stateId+"' not found!"));;
-
-
-        district.setDistrictName(districtDto.getDistrictName().toUpperCase());
+        district.setDistrictName(districtDto.getDistrictName());
 
         return appUtils.districtToDto(districtRepository.save(district));
     }
@@ -138,26 +119,26 @@ public class DistrictServiceImpl implements DistrictService {
         return "District with id '"+id+"' deleted!";
     }
 
-    @Override
-    public String softDeleteDistrictById(int id) {
-        District district = districtRepository.findById(id)
-                .orElseThrow(()->new ResourceNotFoundException("District with id '"+id+"' not found!"));
-        district.setDeleted(true);
-        districtRepository.save(district);
-        return "District with id '"+id+"' soft deleted!";
-    }
+//    @Override
+//    public String softDeleteDistrictById(int id) {
+//        District district = districtRepository.findById(id)
+//                .orElseThrow(()->new ResourceNotFoundException("District with id '"+id+"' not found!"));
+//        district.setDeleted(true);
+//        districtRepository.save(district);
+//        return "District with id '"+id+"' soft deleted!";
+//    }
+//
+//    @Override
+//    public String restoreDistrictById(int id) {
+//        District district = districtRepository.findById(id)
+//                .orElseThrow(()->new ResourceNotFoundException("District with id '"+id+"' not found!"));
+//        district.setDeleted(false);
+//        districtRepository.save(district);
+//        return "District with id '"+id+"' restored!";
+//    }
 
     @Override
-    public String restoreDistrictById(int id) {
-        District district = districtRepository.findById(id)
-                .orElseThrow(()->new ResourceNotFoundException("District with id '"+id+"' not found!"));
-        district.setDeleted(false);
-        districtRepository.save(district);
-        return "District with id '"+id+"' restored!";
-    }
-
-    @Override
-    public List<DistrictDto> getDistrictByStateId(int stateId) {
+    public List<DistrictDto> getDistrictsByStateId(int stateId) {
 
         stateRepository.findById(stateId).
                 orElseThrow(()->new ResourceNotFoundException("State with id '"+stateId+"' not found!"));
@@ -165,7 +146,7 @@ public class DistrictServiceImpl implements DistrictService {
     }
 
     @Override
-    public List<DistrictDto> getDistrictByCountryId(int countryId) {
+    public List<DistrictDto> getDistrictsByCountryId(int countryId) {
         countryRepository.findById(countryId)
                 .orElseThrow(()->new ResourceNotFoundException("Country with id '"+countryId+"' not found!"));
         return appUtils.districtsToDtos(districtRepository.findByState_Country_CountryId(countryId));

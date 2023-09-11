@@ -10,7 +10,7 @@ public interface StateService {
     StateDto getStateById(int id);
 
     List<StateDto> getAllStates(int pageNumber, int pageSize, String sortBy, String sortDirection);
-    List<StateDto> getAllStatesByDeleted(int pageNumber, int pageSize, String sortBy, String sortDirection);
+    List<StateDto> getAllStatesByActive(int pageNumber, int pageSize, String sortBy, String sortDirection);
 
     StateDto updateState(StateDto stateDto, int id);
 
@@ -20,5 +20,5 @@ public interface StateService {
 
     String restoreStateById(int id);
 
-    List<StateDto> getStateByCountryId(int countryId);
+    List<StateDto> getStatesByCountryId(int countryId);
 }

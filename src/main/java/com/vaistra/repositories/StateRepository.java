@@ -12,6 +12,6 @@ import java.util.List;
 public interface StateRepository extends JpaRepository<State, Integer> {
     List<State> findByCountry_CountryId(int countryId);
     State findByStateName(String name);
-
-    Page<State> findAllByDeleted(Boolean b, Pageable p);
+    boolean existsByStateName(String name);
+    Page<State> findAllByStatus(Boolean b, Pageable p);
 }

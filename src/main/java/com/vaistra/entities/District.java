@@ -6,6 +6,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Entity
 @Getter
 @Setter
@@ -22,12 +25,13 @@ public class District {
     private String districtName;
 
     @Column(name = "status")
-    private boolean status = true;
-    @Column(name = "deleted")
-    private boolean deleted = false;
+    private boolean status ;
 
-    @ManyToOne(cascade = CascadeType.MERGE)
+    @ManyToOne
     @JoinColumn(name = "state_id")
     private State state;
+
+    @OneToMany(mappedBy = "district", cascade = CascadeType.ALL)
+    private List<SubDistrict> subDistricts = new ArrayList<>();
 
 }

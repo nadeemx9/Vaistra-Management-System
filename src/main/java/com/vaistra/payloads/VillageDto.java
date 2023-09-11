@@ -1,6 +1,5 @@
 package com.vaistra.payloads;
 
-import com.vaistra.entities.State;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
@@ -14,18 +13,17 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class DistrictDto {
+public class VillageDto {
 
-    private Integer districtId;
+    private Integer villageId;
 
-    @NotEmpty(message = "District name Should not be Empty!")
-    @NotBlank(message = "District name Should not be Blank!")
-    @Size(min = 3, message = "District name should be at least 3 characters!")
-    private String districtName;
+    @NotEmpty(message = "Village name Should not be Empty!")
+    @NotBlank(message = "Village name Should not be Blank!")
+    @Size(min = 3, message = "Village name should be at least 3 characters!")
+    private String villageName;
 
     private boolean status;
 
-    @NotNull(message = "State ID should not be null!")
-    private Integer stateId;
-
+    @NotNull(message = "Sub-District ID should not be null!")
+    private Integer subDistrictId;
 }

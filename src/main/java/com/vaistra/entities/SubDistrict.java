@@ -1,18 +1,27 @@
 package com.vaistra.entities;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
 public class SubDistrict {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "subdistrict_id")
     private int subDistrictId;
 
-    @Column(name = "subdistrict_name")
+    @Column(name = "subDistrict_name")
     private String subDistrictName;
-    @Column(name = "deleted")
-    private boolean deleted = false;
 
     @Column(name = "status")
     private boolean status;
@@ -21,65 +30,8 @@ public class SubDistrict {
     @JoinColumn(name = "district_id")
     private District district;
 
-    public SubDistrict() {
-    }
+    @OneToMany(mappedBy = "subDistrict", cascade = CascadeType.ALL)
+    private List<Village> villages = new ArrayList<>();
 
-    public SubDistrict(int subDistrictId, String subDistrictName, boolean status, boolean deleted, District district) {
-        this.subDistrictId = subDistrictId;
-        this.subDistrictName = subDistrictName;
-        this.status = status;
-        this.deleted = deleted;
-        this.district = district;
-    }
 
-    public int getSubDistrictId() {
-        return subDistrictId;
-    }
-
-    public void setSubDistrictId(int subDistrictId) {
-        this.subDistrictId = subDistrictId;
-    }
-
-    public String getSubDistrictName() {
-        return subDistrictName;
-    }
-
-    public void setSubDistrictName(String subDistrictName) {
-        this.subDistrictName = subDistrictName;
-    }
-
-    public boolean isStatus() {
-        return status;
-    }
-
-    public void setStatus(boolean status) {
-        this.status = status;
-    }
-
-    public District getDistrict() {
-        return district;
-    }
-
-    public void setDistrict(District district) {
-        this.district = district;
-    }
-
-    public boolean isDeleted() {
-        return deleted;
-    }
-
-    public void setDeleted(boolean deleted) {
-        this.deleted = deleted;
-    }
-
-    @Override
-    public String toString() {
-        return "SubDistrict{" +
-                "subDistrictId=" + subDistrictId +
-                ", subDistrictName='" + subDistrictName + '\'' +
-                ", deleted=" + deleted +
-                ", status=" + status +
-                ", district=" + district +
-                '}';
-    }
 }

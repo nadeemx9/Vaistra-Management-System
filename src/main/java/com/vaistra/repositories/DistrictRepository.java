@@ -15,5 +15,7 @@ public interface DistrictRepository extends JpaRepository<District, Integer> {
 
     District findByDistrictName(String name);
 
-    Page<District> findAllByDeleted(Boolean b, Pageable p);
+    boolean existsByDistrictName(String name);
+
+    Page<District> findAllByStatus(Boolean b, Pageable p);
 }

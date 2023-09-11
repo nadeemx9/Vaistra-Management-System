@@ -43,11 +43,11 @@ public class StateController {
         return new ResponseEntity<>(stateService.getAllStates(pageNumber, pageSize, sortBy, sortDirection), HttpStatus.FOUND);
     }
     @GetMapping
-    public ResponseEntity<List<StateDto>> getAllStatesByDeleted(@RequestParam(value = "pageNumber", defaultValue = "0", required = false) Integer pageNumber,
+    public ResponseEntity<List<StateDto>> getAllStatesByActive(@RequestParam(value = "pageNumber", defaultValue = "0", required = false) Integer pageNumber,
                                                        @RequestParam(value = "pageSize", defaultValue = "5", required = false) Integer pageSize,
                                                        @RequestParam(value = "sortBy", defaultValue = "stateId", required = false) String sortBy,
                                                        @RequestParam(value = "sortDirection", defaultValue = "asc", required = false) String sortDirection) {
-        return new ResponseEntity<>(stateService.getAllStatesByDeleted(pageNumber, pageSize, sortBy, sortDirection), HttpStatus.FOUND);
+        return new ResponseEntity<>(stateService.getAllStatesByActive(pageNumber, pageSize, sortBy, sortDirection), HttpStatus.FOUND);
     }
 
     @PutMapping("{stateId}")
@@ -60,19 +60,19 @@ public class StateController {
         return new ResponseEntity<>(stateService.deleteStateById(stateId), HttpStatus.OK);
     }
 
-    @PutMapping("softDelete/{stateId}")
-    public ResponseEntity<String> softDeleteStateById(@PathVariable int stateId) {
-        return new ResponseEntity<>(stateService.softDeleteStateById(stateId), HttpStatus.OK);
-    }
-
-    @PutMapping("restore/{stateId}")
-    public ResponseEntity<String> restoreStateById(@PathVariable int stateId) {
-        return new ResponseEntity<>(stateService.restoreStateById(stateId), HttpStatus.OK);
-    }
+//    @PutMapping("softDelete/{stateId}")
+//    public ResponseEntity<String> softDeleteStateById(@PathVariable int stateId) {
+//        return new ResponseEntity<>(stateService.softDeleteStateById(stateId), HttpStatus.OK);
+//    }
+//
+//    @PutMapping("restore/{stateId}")
+//    public ResponseEntity<String> restoreStateById(@PathVariable int stateId) {
+//        return new ResponseEntity<>(stateService.restoreStateById(stateId), HttpStatus.OK);
+//    }
 
     @GetMapping("countryId/{countryId}")
     public ResponseEntity<List<StateDto>> getStateByCountryId(@PathVariable int countryId)
     {
-        return new ResponseEntity<>(stateService.getStateByCountryId(countryId), HttpStatus.OK);
+        return new ResponseEntity<>(stateService.getStatesByCountryId(countryId), HttpStatus.OK);
     }
 }

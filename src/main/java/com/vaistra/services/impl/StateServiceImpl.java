@@ -18,7 +18,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -44,32 +43,26 @@ public class StateServiceImpl implements StateService {
     @Override
     public StateDto addState(StateDto stateDto) {
 
+        stateDto.setStateName(stateDto.getStateName().trim().toUpperCase());
+
         //  HANDLE DUPLICATE ENTRY STATE NAME
-        State existedState = stateRepository.findByStateName(stateDto.getStateName());
-        if(existedState != null)
+        if(stateRepository.existsByStateName(stateDto.getStateName()))
             throw new DuplicateEntryException(("State with name '"+stateDto.getStateName()+"' already exist!"));
 
         //  HANDLE IF COUNTRY IS NULL
-        int countryId;
-        try {
-            countryId = stateDto.getCountry().getCountryId();
-        }
-        catch (Exception ex)
-        {
-            throw new CustomNullPointerException("Country id should not be empty");
-        }
-
-        //  HANDLE IF COUNTRY IS NULL
-        Country country = countryRepository.findById(countryId)
-                .orElseThrow(() -> new ResourceNotFoundException("Country with id '" + countryId + "' not found"));
+        Country country = countryRepository.findById(stateDto.getCountryId())
+                .orElseThrow(()->new ResourceNotFoundException("Country with ID '"+stateDto.getCountryId()+"' not found!"));
 
         //  IS COUNTRY STATUS ACTIVE ?
         if (!country.isStatus())
-            throw new InactiveStatusException("Country with id '" + countryId + "' is not active!");
+            throw new InactiveStatusException("Country with id '" + stateDto.getCountryId() + "' is not active!");
 
-        stateDto.setStateName(stateDto.getStateName().toUpperCase());
-        stateDto.setCountry(appUtils.countryToDto(country));
-        return appUtils.stateToDto(stateRepository.save(appUtils.dtoToState(stateDto)));
+        State state = new State();
+        state.setStateName(stateDto.getStateName());
+        state.setCountry(country);
+        state.setStatus(true);
+
+        return appUtils.stateToDto(stateRepository.save(state));
     }
 
     @Override
@@ -89,12 +82,12 @@ public class StateServiceImpl implements StateService {
         return appUtils.statesToDtos(pageState.getContent());
     }
     @Override
-    public List<StateDto> getAllStatesByDeleted(int pageNumber, int pageSize, String sortBy, String sortDirection) {
+    public List<StateDto> getAllStatesByActive(int pageNumber, int pageSize, String sortBy, String sortDirection) {
         Sort sort = (sortDirection.equalsIgnoreCase("asc")) ?
                 Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
 
         Pageable pageable = PageRequest.of(pageNumber, pageSize, sort);
-        Page<State> pageState = stateRepository.findAllByDeleted(false, pageable);
+        Page<State> pageState = stateRepository.findAllByStatus(true, pageable);
 
         return appUtils.statesToDtos(pageState.getContent());
     }
@@ -102,60 +95,57 @@ public class StateServiceImpl implements StateService {
     @Override
     public StateDto updateState(StateDto stateDto, int id) {
 
+        stateDto.setStateName(stateDto.getStateName().trim().toUpperCase());
+
         //  HANDLE IF STATE EXIST BY ID
-        State state = stateRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("State with id '" + id + "' not found!"));
+        State state = stateRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("State with id '" + id + "' not found!"));
 
         //  HANDLE DUPLICATE ENTRY STATE NAME
-        State existedState = stateRepository.findByStateName(stateDto.getStateName());
-        if(existedState != null)
-            throw new DuplicateEntryException(("State with name '"+stateDto.getStateName()+"' already exist!"));
-
-
-        //  HANDLE IF COUNTRY IS NULL
-        int countryId;
-        try {
-             countryId = stateDto.getCountry().getCountryId();
-        }
-        catch (Exception ex){
-            throw new CustomNullPointerException("Country id should not be empty!");
+        if(stateRepository.existsByStateName(stateDto.getStateName()))
+        {
+            throw new DuplicateEntryException("State with name '"+stateDto.getStateName()+"' already exist!");
         }
 
-        //  HANDLE IF COUNTRY EXIST
-        countryRepository.findById(countryId)
-                .orElseThrow(()->new ResourceNotFoundException("Country with id '"+countryId+"' not found!"));
-
-        state.setStateName(stateDto.getStateName().toUpperCase());
-
+        state.setStateName(stateDto.getStateName());
         return appUtils.stateToDto(stateRepository.save(state));
     }
 
     @Override
     public String deleteStateById(int id) {
 
-        stateRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("State with id '" + id + "' not found!"));
+        State state = stateRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("State with id '" + id + "' not found!"));
+
+        stateRepository.delete(state);
         return "State with id " + id + "' deleted!";
     }
 
     @Override
     public String softDeleteStateById(int id) {
-        State state = stateRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("State with id '" + id + "' not found!"));
-        state.setDeleted(true);
-        stateRepository.save(state);
-        return "State with id " + id + "' Soft deleted!";
+//        State state = stateRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("State with id '" + id + "' not found!"));
+//        state.setDeleted(true);
+//        stateRepository.save(state);
+//        return "State with id " + id + "' Soft deleted!";
+
+        return null;
     }
 
     @Override
     public String restoreStateById(int id) {
-        State state = stateRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("State with id '" + id + "' not found!"));
-        state.setDeleted(false);
-        stateRepository.save(state);
-        return "State with id " + id + "' Restored!";
+//        State state = stateRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("State with id '" + id + "' not found!"));
+//        state.setDeleted(false);
+//        stateRepository.save(state);
+//        return "State with id " + id + "' Restored!";
+
+        return null;
     }
 
     @Override
-    public List<StateDto> getStateByCountryId(int countryId) {
+    public List<StateDto> getStatesByCountryId(int countryId) {
 
-        countryRepository.findById(countryId).orElseThrow(() -> new ResourceNotFoundException("Country with id '" + countryId + "' not found!"));
+        countryRepository.findById(countryId)
+                .orElseThrow(() -> new ResourceNotFoundException("Country with id '" + countryId + "' not found!"));
 
         return appUtils.statesToDtos(stateRepository.findByCountry_CountryId(countryId));
     }
