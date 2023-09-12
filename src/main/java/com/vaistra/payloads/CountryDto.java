@@ -1,8 +1,6 @@
 package com.vaistra.payloads;
 
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotEmpty;
-import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -14,10 +12,9 @@ import lombok.Setter;
 @NoArgsConstructor
 public class CountryDto {
 
-    private int countryId;
+    private Integer countryId;
 
-    @NotEmpty(message = "Country Should not be Empty!")
-    @NotBlank(message = "Country Should not be Blank!")
+    @Pattern(regexp = "^[a-zA-Z ]{3,}$", message = "Country name must contain only alphabets with at least 3 characters")
     private String countryName;
 
     private boolean status;

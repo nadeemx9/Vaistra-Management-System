@@ -12,6 +12,6 @@ import java.util.List;
 public interface CountryRepository extends JpaRepository<Country, Integer> {
     Country findByCountryName(String name);
     Page<Country> findAllByStatus(Boolean b, Pageable p);
-
+    Page<Country> findByCountryNameContainingIgnoreCase(String keyword, Pageable p);
     boolean existsByCountryName(String name);
 }

@@ -2,10 +2,10 @@ package com.vaistra.services.impl;
 
 import com.vaistra.entities.Country;
 import com.vaistra.entities.State;
-import com.vaistra.exception.CustomNullPointerException;
 import com.vaistra.exception.DuplicateEntryException;
 import com.vaistra.exception.InactiveStatusException;
 import com.vaistra.exception.ResourceNotFoundException;
+import com.vaistra.payloads.HttpResponse;
 import com.vaistra.payloads.StateDto;
 import com.vaistra.repositories.CountryRepository;
 import com.vaistra.repositories.StateRepository;
@@ -72,24 +72,88 @@ public class StateServiceImpl implements StateService {
     }
 
     @Override
-    public List<StateDto> getAllStates(int pageNumber, int pageSize, String sortBy, String sortDirection) {
+    public HttpResponse getAllStates(int pageNumber, int pageSize, String sortBy, String sortDirection) {
         Sort sort = (sortDirection.equalsIgnoreCase("asc")) ?
                 Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
 
         Pageable pageable = PageRequest.of(pageNumber, pageSize, sort);
         Page<State> pageState = stateRepository.findAll(pageable);
+        List<StateDto> states = appUtils.statesToDtos(pageState.getContent());
 
-        return appUtils.statesToDtos(pageState.getContent());
+        return HttpResponse.builder()
+                .pageNumber(pageState.getNumber())
+                .pageSize(pageState.getSize())
+                .totalElements(pageState.getTotalElements())
+                .totalPages(pageState.getTotalPages())
+                .isLastPage(pageState.isLast())
+                .data(states)
+                .build();
     }
     @Override
-    public List<StateDto> getAllStatesByActive(int pageNumber, int pageSize, String sortBy, String sortDirection) {
+    public HttpResponse getAllStatesByActiveCountry(int pageNumber, int pageSize, String sortBy, String sortDirection) {
         Sort sort = (sortDirection.equalsIgnoreCase("asc")) ?
                 Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
 
         Pageable pageable = PageRequest.of(pageNumber, pageSize, sort);
-        Page<State> pageState = stateRepository.findAllByStatus(true, pageable);
+        Page<State> pageState = stateRepository.findAllByCountry_Status(true,  pageable);
 
-        return appUtils.statesToDtos(pageState.getContent());
+        List<StateDto> states = appUtils.statesToDtos(pageState.getContent());
+
+        return HttpResponse.builder()
+                .pageNumber(pageState.getNumber())
+                .pageSize(pageState.getSize())
+                .totalElements(pageState.getTotalElements())
+                .totalPages(pageState.getTotalPages())
+                .isLastPage(pageState.isLast())
+                .data(states)
+                .build();
+    }
+
+    @Override
+    public HttpResponse searchStateByKeyword(String keyword, int pageNumber, int pageSize, String sortBy, String sortDirection) {
+        Sort sort = (sortDirection.equalsIgnoreCase("asc")) ?
+                Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
+
+        Pageable pageable = PageRequest.of(pageNumber, pageSize, sort);
+        Page<State> pageState = stateRepository.findByStateNameContainingIgnoreCase(keyword,  pageable);
+
+        List<StateDto> states = appUtils.statesToDtos(pageState.getContent());
+
+        return HttpResponse.builder()
+                .pageNumber(pageState.getNumber())
+                .pageSize(pageState.getSize())
+                .totalElements(pageState.getTotalElements())
+                .totalPages(pageState.getTotalPages())
+                .isLastPage(pageState.isLast())
+                .data(states)
+                .build();
+    }
+
+    @Override
+    public HttpResponse getStatesByCountryId(int countryId, int pageNumber, int pageSize, String sortBy, String sortDirection) {
+
+        Country country = countryRepository.findById(countryId)
+                .orElseThrow(() -> new ResourceNotFoundException("Country with id '" + countryId + "' not found!"));
+
+        if(!country.isStatus())
+            throw new InactiveStatusException("Country '"+country.getCountryName()+"' is inactive");
+
+        Sort sort = (sortDirection.equalsIgnoreCase("asc")) ?
+                Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
+
+        Pageable pageable = PageRequest.of(pageNumber, pageSize, sort);
+        Page<State> pageState = stateRepository.findByCountry(country, pageable);
+
+        List<StateDto> states = appUtils.statesToDtos(pageState.getContent());
+
+        return HttpResponse.builder()
+                .pageNumber(pageState.getNumber())
+                .pageSize(pageState.getSize())
+                .totalElements(pageState.getTotalElements())
+                .totalPages(pageState.getTotalPages())
+                .isLastPage(pageState.isLast())
+                .data(states)
+                .build();
     }
 
     @Override
@@ -141,12 +205,5 @@ public class StateServiceImpl implements StateService {
         return null;
     }
 
-    @Override
-    public List<StateDto> getStatesByCountryId(int countryId) {
 
-        countryRepository.findById(countryId)
-                .orElseThrow(() -> new ResourceNotFoundException("Country with id '" + countryId + "' not found!"));
-
-        return appUtils.statesToDtos(stateRepository.findByCountry_CountryId(countryId));
-    }
 }

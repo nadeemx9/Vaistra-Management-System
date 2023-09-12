@@ -22,12 +22,7 @@ public class Country {
     @Column(name = "country_name")
     private String countryName;
 
-    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    @JoinTable(
-            name = "country_states",
-            joinColumns = @JoinColumn(name = "countryId"),
-            inverseJoinColumns = @JoinColumn(name = "stateId")
-    )
+    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "country")
     List<State> states = new ArrayList<>();
 
     @Column(name = "status")

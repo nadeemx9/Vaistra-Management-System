@@ -31,12 +31,7 @@ public class State {
     @JoinColumn(name = "country_id")
     private Country country;
 
-    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    @JoinTable(
-            name = "state_districts",
-            joinColumns = @JoinColumn(name = "stateId"),
-            inverseJoinColumns = @JoinColumn(name = "districtId")
-    )
+    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "state")
     private List<District> districts = new ArrayList<>();
 
 }

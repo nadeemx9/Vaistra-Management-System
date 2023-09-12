@@ -1,5 +1,6 @@
 package com.vaistra.controllers;
 
+import com.vaistra.payloads.HttpResponse;
 import com.vaistra.payloads.StateDto;
 import com.vaistra.services.StateService;
 import jakarta.validation.Valid;
@@ -36,18 +37,37 @@ public class StateController {
     }
 
     @GetMapping("all")
-    public ResponseEntity<List<StateDto>> getAllStates(@RequestParam(value = "pageNumber", defaultValue = "0", required = false) Integer pageNumber,
-                                                       @RequestParam(value = "pageSize", defaultValue = "5", required = false) Integer pageSize,
-                                                       @RequestParam(value = "sortBy", defaultValue = "stateId", required = false) String sortBy,
-                                                       @RequestParam(value = "sortDirection", defaultValue = "asc", required = false) String sortDirection) {
+    public ResponseEntity<HttpResponse> getAllStates(@RequestParam(value = "pageNumber", defaultValue = "0", required = false) Integer pageNumber,
+                                                     @RequestParam(value = "pageSize", defaultValue = "5", required = false) Integer pageSize,
+                                                     @RequestParam(value = "sortBy", defaultValue = "stateId", required = false) String sortBy,
+                                                     @RequestParam(value = "sortDirection", defaultValue = "asc", required = false) String sortDirection) {
         return new ResponseEntity<>(stateService.getAllStates(pageNumber, pageSize, sortBy, sortDirection), HttpStatus.FOUND);
     }
     @GetMapping
-    public ResponseEntity<List<StateDto>> getAllStatesByActive(@RequestParam(value = "pageNumber", defaultValue = "0", required = false) Integer pageNumber,
-                                                       @RequestParam(value = "pageSize", defaultValue = "5", required = false) Integer pageSize,
-                                                       @RequestParam(value = "sortBy", defaultValue = "stateId", required = false) String sortBy,
-                                                       @RequestParam(value = "sortDirection", defaultValue = "asc", required = false) String sortDirection) {
-        return new ResponseEntity<>(stateService.getAllStatesByActive(pageNumber, pageSize, sortBy, sortDirection), HttpStatus.FOUND);
+    public ResponseEntity<HttpResponse> getAllStatesByActiveCountry(@RequestParam(value = "pageNumber", defaultValue = "0", required = false) Integer pageNumber,
+                                                                    @RequestParam(value = "pageSize", defaultValue = "5", required = false) Integer pageSize,
+                                                                    @RequestParam(value = "sortBy", defaultValue = "stateId", required = false) String sortBy,
+                                                                    @RequestParam(value = "sortDirection", defaultValue = "asc", required = false) String sortDirection) {
+        return new ResponseEntity<>(stateService.getAllStatesByActiveCountry(pageNumber, pageSize, sortBy, sortDirection), HttpStatus.FOUND);
+    }
+    @GetMapping("countryId/{countryId}")
+    public ResponseEntity<HttpResponse> getStateByCountryId(@PathVariable int countryId,
+                                                            @RequestParam(value = "pageNumber", defaultValue = "0", required = false) Integer pageNumber,
+                                                            @RequestParam(value = "pageSize", defaultValue = "5", required = false) Integer pageSize,
+                                                            @RequestParam(value = "sortBy", defaultValue = "stateId", required = false) String sortBy,
+                                                            @RequestParam(value = "sortDirection", defaultValue = "asc", required = false) String sortDirection)
+    {
+        return new ResponseEntity<>(stateService.getStatesByCountryId(countryId, pageNumber, pageSize, sortBy, sortDirection), HttpStatus.OK);
+    }
+
+    @GetMapping("search")
+    public ResponseEntity<HttpResponse> searchStateByKeyword(@RequestParam(value = "keyword", defaultValue = "", required = false) String keyword,
+                                                             @RequestParam(value = "pageNumber", defaultValue = "0", required = false) Integer pageNumber,
+                                                             @RequestParam(value = "pageSize", defaultValue = "5", required = false) Integer pageSize,
+                                                             @RequestParam(value = "sortBy", defaultValue = "stateId", required = false) String sortBy,
+                                                             @RequestParam(value = "sortDirection", defaultValue = "asc", required = false) String sortDirection)
+    {
+        return new ResponseEntity<>(stateService.searchStateByKeyword(keyword, pageNumber, pageSize, sortBy, sortDirection), HttpStatus.OK);
     }
 
     @PutMapping("{stateId}")
@@ -70,9 +90,5 @@ public class StateController {
 //        return new ResponseEntity<>(stateService.restoreStateById(stateId), HttpStatus.OK);
 //    }
 
-    @GetMapping("countryId/{countryId}")
-    public ResponseEntity<List<StateDto>> getStateByCountryId(@PathVariable int countryId)
-    {
-        return new ResponseEntity<>(stateService.getStatesByCountryId(countryId), HttpStatus.OK);
-    }
+
 }

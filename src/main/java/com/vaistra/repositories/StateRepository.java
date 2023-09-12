@@ -1,5 +1,6 @@
 package com.vaistra.repositories;
 
+import com.vaistra.entities.Country;
 import com.vaistra.entities.State;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -10,8 +11,10 @@ import java.util.List;
 
 @Repository
 public interface StateRepository extends JpaRepository<State, Integer> {
-    List<State> findByCountry_CountryId(int countryId);
+    Page<State> findByCountry(Country country, Pageable p);
     State findByStateName(String name);
     boolean existsByStateName(String name);
-    Page<State> findAllByStatus(Boolean b, Pageable p);
+    Page<State> findAllByCountry_Status(boolean b, Pageable p);
+    Page<State> findByStateNameContainingIgnoreCase(String keyword, Pageable p);
+
 }

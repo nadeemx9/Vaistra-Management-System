@@ -30,7 +30,7 @@ public class SubDistrict {
     @JoinColumn(name = "district_id")
     private District district;
 
-    @OneToMany(mappedBy = "subDistrict", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "subDistrict", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Village> villages = new ArrayList<>();
 
 

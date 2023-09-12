@@ -4,6 +4,7 @@ import com.vaistra.entities.Country;
 import com.vaistra.exception.DuplicateEntryException;
 import com.vaistra.exception.ResourceNotFoundException;
 import com.vaistra.payloads.CountryDto;
+import com.vaistra.payloads.HttpResponse;
 import com.vaistra.repositories.CountryRepository;
 import com.vaistra.services.CountryService;
 import com.vaistra.utils.AppUtils;
@@ -57,28 +58,67 @@ public class CountryServiceImpl implements CountryService {
     }
 
     @Override
-    public List<CountryDto> getAllCountries(int pageNumber, int pageSize, String sortBy, String sortDirection) {
+    public HttpResponse getAllCountries(int pageNumber, int pageSize, String sortBy, String sortDirection) {
         Sort sort = (sortDirection.equalsIgnoreCase("asc")) ?
                 Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
 
         Pageable pageable = PageRequest.of(pageNumber, pageSize, sort);
         Page<Country> pageCountry = countryRepository.findAll(pageable);
-        return appUtils.countriesToDtos(pageCountry.getContent());
+        List<CountryDto> countries = appUtils.countriesToDtos(pageCountry.getContent());
+
+       return HttpResponse.builder()
+                .pageNumber(pageCountry.getNumber())
+                .pageSize(pageCountry.getSize())
+                .totalElements(pageCountry.getTotalElements())
+                .totalPages(pageCountry.getTotalPages())
+                .isLastPage(pageCountry.isLast())
+                .data(countries)
+                .build();
     }
 
     @Override
-    public List<CountryDto> getAllCountriesByActive(int pageNumber, int pageSize, String sortBy, String sortDirection) {
+    public HttpResponse getAllCountriesByActive(int pageNumber, int pageSize, String sortBy, String sortDirection) {
         Sort sort = (sortDirection.equalsIgnoreCase("asc")) ?
                 Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
 
         Pageable pageable = PageRequest.of(pageNumber, pageSize, sort);
         Page<Country> pageCountry = countryRepository.findAllByStatus(true,pageable);
+        List<CountryDto> countries = appUtils.countriesToDtos(pageCountry.getContent());
 
-        return appUtils.countriesToDtos(pageCountry.getContent());
+        return HttpResponse.builder()
+                .pageNumber(pageCountry.getNumber())
+                .pageSize(pageCountry.getSize())
+                .totalElements(pageCountry.getTotalElements())
+                .totalPages(pageCountry.getTotalPages())
+                .isLastPage(pageCountry.isLast())
+                .data(countries)
+                .build();
+    }
+
+    @Override
+    public HttpResponse searchCountry(String keyword, int pageNumber, int pageSize, String sortBy, String sortDirection) {
+        Sort sort = (sortDirection.equalsIgnoreCase("asc")) ?
+                Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
+
+        Pageable pageable = PageRequest.of(pageNumber, pageSize, sort);
+
+        Page<Country> pageCountry = countryRepository.findByCountryNameContainingIgnoreCase(keyword, pageable);
+        List<CountryDto> countries = appUtils.countriesToDtos(pageCountry.getContent());
+        return HttpResponse.builder()
+                .pageNumber(pageCountry.getNumber())
+                .pageSize(pageCountry.getSize())
+                .totalElements(pageCountry.getTotalElements())
+                .totalPages(pageCountry.getTotalPages())
+                .isLastPage(pageCountry.isLast())
+                .data(countries)
+                .build();
     }
 
     @Override
     public CountryDto updateCountry(CountryDto c, int id) {
+
+        c.setCountryName(c.getCountryName().trim().toUpperCase());
+
         // HANDLE IF COUNTRY EXIST BY ID
         Country country = countryRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Country with Id '" + id + "' not found!"));
@@ -89,10 +129,11 @@ public class CountryServiceImpl implements CountryService {
         if(existedCountry != null)
             throw new DuplicateEntryException("Country with name '"+c.getCountryName()+"' already exist!");
 
-        country.setCountryName(c.getCountryName().toUpperCase());
 
-        return appUtils.countryToDto(countryRepository.save(country));
+        country.setCountryName(c.getCountryName());
 
+//        return appUtils.countryToDto(countryRepository.save(country));
+        return null;
     }
 
     @Override
@@ -124,4 +165,6 @@ public class CountryServiceImpl implements CountryService {
         return null;
 
     }
+
+
 }

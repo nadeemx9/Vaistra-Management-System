@@ -47,7 +47,7 @@ public class DistrictController {
                                                              @RequestParam(value = "sortBy", defaultValue = "districtId", required = false) String sortBy,
                                                              @RequestParam(value = "sortDirection", defaultValue = "asc", required = false) String sortDirection)
     {
-        return new ResponseEntity<>(districtService.getAllDistrictsByActive(pageNumber, pageSize, sortBy, sortDirection), HttpStatus.FOUND);
+        return new ResponseEntity<>(districtService.getAllDistrictsByActiveState(pageNumber, pageSize, sortBy, sortDirection), HttpStatus.FOUND);
     }
 
     @GetMapping("stateId/{stateId}")

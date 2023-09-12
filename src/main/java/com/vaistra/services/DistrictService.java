@@ -10,7 +10,7 @@ public interface DistrictService {
     DistrictDto getDistrictById(int id);
 
     List<DistrictDto> getAllDistricts(int pageNumber, int pageSize, String sortBy, String sortDirection);
-    List<DistrictDto> getAllDistrictsByActive(int pageNumber, int pageSize, String sortBy, String sortDirection);
+    List<DistrictDto> getAllDistrictsByActiveState(int pageNumber, int pageSize, String sortBy, String sortDirection);
 
     DistrictDto updateDistrict(DistrictDto districtDto, int id);
 

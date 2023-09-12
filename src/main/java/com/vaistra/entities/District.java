@@ -31,7 +31,7 @@ public class District {
     @JoinColumn(name = "state_id")
     private State state;
 
-    @OneToMany(mappedBy = "district", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "district", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<SubDistrict> subDistricts = new ArrayList<>();
 
 }

@@ -2,7 +2,6 @@ package com.vaistra.services.impl;
 
 import com.vaistra.entities.District;
 import com.vaistra.entities.State;
-import com.vaistra.exception.CustomNullPointerException;
 import com.vaistra.exception.DuplicateEntryException;
 import com.vaistra.exception.InactiveStatusException;
 import com.vaistra.exception.ResourceNotFoundException;
@@ -85,12 +84,12 @@ public class DistrictServiceImpl implements DistrictService {
         return appUtils.districtsToDtos(pageDistrict.getContent());
     }
     @Override
-    public List<DistrictDto> getAllDistrictsByActive(int pageNumber, int pageSize, String sortBy, String sortDirection) {
+    public List<DistrictDto> getAllDistrictsByActiveState(int pageNumber, int pageSize, String sortBy, String sortDirection) {
         Sort sort = (sortDirection.equalsIgnoreCase("asc")) ?
                 Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
 
         Pageable pageable = PageRequest.of(pageNumber, pageSize, sort);
-        Page<District> pageDistrict = districtRepository.findAllByStatus(true, pageable);
+        Page<District> pageDistrict = districtRepository.findAllByState_Status(true, pageable);
         return appUtils.districtsToDtos(pageDistrict.getContent());
     }
 

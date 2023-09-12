@@ -1,6 +1,7 @@
 package com.vaistra.controllers;
 
 import com.vaistra.payloads.CountryDto;
+import com.vaistra.payloads.HttpResponse;
 import com.vaistra.services.CountryService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,15 +30,15 @@ public class CountryController {
     }
 
     @GetMapping
-    public ResponseEntity<List<CountryDto>> getAllCountriesByActive(@RequestParam(value = "pageNumber", defaultValue = "0", required = false) Integer pageNumber,
-                                                                    @RequestParam(value = "pageSize", defaultValue = "5", required = false) Integer pageSize,
-                                                                    @RequestParam(value = "sortBy", defaultValue = "countryId", required = false) String sortBy,
-                                                                    @RequestParam(value = "sortDirection", defaultValue = "asc", required = false) String sortDirection) {
+    public ResponseEntity<HttpResponse> getAllCountriesByActive(@RequestParam(value = "pageNumber", defaultValue = "0", required = false) Integer pageNumber,
+                                                                @RequestParam(value = "pageSize", defaultValue = "5", required = false) Integer pageSize,
+                                                                @RequestParam(value = "sortBy", defaultValue = "countryId", required = false) String sortBy,
+                                                                @RequestParam(value = "sortDirection", defaultValue = "asc", required = false) String sortDirection) {
 
         return new ResponseEntity<>(countryService.getAllCountriesByActive(pageNumber, pageSize, sortBy, sortDirection), HttpStatus.OK);
     }
     @GetMapping("all")
-    public ResponseEntity<List<CountryDto>> getAllCountries(@RequestParam(value = "pageNumber", defaultValue = "0", required = false) Integer pageNumber,
+    public ResponseEntity<HttpResponse> getAllCountries(@RequestParam(value = "pageNumber", defaultValue = "0", required = false) Integer pageNumber,
                                                             @RequestParam(value = "pageSize", defaultValue = "5", required = false) Integer pageSize,
                                                             @RequestParam(value = "sortBy", defaultValue = "countryId", required = false) String sortBy,
                                                             @RequestParam(value = "sortDirection", defaultValue = "asc", required = false) String sortDirection) {
@@ -48,6 +49,16 @@ public class CountryController {
     @GetMapping("{countryId}")
     public ResponseEntity<CountryDto> getCountryById(@PathVariable int countryId) {
         return new ResponseEntity<>(countryService.getCountryById(countryId), HttpStatus.OK);
+    }
+
+    @GetMapping("search")
+    public ResponseEntity<HttpResponse> searchByKeyword(@RequestParam(value = "keyword", defaultValue = "", required = false) String keyword,
+                                                        @RequestParam(value = "pageNumber", defaultValue = "0", required = false) Integer pageNumber,
+                                                        @RequestParam(value = "pageSize", defaultValue = "5", required = false) Integer pageSize,
+                                                        @RequestParam(value = "sortBy", defaultValue = "countryId", required = false) String sortBy,
+                                                        @RequestParam(value = "sortDirection", defaultValue = "asc", required = false) String sortDirection)
+    {
+        return new ResponseEntity<>(countryService.searchCountry(keyword, pageNumber, pageSize, sortBy, sortDirection), HttpStatus.OK);
     }
 
     @PutMapping("{countryId}")

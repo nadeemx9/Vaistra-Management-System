@@ -1,6 +1,7 @@
 package com.vaistra.services;
 
 import com.vaistra.payloads.CountryDto;
+import com.vaistra.payloads.HttpResponse;
 
 import java.util.List;
 
@@ -9,9 +10,9 @@ public interface CountryService {
 
     CountryDto getCountryById(int id);
 
-    List<CountryDto> getAllCountries(int pageNumber, int pageSize, String sortBy, String sortDirection);
+    HttpResponse getAllCountries(int pageNumber, int pageSize, String sortBy, String sortDirection);
 
-    List<CountryDto> getAllCountriesByActive(int pageNumber, int pageSize, String sortBy, String sortDirection);
+    HttpResponse getAllCountriesByActive(int pageNumber, int pageSize, String sortBy, String sortDirection);
 
     CountryDto updateCountry(CountryDto country, int id);
 
@@ -20,6 +21,8 @@ public interface CountryService {
     String softDeleteCountryById(int id);
 
     String restoreCountryById(int id);
+
+    HttpResponse searchCountry(String keyword, int pageNumber, int pageSize, String sortBy, String sortDirection);
 
 
 }
