@@ -115,7 +115,7 @@ public class StateServiceImpl implements StateService {
                 Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
 
         Pageable pageable = PageRequest.of(pageNumber, pageSize, sort);
-        Page<State> pageState = stateRepository.findByStateNameContainingIgnoreCase(keyword,  pageable);
+        Page<State> pageState = stateRepository.findAllByStateNameContainingIgnoreCase(keyword,  pageable);
 
         List<StateDto> states = appUtils.statesToDtos(pageState.getContent());
 
@@ -142,7 +142,7 @@ public class StateServiceImpl implements StateService {
                 Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
 
         Pageable pageable = PageRequest.of(pageNumber, pageSize, sort);
-        Page<State> pageState = stateRepository.findByCountry(country, pageable);
+        Page<State> pageState = stateRepository.findAllByCountry(country, pageable);
 
         List<StateDto> states = appUtils.statesToDtos(pageState.getContent());
 

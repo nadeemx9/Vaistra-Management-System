@@ -1,6 +1,7 @@
 package com.vaistra.controllers;
 
 import com.vaistra.payloads.DistrictDto;
+import com.vaistra.payloads.HttpResponse;
 import com.vaistra.services.DistrictService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,36 +31,55 @@ public class DistrictController {
     @GetMapping("{districtId}")
     public ResponseEntity<DistrictDto> getDistrictById(@PathVariable int districtId)
     {
-        return new ResponseEntity<>(districtService.getDistrictById(districtId), HttpStatus.FOUND);
+        return new ResponseEntity<>(districtService.getDistrictById(districtId), HttpStatus.OK);
     }
 
     @GetMapping("all")
-    public ResponseEntity<List<DistrictDto>> getAllDistricts(@RequestParam(value = "pageNumber", defaultValue = "0", required = false) Integer pageNumber,
+    public ResponseEntity<HttpResponse> getAllDistricts(@RequestParam(value = "pageNumber", defaultValue = "0", required = false) Integer pageNumber,
                                                              @RequestParam(value = "pageSize", defaultValue = "5", required = false) Integer pageSize,
                                                              @RequestParam(value = "sortBy", defaultValue = "districtId", required = false) String sortBy,
                                                              @RequestParam(value = "sortDirection", defaultValue = "asc", required = false) String sortDirection)
     {
-        return new ResponseEntity<>(districtService.getAllDistricts(pageNumber, pageSize, sortBy, sortDirection), HttpStatus.FOUND);
+        return new ResponseEntity<>(districtService.getAllDistricts(pageNumber, pageSize, sortBy, sortDirection), HttpStatus.OK);
     }
     @GetMapping
-    public ResponseEntity<List<DistrictDto>> getAllDistrictsByActive(@RequestParam(value = "pageNumber", defaultValue = "0", required = false) Integer pageNumber,
+    public ResponseEntity<HttpResponse> getAllDistrictsByActiveState(@RequestParam(value = "pageNumber", defaultValue = "0", required = false) Integer pageNumber,
                                                              @RequestParam(value = "pageSize", defaultValue = "5", required = false) Integer pageSize,
                                                              @RequestParam(value = "sortBy", defaultValue = "districtId", required = false) String sortBy,
                                                              @RequestParam(value = "sortDirection", defaultValue = "asc", required = false) String sortDirection)
     {
-        return new ResponseEntity<>(districtService.getAllDistrictsByActiveState(pageNumber, pageSize, sortBy, sortDirection), HttpStatus.FOUND);
+        return new ResponseEntity<>(districtService.getAllDistrictsByActiveState(pageNumber, pageSize, sortBy, sortDirection), HttpStatus.OK);
     }
 
     @GetMapping("stateId/{stateId}")
-    public ResponseEntity<List<DistrictDto>> getDistrictByStateId(@PathVariable int stateId)
+    public ResponseEntity<HttpResponse> getDistrictsByStateId(@PathVariable int stateId,
+                                                             @RequestParam(value = "pageNumber", defaultValue = "0", required = false) Integer pageNumber,
+                                                             @RequestParam(value = "pageSize", defaultValue = "5", required = false) Integer pageSize,
+                                                             @RequestParam(value = "sortBy", defaultValue = "districtId", required = false) String sortBy,
+                                                             @RequestParam(value = "sortDirection", defaultValue = "asc", required = false) String sortDirection)
     {
-        return new ResponseEntity<>(districtService.getDistrictsByStateId(stateId), HttpStatus.FOUND);
+        return new ResponseEntity<>(districtService.getDistrictsByStateId(stateId, pageNumber, pageSize, sortBy, sortDirection), HttpStatus.OK);
     }
     @GetMapping("countryId/{countryId}")
-    public ResponseEntity<List<DistrictDto>> getDistrictByCountryId(@PathVariable int countryId)
+    public ResponseEntity<HttpResponse> getDistrictsByCountryId(@PathVariable int countryId,
+                                                                @RequestParam(value = "pageNumber", defaultValue = "0", required = false) Integer pageNumber,
+                                                                @RequestParam(value = "pageSize", defaultValue = "5", required = false) Integer pageSize,
+                                                                @RequestParam(value = "sortBy", defaultValue = "districtId", required = false) String sortBy,
+                                                                @RequestParam(value = "sortDirection", defaultValue = "asc", required = false) String sortDirection)
     {
-        return new ResponseEntity<>(districtService.getDistrictsByCountryId(countryId), HttpStatus.FOUND);
+        return new ResponseEntity<>(districtService.getDistrictsByCountryId(countryId, pageNumber, pageSize, sortBy, sortDirection), HttpStatus.OK);
     }
+
+    @GetMapping("search")
+    public ResponseEntity<HttpResponse> searchDistrictsByKeyword(@RequestParam(value = "keyword", defaultValue = "", required = false) String keyword,
+                                                                @RequestParam(value = "pageNumber", defaultValue = "0", required = false) Integer pageNumber,
+                                                                @RequestParam(value = "pageSize", defaultValue = "5", required = false) Integer pageSize,
+                                                                @RequestParam(value = "sortBy", defaultValue = "districtId", required = false) String sortBy,
+                                                                @RequestParam(value = "sortDirection", defaultValue = "asc", required = false) String sortDirection)
+    {
+        return new ResponseEntity<>(districtService.searchDistrictByKeyword(keyword, pageNumber, pageSize, sortBy, sortDirection), HttpStatus.OK);
+    }
+
     @PutMapping("{districtId}")
     public ResponseEntity<DistrictDto> updateDistrict(@Valid @RequestBody DistrictDto districtDto, @PathVariable int districtId)
     {

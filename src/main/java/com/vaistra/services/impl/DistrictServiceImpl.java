@@ -1,11 +1,13 @@
 package com.vaistra.services.impl;
 
+import com.vaistra.entities.Country;
 import com.vaistra.entities.District;
 import com.vaistra.entities.State;
 import com.vaistra.exception.DuplicateEntryException;
 import com.vaistra.exception.InactiveStatusException;
 import com.vaistra.exception.ResourceNotFoundException;
 import com.vaistra.payloads.DistrictDto;
+import com.vaistra.payloads.HttpResponse;
 import com.vaistra.repositories.CountryRepository;
 import com.vaistra.repositories.DistrictRepository;
 import com.vaistra.repositories.StateRepository;
@@ -75,22 +77,104 @@ public class DistrictServiceImpl implements DistrictService {
     }
 
     @Override
-    public List<DistrictDto> getAllDistricts(int pageNumber, int pageSize, String sortBy, String sortDirection) {
+    public HttpResponse getAllDistricts(int pageNumber, int pageSize, String sortBy, String sortDirection) {
         Sort sort = (sortDirection.equalsIgnoreCase("asc")) ?
                 Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
 
         Pageable pageable = PageRequest.of(pageNumber, pageSize, sort);
         Page<District> pageDistrict = districtRepository.findAll(pageable);
-        return appUtils.districtsToDtos(pageDistrict.getContent());
+        List<DistrictDto> districts = appUtils.districtsToDtos(pageDistrict.getContent());
+
+        return HttpResponse.builder()
+                .pageNumber(pageDistrict.getNumber())
+                .pageSize(pageDistrict.getSize())
+                .totalElements(pageDistrict.getTotalElements())
+                .totalPages(pageDistrict.getTotalPages())
+                .isLastPage(pageDistrict.isLast())
+                .data(districts)
+                .build();
     }
     @Override
-    public List<DistrictDto> getAllDistrictsByActiveState(int pageNumber, int pageSize, String sortBy, String sortDirection) {
+    public HttpResponse getAllDistrictsByActiveState(int pageNumber, int pageSize, String sortBy, String sortDirection) {
         Sort sort = (sortDirection.equalsIgnoreCase("asc")) ?
                 Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
 
         Pageable pageable = PageRequest.of(pageNumber, pageSize, sort);
         Page<District> pageDistrict = districtRepository.findAllByState_Status(true, pageable);
-        return appUtils.districtsToDtos(pageDistrict.getContent());
+        List<DistrictDto> districts = appUtils.districtsToDtos(pageDistrict.getContent());
+
+        return HttpResponse.builder()
+                .pageNumber(pageDistrict.getNumber())
+                .pageSize(pageDistrict.getSize())
+                .totalElements(pageDistrict.getTotalElements())
+                .totalPages(pageDistrict.getTotalPages())
+                .isLastPage(pageDistrict.isLast())
+                .data(districts)
+                .build();
+    }
+    @Override
+    public HttpResponse getDistrictsByStateId(int stateId, int pageNumber, int pageSize, String sortBy, String sortDirection) {
+
+        State state = stateRepository.findById(stateId)
+                .orElseThrow(()->new ResourceNotFoundException("State with ID '"+stateId+"' not found!"));
+
+        Sort sort = (sortDirection.equalsIgnoreCase("asc")) ?
+                Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
+
+        Pageable pageable = PageRequest.of(pageNumber, pageSize, sort);
+        Page<District> pageDistrict = districtRepository.findAllByState(state, pageable);
+        List<DistrictDto> districts = appUtils.districtsToDtos(pageDistrict.getContent());
+
+        return HttpResponse.builder()
+                .pageNumber(pageDistrict.getNumber())
+                .pageSize(pageDistrict.getSize())
+                .totalElements(pageDistrict.getTotalElements())
+                .totalPages(pageDistrict.getTotalPages())
+                .isLastPage(pageDistrict.isLast())
+                .data(districts)
+                .build();
+    }
+
+    @Override
+    public HttpResponse getDistrictsByCountryId(int countryId, int pageNumber, int pageSize, String sortBy, String sortDirection) {
+        Country country = countryRepository.findById(countryId)
+                .orElseThrow(()->new ResourceNotFoundException("Country with id '"+countryId+"' not found!"));
+
+
+        Sort sort = (sortDirection.equalsIgnoreCase("asc")) ?
+                Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
+
+        Pageable pageable = PageRequest.of(pageNumber, pageSize, sort);
+        Page<District> pageDistrict = districtRepository.findAllByState_Country(country, pageable);
+        List<DistrictDto> districts = appUtils.districtsToDtos(pageDistrict.getContent());
+
+        return HttpResponse.builder()
+                .pageNumber(pageDistrict.getNumber())
+                .pageSize(pageDistrict.getSize())
+                .totalElements(pageDistrict.getTotalElements())
+                .totalPages(pageDistrict.getTotalPages())
+                .isLastPage(pageDistrict.isLast())
+                .data(districts)
+                .build();
+    }
+
+    @Override
+    public HttpResponse searchDistrictByKeyword(String keyword, int pageNumber, int pageSize, String sortBy, String sortDirection) {
+        Sort sort = (sortDirection.equalsIgnoreCase("asc")) ?
+                Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
+
+        Pageable pageable = PageRequest.of(pageNumber, pageSize, sort);
+        Page<District> pageDistrict = districtRepository.findAllByDistrictNameContainingIgnoreCase(keyword, pageable);
+        List<DistrictDto> districts = appUtils.districtsToDtos(pageDistrict.getContent());
+
+        return HttpResponse.builder()
+                .pageNumber(pageDistrict.getNumber())
+                .pageSize(pageDistrict.getSize())
+                .totalElements(pageDistrict.getTotalElements())
+                .totalPages(pageDistrict.getTotalPages())
+                .isLastPage(pageDistrict.isLast())
+                .data(districts)
+                .build();
     }
 
     @Override
@@ -114,6 +198,7 @@ public class DistrictServiceImpl implements DistrictService {
     public String deleteDistrictById(int id) {
         districtRepository.findById(id)
                 .orElseThrow(()->new ResourceNotFoundException("District with id '"+id+"' not found!"));
+
         districtRepository.deleteById(id);
         return "District with id '"+id+"' deleted!";
     }
@@ -136,18 +221,5 @@ public class DistrictServiceImpl implements DistrictService {
 //        return "District with id '"+id+"' restored!";
 //    }
 
-    @Override
-    public List<DistrictDto> getDistrictsByStateId(int stateId) {
 
-        stateRepository.findById(stateId).
-                orElseThrow(()->new ResourceNotFoundException("State with id '"+stateId+"' not found!"));
-        return appUtils.districtsToDtos(districtRepository.findByState_StateId(stateId));
-    }
-
-    @Override
-    public List<DistrictDto> getDistrictsByCountryId(int countryId) {
-        countryRepository.findById(countryId)
-                .orElseThrow(()->new ResourceNotFoundException("Country with id '"+countryId+"' not found!"));
-        return appUtils.districtsToDtos(districtRepository.findByState_Country_CountryId(countryId));
-    }
 }

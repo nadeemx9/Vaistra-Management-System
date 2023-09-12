@@ -109,4 +109,24 @@ public class AppUtils {
         return modelMapper.map(districts, targetListType);
     }
 
+
+    //---------------------------------------------------SUB-DISTRICT UTILS-------------------------------------------------
+    public SubDistrictDto subDistrictToDto(SubDistrict subDistrict) {
+        return modelMapper.map(subDistrict, SubDistrictDto.class);
+    }
+    public List<SubDistrictDto> subDistrictsToDtos(List<SubDistrict> subDistricts) {
+        java.lang.reflect.Type targetListType = new TypeToken<List<SubDistrictDto>>() {}.getType();
+        return modelMapper.map(subDistricts, targetListType);
+    }
+
+    //---------------------------------------------------VILLAGE UTILS-------------------------------------------------
+
+    public VillageDto villageToDto(Village village) {
+        return modelMapper.map(village, VillageDto.class);
+    }
+
+    public List<VillageDto> villagesToDtos(List<Village> villages) {
+        java.lang.reflect.Type targetListType = new TypeToken<List<VillageDto>>() {}.getType();
+        return modelMapper.map(villages, targetListType);
+    }
 }
