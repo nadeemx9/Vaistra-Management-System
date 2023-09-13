@@ -1,17 +1,18 @@
 package com.vaistra.utils;
 
+import com.vaistra.dto.mastermines.*;
 import com.vaistra.entities.*;
-import com.vaistra.payloads.*;
-import org.hibernate.annotations.Comment;
+import com.vaistra.entities.cscv.*;
+import com.vaistra.dto.*;
+import com.vaistra.dto.cscv.*;
+import com.vaistra.entities.mastermines.*;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.TypeToken;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 @Component
 public class AppUtils {
@@ -149,4 +150,57 @@ public class AppUtils {
         return dtos;
 
     }
+
+
+    //---------------------------------------------------MINERAL UTILS-------------------------------------------------
+
+
+    public MineralDto mineralToDto(Mineral mineral) {
+        return modelMapper.map(mineral, MineralDto.class);
+    }
+    public List<MineralDto> mineralsToDtos(List<Mineral> minerals) {
+        java.lang.reflect.Type targetListType = new TypeToken<List<MineralDto>>() {}.getType();
+        return modelMapper.map(minerals, targetListType);
+    }
+
+    //---------------------------------------------------ENTITY UTILS-------------------------------------------------
+
+    public EntityDto entityToDto(EntityTbl entityTbl) {
+        return modelMapper.map(entityTbl, EntityDto.class);
+    }
+    public List<EntityDto> entitiesToDtos(List<EntityTbl> entities) {
+        java.lang.reflect.Type targetListType = new TypeToken<List<EntityDto>>() {}.getType();
+        return modelMapper.map(entities, targetListType);
+    }
+
+    //---------------------------------------------------DESIGNATION UTILS-------------------------------------------------
+
+    public DesignationDto designationToDto(Designation designation) {
+        return modelMapper.map(designation, DesignationDto.class);
+    }
+    public List<DesignationDto> designationsToDto(List<Designation> designations) {
+        java.lang.reflect.Type targetListType = new TypeToken<List<DesignationDto>>() {}.getType();
+        return modelMapper.map(designations, targetListType);
+    }
+
+    //---------------------------------------------------EQUIPMENT UTILS-------------------------------------------------
+
+    public EquipmentDto equipmentToDto(Equipment equipment) {
+        return modelMapper.map(equipment, EquipmentDto.class);
+    }
+    public List<EquipmentDto> equipmentsToDtos(List<Equipment> equipments) {
+        java.lang.reflect.Type targetListType = new TypeToken<List<EquipmentDto>>() {}.getType();
+        return modelMapper.map(equipments, targetListType);
+    }
+
+    //---------------------------------------------------VEHICLE UTILS-------------------------------------------------
+
+    public VehicleDto vehicleToDto(Vehicle vehicle) {
+        return modelMapper.map(vehicle, VehicleDto.class);
+    }
+    public List<VehicleDto> vehiclesToDtos(List<Vehicle> vehicles) {
+        java.lang.reflect.Type targetListType = new TypeToken<List<VehicleDto>>() {}.getType();
+        return modelMapper.map(vehicles, targetListType);
+    }
+
 }

@@ -1,8 +1,8 @@
 package com.vaistra.controllers;
 
 import com.vaistra.config.jwt.JwtService;
-import com.vaistra.payloads.AuthenticationRequest;
-import com.vaistra.payloads.AuthenticationResponse;
+import com.vaistra.dto.AuthenticationRequest;
+import com.vaistra.dto.AuthenticationResponse;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

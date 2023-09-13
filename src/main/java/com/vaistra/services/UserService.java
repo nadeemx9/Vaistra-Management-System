@@ -1,6 +1,6 @@
 package com.vaistra.services;
 
-import com.vaistra.payloads.UserDto;
+import com.vaistra.dto.UserDto;
 
 import java.util.List;
 

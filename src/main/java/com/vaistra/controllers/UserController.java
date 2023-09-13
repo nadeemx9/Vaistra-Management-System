@@ -1,6 +1,6 @@
 package com.vaistra.controllers;
 
-import com.vaistra.payloads.UserDto;
+import com.vaistra.dto.UserDto;
 import com.vaistra.services.UserService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
