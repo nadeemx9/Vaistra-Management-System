@@ -24,8 +24,18 @@ public class Village {
     private boolean status;
 
     @ManyToOne
-    @JoinColumn(name = "subDistrict_id")
+    @JoinColumn(name = "country_id")
+    private Country country;
+
+    @ManyToOne
+    @JoinColumn(name = "state_id")
+    private State state;
+
+    @ManyToOne
+    @JoinColumn(name = "district_id")
+    private District district;
+
+    @ManyToOne
+    @JoinColumn(name = "sub_district_id")
     private SubDistrict subDistrict;
-
-
 }

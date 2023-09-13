@@ -28,10 +28,16 @@ public class District {
     private boolean status ;
 
     @ManyToOne
+    @JoinColumn(name = "country_id")
+    private Country country;
+
+    @ManyToOne
     @JoinColumn(name = "state_id")
     private State state;
 
     @OneToMany(mappedBy = "district", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<SubDistrict> subDistricts = new ArrayList<>();
 
+    @OneToMany(mappedBy = "district", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<Village> villages = new ArrayList<>();
 }

@@ -64,6 +64,8 @@ public class SubDistrictServiceImpl implements SubDistrictService {
 
         SubDistrict subDistrict = new SubDistrict();
         subDistrict.setSubDistrictName(subDistrictDto.getSubDistrictName());
+        subDistrict.setCountry(district.getCountry());
+        subDistrict.setState(district.getState());
         subDistrict.setDistrict(district);
         subDistrict.setStatus(true);
 

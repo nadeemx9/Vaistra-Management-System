@@ -51,7 +51,7 @@ public class VillageController {
         return new ResponseEntity<>(villageService.getAllVillagesByActiveSubDistricts(pageNumber, pageSize, sortBy, sortDirection), HttpStatus.OK);
     }
 
-    @GetMapping("subDistrict/{subDistrictId}")
+    @GetMapping("subDistrictId/{subDistrictId}")
     public ResponseEntity<HttpResponse> getAlLVillagesBySubDistrictId(@PathVariable int subDistrictId,
                                                                       @RequestParam(value = "pageNumber", defaultValue = "0", required = false) Integer pageNumber,
                                                                       @RequestParam(value = "pageSize", defaultValue = "5", required = false) Integer pageSize,
@@ -88,6 +88,12 @@ public class VillageController {
                                                                 @RequestParam(value = "sortDirection", defaultValue = "asc", required = false) String sortDirection)
     {
         return new ResponseEntity<>(villageService.searchVillagesByKeyword(keyword, pageNumber, pageSize, sortBy, sortDirection), HttpStatus.OK);
+    }
+
+    @PutMapping("{villageId}")
+    public ResponseEntity<VillageDto> updateVillage(@Valid @RequestBody VillageDto villageDto, @PathVariable int villageId)
+    {
+        return new ResponseEntity<>(villageService.updateVillage(villageDto, villageId), HttpStatus.OK);
     }
 
     @DeleteMapping("{villageId}")

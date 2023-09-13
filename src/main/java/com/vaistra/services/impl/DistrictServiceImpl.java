@@ -64,6 +64,7 @@ public class DistrictServiceImpl implements DistrictService {
 
         District district = new District();
         district.setDistrictName(districtDto.getDistrictName());
+        district.setCountry(state.getCountry());
         district.setState(state);
         district.setStatus(true);
 

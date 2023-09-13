@@ -17,8 +17,8 @@ import java.util.List;
 public class SubDistrict {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "subdistrict_id")
-    private int subDistrictId;
+    @Column(name = "subDistrict_id")
+    private Integer subDistrictId;
 
     @Column(name = "subDistrict_name")
     private String subDistrictName;
@@ -27,11 +27,17 @@ public class SubDistrict {
     private boolean status;
 
     @ManyToOne
+    @JoinColumn(name = "country_id")
+    private Country country;
+
+    @ManyToOne
+    @JoinColumn(name = "state_id")
+    private State state;
+
+    @ManyToOne
     @JoinColumn(name = "district_id")
     private District district;
 
     @OneToMany(mappedBy = "subDistrict", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Village> villages = new ArrayList<>();
-
-
 }

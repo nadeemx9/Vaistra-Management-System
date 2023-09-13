@@ -37,8 +37,6 @@ public class StateServiceImpl implements StateService {
     }
 
 
-
-
     //----------------------------------------------------SERVICE METHODS-----------------------------------------------
     @Override
     public StateDto addState(StateDto stateDto) {
@@ -94,7 +92,8 @@ public class StateServiceImpl implements StateService {
         Sort sort = (sortDirection.equalsIgnoreCase("asc")) ?
                 Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
 
-        Pageable pageable = PageRequest.of(pageNumber, pageSize, sort);
+        Pageable pageable = PageRequest.of(pageNumber, Integer.MAX_VALUE, sort);
+
         Page<State> pageState = stateRepository.findAllByCountry_Status(true,  pageable);
 
         List<StateDto> states = appUtils.statesToDtos(pageState.getContent());
@@ -111,11 +110,26 @@ public class StateServiceImpl implements StateService {
 
     @Override
     public HttpResponse searchStateByKeyword(String keyword, int pageNumber, int pageSize, String sortBy, String sortDirection) {
+
+        Integer intKeyword = null;
+        Boolean booleanKeyword = null;
+
+        if(keyword.equalsIgnoreCase("true"))
+            booleanKeyword = Boolean.TRUE;
+        else if (keyword.equalsIgnoreCase("false"))
+            booleanKeyword = Boolean.FALSE;
+
+        try {
+            intKeyword = Integer.parseInt(keyword);
+        }catch (Exception e){
+
+        }
+
         Sort sort = (sortDirection.equalsIgnoreCase("asc")) ?
                 Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
 
         Pageable pageable = PageRequest.of(pageNumber, pageSize, sort);
-        Page<State> pageState = stateRepository.findAllByStateNameContainingIgnoreCase(keyword,  pageable);
+        Page<State> pageState = stateRepository.findAllByStateIdOrStatusOrStateNameContainingIgnoreCaseOrCountry_CountryNameContainingIgnoreCase(intKeyword, booleanKeyword, keyword, keyword,  pageable);
 
         List<StateDto> states = appUtils.statesToDtos(pageState.getContent());
 

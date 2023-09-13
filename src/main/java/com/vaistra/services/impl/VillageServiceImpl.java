@@ -64,6 +64,9 @@ public class VillageServiceImpl implements VillageService {
 
         Village village = new Village();
         village.setVillageName(villageDto.getVillageName());
+        village.setCountry(subDistrict.getCountry());
+        village.setState(subDistrict.getState());
+        village.setDistrict(subDistrict.getDistrict());
         village.setSubDistrict(subDistrict);
         village.setStatus(true);
 

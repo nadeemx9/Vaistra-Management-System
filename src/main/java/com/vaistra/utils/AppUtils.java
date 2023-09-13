@@ -122,11 +122,31 @@ public class AppUtils {
     //---------------------------------------------------VILLAGE UTILS-------------------------------------------------
 
     public VillageDto villageToDto(Village village) {
-        return modelMapper.map(village, VillageDto.class);
+
+        VillageDto villageDto = new VillageDto();
+        villageDto.setVillageId(village.getVillageId());
+        villageDto.setVillageName(village.getVillageName());
+        villageDto.setSubDistrictId(village.getSubDistrict().getSubDistrictId());
+        villageDto.setSubDistrictName(village.getSubDistrict().getSubDistrictName());
+        villageDto.setDistrictName(village.getDistrict().getDistrictName());
+        villageDto.setStateName(village.getState().getStateName());
+        villageDto.setCountryName(village.getCountry().getCountryName());
+        villageDto.setStatus(village.isStatus());
+
+        return villageDto;
     }
 
     public List<VillageDto> villagesToDtos(List<Village> villages) {
-        java.lang.reflect.Type targetListType = new TypeToken<List<VillageDto>>() {}.getType();
-        return modelMapper.map(villages, targetListType);
+
+        List<VillageDto> dtos = new ArrayList<>();
+
+        for (Village v:villages)
+        {
+            dtos.add(new VillageDto(v.getVillageId(), v.getVillageName(), v.getSubDistrict().getSubDistrictId(), v.getSubDistrict().getSubDistrictName(),
+                    v.getDistrict().getDistrictName(), v.getState().getStateName(), v.getCountry().getCountryName(),v.isStatus()));
+        }
+
+        return dtos;
+
     }
 }

@@ -13,6 +13,6 @@ public interface StateRepository extends JpaRepository<State, Integer> {
     State findByStateName(String name);
     boolean existsByStateName(String name);
     Page<State> findAllByCountry_Status(boolean b, Pageable p);
-    Page<State> findAllByStateNameContainingIgnoreCase(String keyword, Pageable p);
+    Page<State> findAllByStateIdOrStatusOrStateNameContainingIgnoreCaseOrCountry_CountryNameContainingIgnoreCase(Integer stateId, Boolean status ,String stateName, String countryName, Pageable p);
 
 }
