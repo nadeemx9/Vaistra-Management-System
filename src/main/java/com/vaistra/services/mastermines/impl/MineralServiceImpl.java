@@ -37,6 +37,12 @@ public class MineralServiceImpl implements MineralService {
         if(mineralRepository.existsByMineralNameIgnoreCase(mineralDto.getMineralName().trim()))
             throw new DuplicateEntryException("Mineral with name '"+mineralDto.getMineralName()+"' already exist!");
 
+        if(mineralRepository.existsByAtrNameIgnoreCase(mineralDto.getAtrName().trim()))
+            throw new DuplicateEntryException("ATR name '"+mineralDto.getAtrName()+"' already exist");
+
+        if(mineralRepository.existsByHsnCodeIgnoreCase(mineralDto.getHsnCode().trim()))
+            throw new ResourceNotFoundException("HSN code '"+mineralDto.getHsnCode()+"' already exist!");
+
         Mineral mineral = new Mineral();
         mineral.setMineralName(mineralDto.getMineralName().trim());
         mineral.setCategory(mineralDto.getCategory().trim());
@@ -109,24 +115,37 @@ public class MineralServiceImpl implements MineralService {
         Mineral mineral = mineralRepository.findById(mineralId)
                 .orElseThrow(()->new ResourceNotFoundException("Mineral with ID '"+mineralId+"' not found!"));
 
-        if(mineralRepository.existsByMineralNameIgnoreCase(mineralDto.getMineralName().trim()))
-            throw new DuplicateEntryException("Mineral with name '"+mineralDto.getMineralName()+"' already exist!");
 
-        if(mineralDto.getMineralName() != null)
+        if(mineralDto.getMineralName() != null) {
+            if (mineralRepository.existsByMineralNameIgnoreCase(mineralDto.getMineralName().trim()))
+                throw new DuplicateEntryException("Mineral with name '" + mineralDto.getMineralName() + "' already exist!");
+
             mineral.setMineralName(mineralDto.getMineralName().trim());
+        }
+
+        if(mineralDto.getAtrName() != null) {
+            if(mineralRepository.existsByAtrNameIgnoreCase(mineralDto.getAtrName().trim()))
+                throw new DuplicateEntryException("ATR name '"+mineralDto.getAtrName()+"' already exist");
+
+            mineral.setAtrName(mineralDto.getAtrName().trim());
+        }
+
+        if(mineralDto.getHsnCode() != null) {
+            if(mineralRepository.existsByHsnCodeIgnoreCase(mineralDto.getHsnCode().trim()))
+                throw new ResourceNotFoundException("HSN code '"+mineralDto.getHsnCode()+"' already exist!");
+
+            mineral.setHsnCode(mineralDto.getHsnCode().trim());
+        }
+
         if(mineralDto.getCategory() != null)
             mineral.setCategory(mineralDto.getCategory().trim());
-        if(mineralDto.getAtrName() != null)
-            mineral.setAtrName(mineralDto.getAtrName().trim());
-        if(mineralDto.getHsnCode() != null)
-            mineral.setHsnCode(mineralDto.getHsnCode().trim());
+
         try {
             if(mineralDto.getGrade().length != 0)
                 mineral.setGrade(Arrays.asList(mineralDto.getGrade()));
         }catch (Exception e){
 
         }
-
 
         return appUtils.mineralToDto(mineralRepository.save(mineral));
     }

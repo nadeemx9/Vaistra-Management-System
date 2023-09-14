@@ -11,4 +11,7 @@ public interface MineralRepository extends JpaRepository<Mineral,Integer> {
 
     Page<Mineral> findAllByMineralIdOrMineralNameContainingIgnoreCaseOrCategoryContainingIgnoreCaseOrAtrNameContainingIgnoreCaseOrHsnCodeContainingIgnoreCase(Integer mineralId, String mineralName, String category, String atrName, String hsnCode, Pageable p);
     Boolean existsByMineralNameIgnoreCase(String mineralName);
+    Boolean existsByAtrNameIgnoreCase(String atrName);
+    Boolean existsByHsnCodeIgnoreCase(String hsnCode);
+
 }

@@ -1,7 +1,11 @@
 package com.vaistra.utils;
 
+import com.vaistra.dto.bank.BankBranchDto;
+import com.vaistra.dto.bank.BankDto;
 import com.vaistra.dto.mastermines.*;
 import com.vaistra.entities.*;
+import com.vaistra.entities.bank.Bank;
+import com.vaistra.entities.bank.BankBranch;
 import com.vaistra.entities.cscv.*;
 import com.vaistra.dto.*;
 import com.vaistra.dto.cscv.*;
@@ -203,4 +207,23 @@ public class AppUtils {
         return modelMapper.map(vehicles, targetListType);
     }
 
+    //---------------------------------------------------BANK BRANCH UTILS-------------------------------------------------
+
+    public BankBranchDto bankBranchToDto(BankBranch bankBranch) {
+        return modelMapper.map(bankBranch, BankBranchDto.class);
+    }
+    public List<BankBranchDto> bankBranchesToDtos(List<BankBranch> bankBranches) {
+        java.lang.reflect.Type targetListType = new TypeToken<List<BankBranchDto>>() {}.getType();
+        return modelMapper.map(bankBranches, targetListType);
+    }
+
+    //---------------------------------------------------BANK UTILS-------------------------------------------------
+
+    public BankDto bankToDto(Bank bank) {
+        return modelMapper.map(bank, BankDto.class);
+    }
+    public List<BankDto> banksToDtos(List<Bank> banks) {
+        java.lang.reflect.Type targetListType = new TypeToken<List<BankDto>>() {}.getType();
+        return modelMapper.map(banks, targetListType);
+    }
 }
