@@ -3,6 +3,7 @@ package com.vaistra.services.mastermines.impl;
 import com.vaistra.dto.HttpResponse;
 import com.vaistra.dto.mastermines.MineralDto;
 import com.vaistra.entities.mastermines.Mineral;
+import com.vaistra.exception.DuplicateEntryException;
 import com.vaistra.exception.ResourceNotFoundException;
 import com.vaistra.repositories.mastermines.MineralRepository;
 import com.vaistra.services.mastermines.MineralService;
@@ -14,6 +15,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -31,6 +33,9 @@ public class MineralServiceImpl implements MineralService {
 
     @Override
     public MineralDto addMineral(MineralDto mineralDto) {
+
+        if(mineralRepository.existsByMineralNameIgnoreCase(mineralDto.getMineralName().trim()))
+            throw new DuplicateEntryException("Mineral with name '"+mineralDto.getMineralName()+"' already exist!");
 
         Mineral mineral = new Mineral();
         mineral.setMineralName(mineralDto.getMineralName().trim());
@@ -74,6 +79,7 @@ public class MineralServiceImpl implements MineralService {
 
         try {
             integerKeyword = Integer.parseInt(keyword);
+
         }catch (Exception e){
 
         }
@@ -103,6 +109,9 @@ public class MineralServiceImpl implements MineralService {
         Mineral mineral = mineralRepository.findById(mineralId)
                 .orElseThrow(()->new ResourceNotFoundException("Mineral with ID '"+mineralId+"' not found!"));
 
+        if(mineralRepository.existsByMineralNameIgnoreCase(mineralDto.getMineralName().trim()))
+            throw new DuplicateEntryException("Mineral with name '"+mineralDto.getMineralName()+"' already exist!");
+
         if(mineralDto.getMineralName() != null)
             mineral.setMineralName(mineralDto.getMineralName().trim());
         if(mineralDto.getCategory() != null)
@@ -111,8 +120,13 @@ public class MineralServiceImpl implements MineralService {
             mineral.setAtrName(mineralDto.getAtrName().trim());
         if(mineralDto.getHsnCode() != null)
             mineral.setHsnCode(mineralDto.getHsnCode().trim());
-        if(mineralDto.getGrade().length != 0)
-            mineral.setGrade(Arrays.asList(mineralDto.getGrade()));
+        try {
+            if(mineralDto.getGrade().length != 0)
+                mineral.setGrade(Arrays.asList(mineralDto.getGrade()));
+        }catch (Exception e){
+
+        }
+
 
         return appUtils.mineralToDto(mineralRepository.save(mineral));
     }
