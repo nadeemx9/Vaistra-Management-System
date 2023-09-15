@@ -1,8 +1,8 @@
 spring:
   datasource:
-    url: jdbc:mysql://containers-us-west-182.railway.app:6384/railway
-    username: root
-    password: xqXJIt0xN40nwOuKe7zu
+    url: jdbc:postgresql://dpg-ck1vdcfhdsdc73d0722g-a.oregon-postgres.render.com:5432/vaistradb
+    username: vaistradb_user
+    password: AehoiOTYFsxexqqGHTOKm0j2Yrtrg4Pm
   jpa:
     hibernate:
       ddl-auto: update
