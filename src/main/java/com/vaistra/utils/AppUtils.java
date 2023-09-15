@@ -136,7 +136,7 @@ public class AppUtils {
         villageDto.setDistrictName(village.getDistrict().getDistrictName());
         villageDto.setStateName(village.getState().getStateName());
         villageDto.setCountryName(village.getCountry().getCountryName());
-        villageDto.setStatus(village.isStatus());
+        villageDto.setStatus(village.getStatus());
 
         return villageDto;
     }
@@ -148,7 +148,7 @@ public class AppUtils {
         for (Village v:villages)
         {
             dtos.add(new VillageDto(v.getVillageId(), v.getVillageName(), v.getSubDistrict().getSubDistrictId(), v.getSubDistrict().getSubDistrictName(),
-                    v.getDistrict().getDistrictName(), v.getState().getStateName(), v.getCountry().getCountryName(),v.isStatus()));
+                    v.getDistrict().getDistrictName(), v.getState().getStateName(), v.getCountry().getCountryName(),v.getStatus()));
         }
 
         return dtos;
@@ -226,4 +226,28 @@ public class AppUtils {
         java.lang.reflect.Type targetListType = new TypeToken<List<BankDto>>() {}.getType();
         return modelMapper.map(banks, targetListType);
     }
+
+    //---------------------------------------------------IMAGE UTILS-------------------------------------------------
+
+
+    public boolean isSupportedExtension(String ext){
+        int i = ext.lastIndexOf(".");
+
+        String extension = "";
+
+        if(i != -1){
+            extension = ext.substring(i + 1);
+        }
+
+        return extension != null && (
+                extension.equals("png")
+                        || extension.equals("jpg")
+                        || extension.equals("jpeg")
+                        || extension.equals("pdf"))
+                || extension.equals("JPG")
+                || extension.equals("JPEG")
+                || extension.equals("PDF")
+                || extension.equals("PNG");
+    }
+
 }

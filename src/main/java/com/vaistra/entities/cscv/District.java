@@ -25,7 +25,7 @@ public class District {
     private String districtName;
 
     @Column(name = "status")
-    private boolean status ;
+    private Boolean status ;
 
     @ManyToOne
     @JoinColumn(name = "country_id")

@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+import org.springframework.web.multipart.MaxUploadSizeExceededException;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -125,6 +126,13 @@ public class GlobalExceptionHandler {
     @ResponseStatus(HttpStatus.FORBIDDEN)
     @ExceptionHandler(DecodingException.class)
     public Map<String, String> handleDecodingException(DecodingException ex)
+    {
+        return Map.of("errorMessage", ex.getMessage());
+    }
+
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ExceptionHandler(MaxUploadSizeExceededException.class)
+    public Map<String, String> handleMaxUploadSizeExceededException(MaxUploadSizeExceededException ex)
     {
         return Map.of("errorMessage", ex.getMessage());
     }

@@ -59,7 +59,7 @@ public class SubDistrictServiceImpl implements SubDistrictService {
                 .orElseThrow(()->new ResourceNotFoundException("District with ID '"+subDistrictDto.getDistrictId()+"' not found!"));
 
         //  IS DISTRICT STATUS ACTIVE ?
-        if(!district.isStatus())
+        if(!district.getStatus())
             throw new InactiveStatusException("District '"+district.getDistrictName()+"' is inactive!");
 
         SubDistrict subDistrict = new SubDistrict();

@@ -3,10 +3,16 @@ package com.vaistra.controllers.bank;
 import com.vaistra.dto.HttpResponse;
 import com.vaistra.dto.bank.BankDto;
 import com.vaistra.services.bank.BankService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
 
 @RestController
 @RequestMapping("bank")
@@ -19,12 +25,26 @@ public class BankController {
         this.bankService = bankService;
     }
 
-//    @PostMapping
-
+    @PostMapping
+    public ResponseEntity<BankDto> addBank(@Valid @RequestPart("bankData") BankDto bankDto,
+                                           @RequestPart("logo") MultipartFile file) throws IOException
+    {
+        return new ResponseEntity<>(bankService.addBank(bankDto, file), HttpStatus.CREATED);
+    }
     @GetMapping("{bankId}")
     public ResponseEntity<BankDto> getBankById(@PathVariable int bankId)
     {
         return new ResponseEntity<>(bankService.getBankById(bankId), HttpStatus.OK);
+    }
+
+    @GetMapping("/{bankId}/logo")
+    public ResponseEntity<byte[]> getBankLogo(@PathVariable Integer bankId) {
+        byte[] imageBytes = bankService.getBankLogo(bankId);
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.IMAGE_JPEG); // Adjust content type based on your image type
+
+        return new ResponseEntity<>(imageBytes, headers, HttpStatus.OK);
     }
 
     @GetMapping("search")
@@ -54,8 +74,13 @@ public class BankController {
         return new ResponseEntity<>(bankService.getAlLActiveBanks(pageNumber, pageSize, sortBy, sortDirection), HttpStatus.OK);
     }
 
-//    @PutMapping
-
+    @PutMapping("{bankId}")
+    public ResponseEntity<BankDto> updateBank(@PathVariable int bankId,
+                                              @RequestPart("bankData") BankDto bankDto,
+                                              @RequestPart("logo") MultipartFile file) throws IOException
+    {
+        return new ResponseEntity<>(bankService.updateBank(bankDto, bankId, file), HttpStatus.OK);
+    }
 
     @DeleteMapping("{bankId}")
     public ResponseEntity<String> deleteBank(@PathVariable int bankId)

@@ -24,7 +24,7 @@ public class SubDistrict {
     private String subDistrictName;
 
     @Column(name = "status")
-    private boolean status;
+    private Boolean status;
 
     @ManyToOne
     @JoinColumn(name = "country_id")

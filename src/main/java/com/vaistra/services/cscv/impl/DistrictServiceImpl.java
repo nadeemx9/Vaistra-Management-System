@@ -58,7 +58,7 @@ public class DistrictServiceImpl implements DistrictService {
                 .orElseThrow(()->new ResourceNotFoundException("State with Id '"+districtDto.getStateId()+" not found!"));
 
         //  IS STATE STATUS ACTIVE ?
-        if(!state.isStatus())
+        if(!state.getStatus())
             throw new InactiveStatusException("State with id '"+districtDto.getStateId()+"' is not active!");
 
 

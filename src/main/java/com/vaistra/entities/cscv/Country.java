@@ -36,6 +36,6 @@ public class Country {
     List<Village> villages = new ArrayList<>();
 
     @Column(name = "status")
-    private boolean status;
+    private Boolean status;
 
 }

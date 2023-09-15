@@ -52,7 +52,7 @@ public class StateServiceImpl implements StateService {
                 .orElseThrow(()->new ResourceNotFoundException("Country with ID '"+stateDto.getCountryId()+"' not found!"));
 
         //  IS COUNTRY STATUS ACTIVE ?
-        if (!country.isStatus())
+        if (!country.getStatus())
             throw new InactiveStatusException("Country with id '" + stateDto.getCountryId() + "' is not active!");
 
         State state = new State();
@@ -152,7 +152,7 @@ public class StateServiceImpl implements StateService {
         Country country = countryRepository.findById(countryId)
                 .orElseThrow(() -> new ResourceNotFoundException("Country with id '" + countryId + "' not found!"));
 
-        if(!country.isStatus())
+        if(!country.getStatus())
             throw new InactiveStatusException("Country '"+country.getCountryName()+"' is inactive");
 
         Sort sort = (sortDirection.equalsIgnoreCase("asc")) ?

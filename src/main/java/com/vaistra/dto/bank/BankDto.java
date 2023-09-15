@@ -30,6 +30,5 @@ public class BankDto {
     @Pattern(regexp = "^[a-zA-Z ]{3,}$", message = "Bank long name must contain only alphabets with at least 3 characters!")
     private String bankLongName;
 
-    private Byte[] bankLogo;
     private Boolean status;
 }

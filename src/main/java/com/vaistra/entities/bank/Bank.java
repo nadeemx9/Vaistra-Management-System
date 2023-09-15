@@ -8,7 +8,6 @@ import lombok.Setter;
 
 import java.util.ArrayList;
 import java.util.List;
-
 @Entity
 @Getter
 @Setter
@@ -24,10 +23,11 @@ public class Bank {
     private String bankLongName;
 
     @Lob
-    private Byte[] bankLogo;
+    private byte[] bankLogo;
 
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "bank")
     private List<BankBranch> branches = new ArrayList<>();
 
     private Boolean status;
 }
+

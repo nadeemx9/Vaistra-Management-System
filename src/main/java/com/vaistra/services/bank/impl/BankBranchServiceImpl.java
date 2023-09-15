@@ -7,6 +7,7 @@ import com.vaistra.entities.bank.BankBranch;
 import com.vaistra.entities.cscv.District;
 import com.vaistra.entities.cscv.State;
 import com.vaistra.exception.DuplicateEntryException;
+import com.vaistra.exception.InactiveStatusException;
 import com.vaistra.exception.ResourceNotFoundException;
 import com.vaistra.repositories.bank.BankBranchRepository;
 import com.vaistra.repositories.bank.BankRepository;
@@ -67,9 +68,13 @@ public class BankBranchServiceImpl implements BankBranchService {
 
         Bank bank = bankRepository.findById(bankBranchDto.getBankId())
                 .orElseThrow(()->new ResourceNotFoundException("Bank with ID '"+bankBranchDto.getBankId()+"' not found!"));
+        if(!bank.getStatus())
+            throw new InactiveStatusException("Bank '"+bank.getBankLongName()+"' is is inactive!");
 
         District district = districtRepository.findById(bankBranchDto.getDistrictId())
                 .orElseThrow(()->new ResourceNotFoundException("District with ID '"+bankBranchDto.getDistrictId()+"' not found!"));
+        if(!district.getStatus())
+            throw new InactiveStatusException("District '"+district.getDistrictName()+"' is inactive");
 
         State state = stateRepository.findById(district.getState().getStateId())
                 .orElseThrow(()->new ResourceNotFoundException("State with ID '"+district.getState().getStateId()+"' not found!"));
@@ -136,6 +141,10 @@ public class BankBranchServiceImpl implements BankBranchService {
 
     @Override
     public HttpResponse getBankBranchesByBankId(int bankId, int pageNumber, int pageSize, String sortBy, String sortDirection) {
+
+        Bank bank = bankRepository.findById(bankId)
+                .orElseThrow(()->new ResourceNotFoundException("Bank with ID'"+bankId+"' not found!"));
+
         Sort sort = (sortDirection.equalsIgnoreCase("asc")) ?
                 Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
 
@@ -155,6 +164,10 @@ public class BankBranchServiceImpl implements BankBranchService {
 
     @Override
     public HttpResponse getBankBranchesByStateId(int stateId, int pageNumber, int pageSize, String sortBy, String sortDirection) {
+
+        State state = stateRepository.findById(stateId)
+                .orElseThrow(()->new ResourceNotFoundException("State with ID '"+stateId+"' not found!"));
+
         Sort sort = (sortDirection.equalsIgnoreCase("asc")) ?
                 Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
 
@@ -174,6 +187,10 @@ public class BankBranchServiceImpl implements BankBranchService {
 
     @Override
     public HttpResponse getBankBranchesByDistrictId(int districtId, int pageNumber, int pageSize, String sortBy, String sortDirection) {
+
+        District district = districtRepository.findById(districtId)
+                .orElseThrow(()->new ResourceNotFoundException("District with ID '"+districtId+"' not found!"));
+
         Sort sort = (sortDirection.equalsIgnoreCase("asc")) ?
                 Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
 

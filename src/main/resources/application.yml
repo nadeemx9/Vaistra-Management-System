@@ -5,6 +5,10 @@ spring:
   profiles:
     active: ${ENV:dev}
 
+    servlet:
+      multipart:
+        max-file-size: 10KB
+
   mail:
 
     host: ${EMAIL_HOST}

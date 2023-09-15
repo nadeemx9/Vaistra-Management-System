@@ -25,7 +25,7 @@ public class State {
     private String stateName;
 
     @Column(name = "status")
-    private boolean status = true;
+    private Boolean status = true;
 
     @ManyToOne
     @JoinColumn(name = "country_id")

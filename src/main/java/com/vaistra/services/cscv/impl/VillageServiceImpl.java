@@ -57,7 +57,7 @@ public class VillageServiceImpl implements VillageService {
             throw new DuplicateEntryException("Village with name '"+villageDto.getVillageName()+"' already exist!");
 
 //        IS SUB-DISTRICT STATUS ACTIVE
-        if(!subDistrict.isStatus())
+        if(!subDistrict.getStatus())
             throw new InactiveStatusException("Sub-District '"+subDistrict.getSubDistrictName()+"' is inactive!");
 
         Village village = new Village();
