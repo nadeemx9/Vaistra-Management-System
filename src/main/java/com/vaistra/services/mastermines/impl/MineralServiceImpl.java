@@ -15,7 +15,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -135,7 +134,7 @@ public class MineralServiceImpl implements MineralService {
         }
 
         if(mineralDto.getHsnCode() != null) {
-            Mineral mineralWithSameHsnCode = mineralRepository.findByHsnCodeNameIgnoreCase(mineralDto.getHsnCode().trim());
+            Mineral mineralWithSameHsnCode = mineralRepository.findByHsnCodeIgnoreCase(mineralDto.getHsnCode().trim());
 
             if(mineralWithSameHsnCode != null && !mineralWithSameHsnCode.getMineralId().equals(mineral.getMineralId()))
                 throw new DuplicateEntryException("HSN Code '"+mineralDto.getHsnCode()+"' already exist!");
