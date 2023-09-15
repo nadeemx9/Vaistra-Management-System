@@ -91,7 +91,7 @@ public class VillageController {
     }
 
     @PutMapping("{villageId}")
-    public ResponseEntity<VillageDto> updateVillage(@Valid @RequestBody VillageDto villageDto, @PathVariable int villageId)
+    public ResponseEntity<VillageDto> updateVillage(@RequestBody VillageDto villageDto, @PathVariable int villageId)
     {
         return new ResponseEntity<>(villageService.updateVillage(villageDto, villageId), HttpStatus.OK);
     }

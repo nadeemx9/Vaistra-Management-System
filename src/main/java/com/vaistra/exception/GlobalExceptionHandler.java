@@ -134,6 +134,6 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(MaxUploadSizeExceededException.class)
     public Map<String, String> handleMaxUploadSizeExceededException(MaxUploadSizeExceededException ex)
     {
-        return Map.of("errorMessage", ex.getMessage());
+        return Map.of("errorMessage", "Maximum upload size is 1MB");
     }
 }

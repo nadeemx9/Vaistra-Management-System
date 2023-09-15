@@ -8,7 +8,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 public interface DesignationRepository extends JpaRepository<Designation, Integer> {
 
     Boolean existsByDesignationTypeIgnoreCase(String designationType);
-
+    Designation findByDesignationTypeIgnoreCase(String name);
     Page<Designation> findAllByDesignationIdOrDesignationTypeContainingIgnoreCase(Integer designationId, String designationType, Pageable p);
 
 }

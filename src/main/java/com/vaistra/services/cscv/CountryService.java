@@ -13,7 +13,7 @@ public interface CountryService {
 
     HttpResponse getAllCountriesByActive(int pageNumber, int pageSize, String sortBy, String sortDirection);
 
-    CountryDto updateCountry(CountryPatchDto country, int id);
+    CountryDto updateCountry(CountryDto country, int id);
 
     String deleteCountryById(int id);
 

@@ -115,24 +115,30 @@ public class MineralServiceImpl implements MineralService {
         Mineral mineral = mineralRepository.findById(mineralId)
                 .orElseThrow(()->new ResourceNotFoundException("Mineral with ID '"+mineralId+"' not found!"));
 
+        if(mineralDto.getMineralName() != null)
+        {
+            Mineral mineralWithSameName = mineralRepository.findByMineralNameIgnoreCase(mineralDto.getMineralName().trim());
 
-        if(mineralDto.getMineralName() != null) {
-            if (mineralRepository.existsByMineralNameIgnoreCase(mineralDto.getMineralName().trim()))
-                throw new DuplicateEntryException("Mineral with name '" + mineralDto.getMineralName() + "' already exist!");
+            if(mineralWithSameName != null && !mineralWithSameName.getMineralId().equals(mineral.getMineralId()))
+                throw new DuplicateEntryException("Mineral '"+mineralDto.getMineralName()+"' already exist!");
 
             mineral.setMineralName(mineralDto.getMineralName().trim());
         }
 
         if(mineralDto.getAtrName() != null) {
-            if(mineralRepository.existsByAtrNameIgnoreCase(mineralDto.getAtrName().trim()))
-                throw new DuplicateEntryException("ATR name '"+mineralDto.getAtrName()+"' already exist");
+            Mineral mineralWithSameAtrName = mineralRepository.findByAtrNameIgnoreCase(mineralDto.getAtrName().trim());
+
+            if(mineralWithSameAtrName != null && !mineralWithSameAtrName.getMineralId().equals(mineral.getMineralId()))
+                throw new DuplicateEntryException("ATR Name '"+mineralDto.getAtrName()+"' already exist!");
 
             mineral.setAtrName(mineralDto.getAtrName().trim());
         }
 
         if(mineralDto.getHsnCode() != null) {
-            if(mineralRepository.existsByHsnCodeIgnoreCase(mineralDto.getHsnCode().trim()))
-                throw new ResourceNotFoundException("HSN code '"+mineralDto.getHsnCode()+"' already exist!");
+            Mineral mineralWithSameHsnCode = mineralRepository.findByHsnCodeNameIgnoreCase(mineralDto.getHsnCode().trim());
+
+            if(mineralWithSameHsnCode != null && !mineralWithSameHsnCode.getMineralId().equals(mineral.getMineralId()))
+                throw new DuplicateEntryException("HSN Code '"+mineralDto.getHsnCode()+"' already exist!");
 
             mineral.setHsnCode(mineralDto.getHsnCode().trim());
         }

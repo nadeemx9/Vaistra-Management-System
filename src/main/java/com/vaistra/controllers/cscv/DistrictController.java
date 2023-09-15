@@ -79,7 +79,7 @@ public class DistrictController {
     }
 
     @PutMapping("{districtId}")
-    public ResponseEntity<DistrictDto> updateDistrict(@Valid @RequestBody DistrictDto districtDto, @PathVariable int districtId)
+    public ResponseEntity<DistrictDto> updateDistrict(@RequestBody DistrictDto districtDto, @PathVariable int districtId)
     {
         return new ResponseEntity<>(districtService.updateDistrict(districtDto, districtId), HttpStatus.OK);
     }

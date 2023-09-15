@@ -1,9 +1,6 @@
 package com.vaistra.services.cscv.impl;
 
-import com.vaistra.entities.cscv.Country;
-import com.vaistra.entities.cscv.State;
-import com.vaistra.entities.cscv.SubDistrict;
-import com.vaistra.entities.cscv.Village;
+import com.vaistra.entities.cscv.*;
 import com.vaistra.exception.DuplicateEntryException;
 import com.vaistra.exception.InactiveStatusException;
 import com.vaistra.exception.ResourceNotFoundException;
@@ -224,17 +221,39 @@ public class VillageServiceImpl implements VillageService {
     @Override
     public VillageDto updateVillage(VillageDto villageDto, int villageId) {
 
-        villageDto.setVillageName(villageDto.getVillageName().trim().toUpperCase());
-
         // HANDLE IF VILLAGE EXIST BY ID
-        Village village = villageRepository.findById(villageDto.getSubDistrictId())
+        Village village = villageRepository.findById(villageId)
                 .orElseThrow(()->new ResourceNotFoundException("Village with ID '"+villageId+"' not found!"));
 
         // HANDLE IF DUPLICATE VILLAGE NAME
-        if(villageRepository.existsByVillageName(villageDto.getVillageName()))
-            throw new DuplicateEntryException("Village with name '"+villageDto.getVillageName()+"' already exist!");
+        if(villageDto.getVillageName() != null)
+        {
+            Village villageWithSameName = villageRepository.findByVillageNameIgnoreCase(villageDto.getVillageName().trim());
+            if(villageWithSameName != null && !villageWithSameName.getVillageId().equals(village.getVillageId()))
+                throw new DuplicateEntryException("Village '"+villageDto.getVillageName()+"' already exist!");
 
-        village.setVillageName(villageDto.getVillageName());
+            village.setVillageName(villageDto.getVillageName().trim().toUpperCase());
+        }
+
+        if(villageDto.getSubDistrictId() != null)
+        {
+            SubDistrict subDistrict = subDistrictRepository.findById(villageDto.getSubDistrictId())
+                    .orElseThrow(()->new ResourceNotFoundException("Sub-District with ID '"+villageDto.getSubDistrictId()+"' not found!"));
+            District district = districtRepository.findById(subDistrict.getDistrict().getDistrictId())
+                    .orElseThrow(()->new ResourceNotFoundException("District with ID '"+subDistrict.getDistrict().getDistrictId()+"' not found!"));
+            State state = stateRepository.findById(district.getState().getStateId())
+                    .orElseThrow(()->new ResourceNotFoundException("State with ID '"+district.getState().getStateId()+"' not found!"));
+            Country country = countryRepository.findById(state.getCountry().getCountryId())
+                    .orElseThrow(()->new ResourceNotFoundException("Country with ID '"+state.getCountry().getCountryId()+"' not found!"));
+
+            village.setSubDistrict(subDistrict);
+            village.setDistrict(district);
+            village.setState(state);
+            village.setCountry(country);
+        }
+
+        if(villageDto.getStatus() != null)
+            village.setStatus(villageDto.getStatus());
 
         return appUtils.villageToDto(villageRepository.save(village));
 

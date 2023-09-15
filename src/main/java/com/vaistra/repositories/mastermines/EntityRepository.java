@@ -9,4 +9,6 @@ public interface EntityRepository extends JpaRepository<EntityTbl, Integer> {
 
     Page<EntityTbl> findAllByEntityIdOrEntityTypeContainingIgnoreCaseOrShortNameContainingIgnoreCase(Integer entityId, String entityType, String shortName, Pageable p);
     Boolean existsByEntityTypeIgnoreCase(String entityType);
+
+    EntityTbl findByEntityTypeIgnoreCase(String type);
 }

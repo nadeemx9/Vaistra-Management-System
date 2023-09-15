@@ -5,9 +5,9 @@ spring:
   profiles:
     active: ${ENV:dev}
 
-    servlet:
-      multipart:
-        max-file-size: 10KB
+  servlet:
+    multipart:
+      max-file-size: 1MB
 
   mail:
 

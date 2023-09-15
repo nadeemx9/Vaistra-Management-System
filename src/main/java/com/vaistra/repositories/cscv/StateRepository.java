@@ -10,7 +10,7 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface StateRepository extends JpaRepository<State, Integer> {
     Page<State> findAllByCountry(Country country, Pageable p);
-    State findByStateName(String name);
+    State findByStateNameIgnoreCase(String name);
     boolean existsByStateName(String name);
     Page<State> findAllByCountry_Status(boolean b, Pageable p);
     Page<State> findAllByStateIdOrStatusOrStateNameContainingIgnoreCaseOrCountry_CountryNameContainingIgnoreCase(Integer stateId, Boolean status ,String stateName, String countryName, Pageable p);

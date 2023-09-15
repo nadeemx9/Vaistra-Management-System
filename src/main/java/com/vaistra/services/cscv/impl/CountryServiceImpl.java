@@ -133,26 +133,24 @@ public class CountryServiceImpl implements CountryService {
     }
 
     @Override
-    public CountryDto updateCountry(CountryPatchDto c, int id) {
-
+    public CountryDto updateCountry(CountryDto c, int id) {
 
         // HANDLE IF COUNTRY EXIST BY ID
         Country country = countryRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Country with Id '" + id + "' not found!"));
 
-        if(c.getCountryName()!=null)
-            c.setCountryName(c.getCountryName().trim().toUpperCase());
-
         // HANDLE DUPLICATE ENTRY EXCEPTION
-        Country existedCountry = countryRepository.findByCountryName(c.getCountryName());
-        if(existedCountry != null)
-            throw new DuplicateEntryException("Country with name '"+c.getCountryName()+"' already exist!");
-
         if(c.getCountryName() != null)
-            country.setCountryName(c.getCountryName());
-        if(c.getStatus() != null) {
-            country.setStatus(c.getStatus());
+        {
+            Country countryWithSameName = countryRepository.findByCountryNameIgnoreCase(c.getCountryName().trim());
+
+            if(countryWithSameName != null && !countryWithSameName.getCountryId().equals(country.getCountryId()))
+                throw new DuplicateEntryException("Country '"+c.getCountryName()+"' already exist!");
+            country.setCountryName(c.getCountryName().trim().toUpperCase());
         }
+
+        if(c.getStatus() != null)
+            country.setStatus(c.getStatus());
 
         return appUtils.countryToDto(countryRepository.save(country));
     }

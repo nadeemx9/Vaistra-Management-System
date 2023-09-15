@@ -52,7 +52,7 @@ public class DesignationController {
     }
 
     @PutMapping("{designationId}")
-    public ResponseEntity<DesignationDto> updateDesignation(@Valid @RequestBody DesignationDto designationDto, @PathVariable int designationId)
+    public ResponseEntity<DesignationDto> updateDesignation(@RequestBody DesignationDto designationDto, @PathVariable int designationId)
     {
         return new ResponseEntity<>(designationService.updateDesignation(designationDto, designationId), HttpStatus.OK);
     }

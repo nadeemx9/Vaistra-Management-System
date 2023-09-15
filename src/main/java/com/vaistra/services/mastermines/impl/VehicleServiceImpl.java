@@ -104,11 +104,11 @@ public class VehicleServiceImpl implements VehicleService {
         Vehicle vehicle = vehicleRepository.findById(vehicleId)
                 .orElseThrow(()->new ResourceNotFoundException("Vehicle with ID '"+vehicleId+"' not found!"));
 
-        if(vehicleRepository.existsByVehicleNameIgnoreCase(vehicleDto.getVehicleName().trim()))
-            throw new DuplicateEntryException("Vehicle with name '"+vehicleDto.getVehicleName()+"' already exist!");
+        Vehicle vehicleWithSameName = vehicleRepository.findByVehicleNameIgnoreCase(vehicleDto.getVehicleName().trim());
+        if(vehicleWithSameName != null && !vehicleWithSameName.getVehicleId().equals(vehicle.getVehicleId()))
+            throw new DuplicateEntryException("Vehicle '"+vehicleDto.getVehicleName()+"' already exist!");
 
-        if(vehicleDto.getVehicleName() != null)
-            vehicle.setVehicleName(vehicleDto.getVehicleName().trim());
+        vehicle.setVehicleName(vehicleDto.getVehicleName().trim());
 
         return appUtils.vehicleToDto(vehicleRepository.save(vehicle));
     }

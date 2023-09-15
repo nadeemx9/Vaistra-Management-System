@@ -1,6 +1,7 @@
 package com.vaistra.repositories.mastermines;
 
 import com.vaistra.entities.mastermines.Mineral;
+import jakarta.validation.constraints.Min;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -13,5 +14,8 @@ public interface MineralRepository extends JpaRepository<Mineral,Integer> {
     Boolean existsByMineralNameIgnoreCase(String mineralName);
     Boolean existsByAtrNameIgnoreCase(String atrName);
     Boolean existsByHsnCodeIgnoreCase(String hsnCode);
+    Mineral findByMineralNameIgnoreCase(String name);
+    Mineral findByAtrNameIgnoreCase(String name);
+    Mineral findByHsnCodeNameIgnoreCase(String name);
 
 }

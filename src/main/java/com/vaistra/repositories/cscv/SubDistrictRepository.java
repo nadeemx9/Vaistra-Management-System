@@ -16,6 +16,7 @@ public interface SubDistrictRepository extends JpaRepository<SubDistrict, Intege
     Page<SubDistrict> findAllByDistrict_State(State state, Pageable p);
     Page<SubDistrict> findAllByDistrict_State_Country(Country country, Pageable p);
 
+    SubDistrict findBySubDistrictNameIgnoreCase(String name);
     Page<SubDistrict> findAllByDistrict_Status(boolean b, Pageable p);
 
     boolean existsBySubDistrictName(String name);

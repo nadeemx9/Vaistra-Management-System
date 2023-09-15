@@ -17,6 +17,7 @@ public interface VillageRepository extends JpaRepository<Village, Integer> {
     Page<Village> findAllBySubDistrict_District_State_Country(Country country, Pageable p);
     Page<Village> findAllBySubDistrict_Status(boolean b, Pageable p);
     boolean existsByVillageName(String name);
+    Village findByVillageNameIgnoreCase(String name);
     Page<Village> findAllByVillageIdOrStatusOrVillageNameContainingIgnoreCaseOrSubDistrict_SubDistrictNameContainingIgnoreCaseOrDistrict_DistrictNameContainingIgnoreCaseOrState_StateNameContainingIgnoreCaseOrCountry_CountryNameContainingIgnoreCase
             (Integer villageId, Boolean status, String villageName, String subDistrictName, String districtName, String stateName, String countryName, Pageable p);
 }

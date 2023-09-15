@@ -104,11 +104,15 @@ public class EntityServiceImpl implements EntityService {
         EntityTbl entity = entityRepository.findById(entityId)
                 .orElseThrow(()->new ResourceNotFoundException("Entity with ID '"+entityId+"' not found!"));
 
-        if(entityRepository.existsByEntityTypeIgnoreCase(entityDto.getEntityType().trim()))
-            throw new DuplicateEntryException("Entity '"+entityDto.getEntityType()+"' already exist!");
-
         if(entityDto.getEntityType() != null)
+        {
+            EntityTbl entityWithSameName = entityRepository.findByEntityTypeIgnoreCase(entityDto.getEntityType().trim());
+            if(entityWithSameName != null && !entityWithSameName.getEntityId().equals(entity.getEntityId()))
+                throw new DuplicateEntryException("Entity '"+entityDto.getEntityType()+"' already exist!");
+
             entity.setEntityType(entityDto.getEntityType().trim());
+        }
+
         if(entityDto.getShortName() != null)
             entity.setShortName(entityDto.getShortName().trim());
 

@@ -19,7 +19,7 @@ public class BankBranch {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer BranchId;
+    private Integer branchId;
 
     private String branchName;
     private String branchCode;

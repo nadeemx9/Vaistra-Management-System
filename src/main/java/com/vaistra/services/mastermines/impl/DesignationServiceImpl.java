@@ -103,11 +103,14 @@ public class DesignationServiceImpl implements DesignationService {
         Designation designation = designationRepository.findById(designationId)
                 .orElseThrow(()->new ResourceNotFoundException("Designation with ID '"+designationId+"' not found!"));
 
-        if(designationRepository.existsByDesignationTypeIgnoreCase(designationDto.getDesignationType().trim()))
-            throw new DuplicateEntryException("Designation type '"+designationDto.getDesignationType()+"' already exist");
-
         if(designationDto.getDesignationType() != null)
+        {
+            Designation designationWithSameName = designationRepository.findByDesignationTypeIgnoreCase(designationDto.getDesignationType().trim());
+            if(designationWithSameName != null && !designationWithSameName.getDesignationId().equals(designation.getDesignationId()))
+                throw new DuplicateEntryException("Designation '"+designationDto.getDesignationType()+"' already exist!");
+
             designation.setDesignationType(designationDto.getDesignationType().trim());
+        }
 
         return appUtils.designationToDto(designationRepository.save(designation));
     }

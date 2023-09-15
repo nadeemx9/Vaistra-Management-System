@@ -50,7 +50,7 @@ public class DistrictServiceImpl implements DistrictService {
         districtDto.setDistrictName(districtDto.getDistrictName().trim().toUpperCase());
 
         // HANDLE IF DUPLICATE DISTRICT NAME
-        if(districtRepository.existsByDistrictName(districtDto.getDistrictName()))
+        if(districtRepository.existsByDistrictNameIgnoreCase(districtDto.getDistrictName()))
             throw new DuplicateEntryException("District with name '"+districtDto.getDistrictName()+"' already exist!");
 
         // HANDLE IF STATE EXIST BY ID
@@ -202,16 +202,34 @@ public class DistrictServiceImpl implements DistrictService {
     @Override
     public DistrictDto updateDistrict(DistrictDto districtDto, int id) {
 
-        districtDto.setDistrictName(districtDto.getDistrictName().trim().toUpperCase());
         // HANDLE IF DISTRICT EXIST BY ID
         District district = districtRepository.findById(id)
                 .orElseThrow(()->new ResourceNotFoundException("District with id '"+id+"' not found!"));
 
         // HANDLE IF DUPLICATE DISTRICT NAME
-        if(districtRepository.existsByDistrictName(districtDto.getDistrictName()))
-            throw new DuplicateEntryException("District with name '"+districtDto.getDistrictName()+"' already exist!");
+        if(districtDto.getDistrictName() != null)
+        {
+            District districtWithSameName = districtRepository.findByDistrictNameIgnoreCase(districtDto.getDistrictName().trim());
 
-        district.setDistrictName(districtDto.getDistrictName());
+            if(districtWithSameName != null && !districtWithSameName.getDistrictId().equals(district.getDistrictId()))
+                throw new DuplicateEntryException("District '"+districtDto.getDistrictName()+"' already exist!");
+
+            district.setDistrictName(districtDto.getDistrictName().trim().toUpperCase());
+        }
+
+        if(districtDto.getStateId() != null)
+        {
+            State state = stateRepository.findById(districtDto.getStateId())
+                    .orElseThrow(()->new ResourceNotFoundException("State with ID '"+districtDto.getStateId()+"' not found!"));
+            Country country = countryRepository.findById(state.getCountry().getCountryId())
+                    .orElseThrow(()->new ResourceNotFoundException("Country with ID '"+state.getCountry().getCountryId()+"' not found!"));
+
+            district.setState(state);
+            district.setCountry(country);
+        }
+
+        if(districtDto.getStatus() != null)
+            district.setStatus(districtDto.getStatus());
 
         return appUtils.districtToDto(districtRepository.save(district));
     }

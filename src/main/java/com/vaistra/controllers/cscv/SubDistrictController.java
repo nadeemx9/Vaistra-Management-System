@@ -89,7 +89,7 @@ public class SubDistrictController {
     }
 
     @PutMapping("{subDistrictId}")
-    public ResponseEntity<SubDistrictDto> updateSubDistrictId(@Valid @RequestBody SubDistrictDto subDistrictDto, @PathVariable int subDistrictId)
+    public ResponseEntity<SubDistrictDto> updateSubDistrictId(@RequestBody SubDistrictDto subDistrictDto, @PathVariable int subDistrictId)
     {
         return new ResponseEntity<>(subDistrictService.updateSubDistrict(subDistrictDto, subDistrictId), HttpStatus.OK);
     }

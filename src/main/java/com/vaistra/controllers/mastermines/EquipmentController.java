@@ -52,7 +52,7 @@ public class EquipmentController {
     }
 
     @PutMapping("{equipmentId}")
-    public ResponseEntity<EquipmentDto> updateEquipment(@Valid @RequestBody EquipmentDto equipmentDto, @PathVariable int equipmentId)
+    public ResponseEntity<EquipmentDto> updateEquipment(@RequestBody EquipmentDto equipmentDto, @PathVariable int equipmentId)
     {
         return new ResponseEntity<>(equipmentService.updateEquipment(equipmentDto, equipmentId), HttpStatus.OK);
     }

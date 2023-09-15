@@ -61,12 +61,7 @@ public class CountryController {
     }
 
     @PutMapping("{countryId}")
-    public ResponseEntity<CountryDto> updateCountry(@Valid @RequestBody CountryPatchDto country, @PathVariable int countryId) {
-        return new ResponseEntity<>(countryService.updateCountry(country, countryId), HttpStatus.ACCEPTED);
-    }
-
-    @PatchMapping("{countryId}")
-    public ResponseEntity<CountryDto> updateCountryPartially(@Valid @RequestBody CountryPatchDto country, @PathVariable int countryId) {
+    public ResponseEntity<CountryDto> updateCountry(@RequestBody CountryDto country, @PathVariable int countryId) {
         return new ResponseEntity<>(countryService.updateCountry(country, countryId), HttpStatus.ACCEPTED);
     }
 

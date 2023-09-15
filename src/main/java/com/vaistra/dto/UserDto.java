@@ -7,7 +7,7 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 public class UserDto {
-    private int userId;
+    private Integer userId;
 
     @NotEmpty(message = "Email Should not be Empty!")
     @NotBlank(message = "Email Should not be Blank!")

@@ -176,19 +176,28 @@ public class StateServiceImpl implements StateService {
     @Override
     public StateDto updateState(StateDto stateDto, int id) {
 
-        stateDto.setStateName(stateDto.getStateName().trim().toUpperCase());
-
         //  HANDLE IF STATE EXIST BY ID
         State state = stateRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("State with id '" + id + "' not found!"));
 
-        //  HANDLE DUPLICATE ENTRY STATE NAME
-        if(stateRepository.existsByStateName(stateDto.getStateName()))
+        if(stateDto.getStateName() != null)
         {
-            throw new DuplicateEntryException("State with name '"+stateDto.getStateName()+"' already exist!");
+            State stateWithSameName = stateRepository.findByStateNameIgnoreCase(stateDto.getStateName().trim());
+
+            if(stateWithSameName != null && !stateWithSameName.getStateId().equals(state.getStateId()))
+                throw new DuplicateEntryException("Country '"+stateDto.getStateName()+"' already exist!");
+
+            state.setStateName(stateDto.getStateName().trim().toUpperCase());
         }
 
-        state.setStateName(stateDto.getStateName());
+        if(stateDto.getCountryId() != null)
+        {
+            Country country = countryRepository.findById(stateDto.getStateId())
+                    .orElseThrow(()->new ResourceNotFoundException("Country with ID '"+stateDto.getCountryId()+"' not found!"));
+
+            state.setCountry(country);
+        }
+
         return appUtils.stateToDto(stateRepository.save(state));
     }
 

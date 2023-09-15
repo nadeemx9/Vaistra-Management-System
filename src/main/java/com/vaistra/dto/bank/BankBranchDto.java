@@ -16,7 +16,7 @@ import java.time.LocalTime;
 @NoArgsConstructor
 @AllArgsConstructor
 public class BankBranchDto {
-    private Integer BranchId;
+    private Integer branchId;
 
     @NotEmpty(message = "Branch name should not be empty!")
     @NotNull(message = "Branch name should not be null!")

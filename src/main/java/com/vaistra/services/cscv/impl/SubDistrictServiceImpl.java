@@ -228,17 +228,36 @@ public class SubDistrictServiceImpl implements SubDistrictService {
     @Override
     public SubDistrictDto updateSubDistrict(SubDistrictDto subDistrictDto, int id) {
 
-        subDistrictDto.setSubDistrictName(subDistrictDto.getSubDistrictName().trim().toUpperCase());
-
         // HANDLE IF SUB-DISTRICT EXIST BY ID
         SubDistrict subDistrict = subDistrictRepository.findById(id)
                 .orElseThrow(()->new ResourceNotFoundException("Sub-District with ID '"+id+"' not found!"));
 
         // HANDLE IF DUPLICATE SUB-DISTRICT NAME
-        if(subDistrictRepository.existsBySubDistrictName(subDistrictDto.getSubDistrictName()))
-            throw new DuplicateEntryException("Sub-District with name "+subDistrictDto.getSubDistrictName()+"' already exist!");
+        if(subDistrictDto.getSubDistrictName() != null)
+        {
+            SubDistrict subDistrictWithSameName = subDistrictRepository.findBySubDistrictNameIgnoreCase(subDistrictDto.getSubDistrictName().trim());
+            if(subDistrictWithSameName != null && !subDistrictWithSameName.getSubDistrictId().equals(subDistrict.getSubDistrictId()))
+                throw new DuplicateEntryException("Sub-District '"+subDistrictDto.getSubDistrictName()+"' already exist!");
 
-        subDistrict.setSubDistrictName(subDistrictDto.getSubDistrictName());
+            subDistrict.setSubDistrictName(subDistrictDto.getSubDistrictName().trim().toUpperCase());
+        }
+
+        if(subDistrictDto.getDistrictId() != null)
+        {
+            District district = districtRepository.findById(subDistrictDto.getDistrictId())
+                    .orElseThrow(()->new ResourceNotFoundException("District with ID '"+subDistrictDto.getDistrictId()+"' not found!"));
+            State state = stateRepository.findById(district.getState().getStateId())
+                    .orElseThrow(()->new ResourceNotFoundException("State with ID '"+district.getState().getStateId()+"' not found!"));
+            Country country = countryRepository.findById(state.getCountry().getCountryId())
+                    .orElseThrow(()->new ResourceNotFoundException("Country with ID '"+state.getCountry().getCountryId()+"' not found!"));
+
+            subDistrict.setDistrict(district);
+            subDistrict.setState(state);
+            subDistrict.setCountry(country);
+        }
+
+        if(subDistrictDto.getStatus() != null)
+            subDistrict.setStatus(subDistrictDto.getStatus());
 
         return appUtils.subDistrictToDto(subDistrictRepository.save(subDistrict));
     }
