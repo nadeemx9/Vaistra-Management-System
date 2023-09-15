@@ -7,7 +7,6 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 
 public interface BankService {
-
     BankDto addBank(BankDto bankDto, MultipartFile file) throws IOException;
     BankDto getBankById(int bankId);
     byte[] getBankLogo(int bankId);
