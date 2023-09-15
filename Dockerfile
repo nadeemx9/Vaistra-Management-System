@@ -3,6 +3,6 @@ COPY . .
 RUN mvn clean package -DskipTests
 
 FROM openjdk:17.0.1-jdk-slim
-COPY --from=build /target/vaistra-management-system-0.0.1-SNAPSHOT.jar vaistra-management-system.jar
+COPY --from=build /target/Vaistra-Management-System-0.0.1-SNAPSHOT.jar Vaistra-Management-System.jar
 EXPOSE 8080
-ENTRYPOINT ["java","-jar","vaistra-management-system.jar"]
+ENTRYPOINT ["java","-jar","Vaistra-Management-System.jar"]
