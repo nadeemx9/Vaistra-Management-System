@@ -73,7 +73,7 @@ public class BankBranchServiceImpl implements BankBranchService {
         Bank bank = bankRepository.findById(bankBranchDto.getBankId())
                 .orElseThrow(()->new ResourceNotFoundException("Bank with ID '"+bankBranchDto.getBankId()+"' not found!"));
         if(!bank.getStatus())
-            throw new InactiveStatusException("Bank '"+bank.getBankLongName()+"' is is inactive!");
+            throw new InactiveStatusException("Bank '"+bank.getBankLongName()+"' is inactive!");
 
         District district = districtRepository.findById(bankBranchDto.getDistrictId())
                 .orElseThrow(()->new ResourceNotFoundException("District with ID '"+bankBranchDto.getDistrictId()+"' not found!"));

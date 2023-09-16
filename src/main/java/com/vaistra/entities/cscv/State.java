@@ -1,5 +1,6 @@
 package com.vaistra.entities.cscv;
 
+import com.vaistra.entities.bank.BankBranch;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -39,4 +40,7 @@ public class State {
 
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "state")
     private List<Village> villages = new ArrayList<>();
+
+    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "state")
+    private List<BankBranch> branches = new ArrayList<>();
 }
