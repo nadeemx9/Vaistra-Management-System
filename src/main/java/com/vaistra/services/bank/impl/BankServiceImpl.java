@@ -16,6 +16,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -34,6 +35,7 @@ public class BankServiceImpl implements BankService {
     }
 
     @Override
+    @Transactional
     public BankDto addBank(BankDto bankDto, MultipartFile file) throws IOException {
 
         if(bankRepository.existsByBankLongNameIgnoreCase(bankDto.getBankLongName()))
@@ -58,12 +60,14 @@ public class BankServiceImpl implements BankService {
     }
 
     @Override
+    @Transactional
     public BankDto getBankById(int bankId) {
         return appUtils.bankToDto(bankRepository.findById(bankId)
                 .orElseThrow(()->new ResourceNotFoundException("Bank with ID '"+bankId+"' not found!")));
     }
 
     @Override
+    @Transactional
     public byte[] getBankLogo(int bankId) {
 
         Bank bank = bankRepository.findById(bankId)
@@ -73,6 +77,7 @@ public class BankServiceImpl implements BankService {
     }
 
     @Override
+    @Transactional
     public HttpResponse searchBanksByKeyword(String keyword, int pageNumber, int pageSize, String sortBy, String sortDirection) {
         Integer integerKeyword = null;
         Boolean booleanKeyword = null;
@@ -106,6 +111,7 @@ public class BankServiceImpl implements BankService {
     }
 
     @Override
+    @Transactional
     public HttpResponse getAlLBanks(int pageNumber, int pageSize, String sortBy, String sortDirection) {
         Sort sort = (sortDirection.equalsIgnoreCase("asc")) ?
                 Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
@@ -125,6 +131,7 @@ public class BankServiceImpl implements BankService {
     }
 
     @Override
+    @Transactional
     public HttpResponse getAlLActiveBanks(int pageNumber, int pageSize, String sortBy, String sortDirection) {
         Sort sort = (sortDirection.equalsIgnoreCase("asc")) ?
                 Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
@@ -144,6 +151,7 @@ public class BankServiceImpl implements BankService {
     }
 
     @Override
+    @Transactional
     public BankDto updateBank(BankDto bankDto, int bankId, MultipartFile file) throws IOException {
 
         Bank bank = bankRepository.findById(bankId)
@@ -153,8 +161,9 @@ public class BankServiceImpl implements BankService {
             bank.setBankShortName(bankDto.getBankShortName().trim());
 
         if(bankDto.getBankLongName() != null) {
-            if (bankRepository.existsByBankLongNameIgnoreCase(bankDto.getBankLongName().trim()))
-                throw new DuplicateEntryException("Bank '" + bankDto.getBankLongName() + "' already exist!");
+            Bank bankWithSameName = bankRepository.findByBankLongNameIgnoreCase(bank.getBankLongName().trim());
+            if(bankWithSameName != null && !bankWithSameName.getBankId().equals(bank.getBankId()))
+                throw new DuplicateEntryException("Bank '"+bankDto.getBankLongName()+"' already exist!");
 
             bank.setBankLongName(bankDto.getBankLongName().trim());
         }

@@ -1,4 +1,4 @@
-package com.vaistra.services.cscv.impl;
+package com.vaistra.services;
 
 import com.vaistra.entities.Confirmation;
 import com.vaistra.entities.User;
@@ -89,13 +89,17 @@ public class UserServiceImpl implements UserService {
         User user = userRepository.findById(id).
                 orElseThrow(()->new ResourceNotFoundException("User with id '"+id+"' not found!"));
 
-//        User userWithSameEmail = userRepository.findByEmail(userDto.getEmail());
-//        if(userWithSameEmail != null && !userWithSameEmail.getUserId() == (user.getUserId())){
-//            throw new DuplicateEntryException("User with username '"+userDto.getEmail()+"' already exist!");
-//        }
+        if(userDto.getEmail() != null)
+        {
+            User userWithSameEmail = userRepository.findByEmailIgnoreCase(userDto.getEmail());
+            if(userWithSameEmail != null && !userWithSameEmail.getUserId().equals(user.getUserId()))
+                throw new DuplicateEntryException("User email '"+userDto.getEmail()+"' already exist!");
 
-        user.setEmail(userDto.getEmail());
-        user.setPassword(passwordEncoder.encode(userDto.getPassword()));
+            user.setEmail(userDto.getEmail().trim());
+        }
+        if(user.getPassword() != null)
+            user.setPassword(passwordEncoder.encode(userDto.getPassword().trim()));
+
         return appUtils.userToDto(userRepository.save(user));
     }
 

@@ -1,9 +1,6 @@
 package com.vaistra.dto.bank;
 
-import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotEmpty;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -25,6 +22,7 @@ public class BankBranchDto {
 
     @NotEmpty(message = "Branch code should not be empty!")
     @NotNull(message = "Branch code should not be null!")
+    @Pattern(regexp = "^[a-zA-Z0-9]+$", message = "Branch Code must contain only alphanumeric character with no space!")
     private String branchCode;
 
     @NotEmpty(message = "Branch address should not be empty!")
@@ -33,6 +31,8 @@ public class BankBranchDto {
 
     @NotEmpty(message = "Branch IFSC should not be empty!")
     @NotNull(message = "Branch IFSC should not be null!")
+    @Pattern(regexp = "^[a-zA-Z0-9]+$", message = "IFSC should must contain only alphanumeric character with no space!")
+    @Size(min = 10, message = "IFSC should contain at least 10 alphanumeric characters!")
     private String branchIfsc;
 
 //    @NotEmpty(message = "Branch Phone number should not be empty!")
@@ -40,8 +40,9 @@ public class BankBranchDto {
 //    @Min(value = 1, message = "Invalid Phone Number")
     private String branchPhoneNumber;
 
-//    @NotEmpty(message = "Branch MICR should should not be empty!")
-//    @NotNull(message = "Branch MICR should not be null!")
+    @NotEmpty(message = "Branch MICR should should not be empty!")
+    @NotNull(message = "Branch MICR should not be null!")
+    @Pattern(regexp = "^[a-zA-Z0-9]+$", message = "MICR should must contain only alphanumeric character with no space!")
     private String branchMicr;
 
 //    @NotEmpty(message = "Branch from timing should not be empty!")
@@ -52,12 +53,10 @@ public class BankBranchDto {
 //    @NotNull(message = "Branch to timing should not be null!")
     private LocalTime toTiming;
 
-    @NotEmpty(message = "Bank ID should not be empty!")
     @NotNull(message = "Bank ID should not be null!")
     @Min(value = 1, message = "Bank ID should be a positive numeric value!")
     private Integer bankId;
 
-    @NotEmpty(message = "District ID should not be empty!")
     @NotNull(message = "District ID should not be null!")
     @Min(value = 1, message = "District ID should be a positive numeric value!")
     private Integer districtId;

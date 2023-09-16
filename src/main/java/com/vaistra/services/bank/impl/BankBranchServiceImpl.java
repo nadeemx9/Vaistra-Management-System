@@ -21,8 +21,8 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalTime;
 import java.util.List;
 
 @Service
@@ -44,6 +44,7 @@ public class BankBranchServiceImpl implements BankBranchService {
     }
 
     @Override
+    @Transactional
     public BankBranchDto addBankBranch(BankBranchDto bankBranchDto) {
         try {
             bankBranchDto.setBranchName(bankBranchDto.getBranchName().trim());
@@ -66,6 +67,9 @@ public class BankBranchServiceImpl implements BankBranchService {
         if(bankBranchRepository.existsByBranchIfscIgnoreCase(bankBranchDto.getBranchIfsc()))
             throw new DuplicateEntryException("Bank Branch IFSC '"+bankBranchDto.getBranchIfsc()+"' already exist!");
 
+        if(bankBranchRepository.existsByBranchMicrIgnoreCase(bankBranchDto.getBranchMicr()))
+            throw new DuplicateEntryException("MICR '"+bankBranchDto.getBranchMicr()+"' already exist!");
+
         Bank bank = bankRepository.findById(bankBranchDto.getBankId())
                 .orElseThrow(()->new ResourceNotFoundException("Bank with ID '"+bankBranchDto.getBankId()+"' not found!"));
         if(!bank.getStatus())
@@ -82,11 +86,12 @@ public class BankBranchServiceImpl implements BankBranchService {
         BankBranch bankBranch = new BankBranch();
         bankBranch.setBranchName(bankBranchDto.getBranchName());
         bankBranch.setBranchCode(bankBranchDto.getBranchCode());
+        bankBranch.setBranchAddress(bankBranchDto.getBranchAddress().trim());
         bankBranch.setBranchIfsc(bankBranchDto.getBranchIfsc());
         bankBranch.setBranchPhoneNumber(bankBranchDto.getBranchPhoneNumber());
         bankBranch.setBranchMicr(bankBranchDto.getBranchMicr());
-        bankBranch.setFromTiming(LocalTime.now());
-        bankBranch.setToTiming(LocalTime.now());
+        bankBranch.setFromTiming(bankBranchDto.getFromTiming());
+        bankBranch.setToTiming(bankBranchDto.getToTiming());
         bankBranch.setBank(bank);
         bankBranch.setState(state);
         bankBranch.setDistrict(district);
@@ -100,12 +105,14 @@ public class BankBranchServiceImpl implements BankBranchService {
     }
 
     @Override
+    @Transactional
     public BankBranchDto getBankBranchById(int bankBranchId) {
         return appUtils.bankBranchToDto(bankBranchRepository.findById(bankBranchId)
                 .orElseThrow(()->new ResourceNotFoundException("Bank Branch with ID '"+bankBranchId+"' not found!")));
     }
 
     @Override
+    @Transactional
     public HttpResponse searchBankBranchByKeyword(String keyword, int pageNumber, int pageSize, String sortBy, String sortDirection) {
 
         Integer integerKeyword = null;
@@ -140,6 +147,7 @@ public class BankBranchServiceImpl implements BankBranchService {
     }
 
     @Override
+    @Transactional
     public HttpResponse getBankBranchesByBankId(int bankId, int pageNumber, int pageSize, String sortBy, String sortDirection) {
 
         Bank bank = bankRepository.findById(bankId)
@@ -163,6 +171,7 @@ public class BankBranchServiceImpl implements BankBranchService {
     }
 
     @Override
+    @Transactional
     public HttpResponse getBankBranchesByStateId(int stateId, int pageNumber, int pageSize, String sortBy, String sortDirection) {
 
         State state = stateRepository.findById(stateId)
@@ -172,7 +181,7 @@ public class BankBranchServiceImpl implements BankBranchService {
                 Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
 
         Pageable pageable = PageRequest.of(pageNumber, pageSize, sort);
-        Page<BankBranch> pageBankBranch = bankBranchRepository.findAllByState_StateId(stateId, pageable);
+        Page<BankBranch> pageBankBranch = bankBranchRepository.findAllByState(state, pageable);
         List<BankBranchDto> bankBranches = appUtils.bankBranchesToDtos(pageBankBranch.getContent());
 
         return HttpResponse.builder()
@@ -186,6 +195,7 @@ public class BankBranchServiceImpl implements BankBranchService {
     }
 
     @Override
+    @Transactional
     public HttpResponse getBankBranchesByDistrictId(int districtId, int pageNumber, int pageSize, String sortBy, String sortDirection) {
 
         District district = districtRepository.findById(districtId)
@@ -209,6 +219,7 @@ public class BankBranchServiceImpl implements BankBranchService {
     }
 
     @Override
+    @Transactional
     public HttpResponse getAllBankBranches(int pageNumber, int pageSize, String sortBy, String sortDirection) {
         Sort sort = (sortDirection.equalsIgnoreCase("asc")) ?
                 Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
@@ -228,6 +239,7 @@ public class BankBranchServiceImpl implements BankBranchService {
     }
 
     @Override
+    @Transactional
     public HttpResponse getAllActiveBankBranches(int pageNumber, int pageSize, String sortBy, String sortDirection) {
         Sort sort = (sortDirection.equalsIgnoreCase("asc")) ?
                 Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
@@ -247,6 +259,7 @@ public class BankBranchServiceImpl implements BankBranchService {
     }
 
     @Override
+    @Transactional
     public HttpResponse getAlLBankBranchesByActiveBank(int pageNumber, int pageSize, String sortBy, String sortDirection) {
         Sort sort = (sortDirection.equalsIgnoreCase("asc")) ?
                 Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
@@ -266,6 +279,7 @@ public class BankBranchServiceImpl implements BankBranchService {
     }
 
     @Override
+    @Transactional
     public BankBranchDto updateBankBranch(BankBranchDto bankBranchDto, int bankBranchId) {
 
         BankBranch bankBranch = bankBranchRepository.findById(bankBranchId)
@@ -285,23 +299,30 @@ public class BankBranchServiceImpl implements BankBranchService {
 
         if(bankBranchDto.getBranchName() != null)
         {
-            if(bankBranchRepository.existsByBranchNameIgnoreCase(bankBranchDto.getBranchName()))
-                throw new DuplicateEntryException("Bank Branch name '"+bankBranchDto.getBranchAddress()+"' already exist!");
+            BankBranch branchWithSameName = bankBranchRepository.findByBranchNameIgnoreCase(bankBranchDto.getBranchName());
+            if(branchWithSameName != null && !branchWithSameName.getBranchId().equals(bankBranch.getBranchId()))
+                throw new DuplicateEntryException("Branch '"+bankBranchDto.getBranchName()+"' already exist!");
+
             bankBranch.setBranchName(bankBranchDto.getBranchName());
         }
 
         if(bankBranchDto.getBranchCode() != null)
         {
-            if(bankBranchRepository.existsByBranchCodeIgnoreCase(bankBranchDto.getBranchCode()))
-                throw new DuplicateEntryException("Bank Branch code '"+bankBranchDto.getBranchCode()+"' already exist!");
+            BankBranch branchWithSameCode = bankBranchRepository.findByBranchCodeIgnoreCase(bankBranchDto.getBranchCode());
+            if(branchWithSameCode != null && !branchWithSameCode.getBranchId().equals(bankBranch.getBranchId()))
+                throw new DuplicateEntryException("Branch Code '"+bankBranchDto.getBranchCode()+"' already exist!");
 
             bankBranch.setBranchCode(bankBranchDto.getBranchCode());
         }
 
+        if(bankBranchDto.getBranchAddress() != null)
+            bankBranch.setBranchAddress(bankBranchDto.getBranchAddress());
+
         if(bankBranchDto.getBranchIfsc() != null)
         {
-            if(bankBranchRepository.existsByBranchIfscIgnoreCase(bankBranchDto.getBranchIfsc()))
-                throw new DuplicateEntryException("Bank Branch IFSC '"+bankBranchDto.getBranchIfsc()+"' already exist!");
+            BankBranch branchWithSameIfsc = bankBranchRepository.findByBranchIfscIgnoreCase(bankBranchDto.getBranchIfsc());
+            if(branchWithSameIfsc != null && !branchWithSameIfsc.getBranchId().equals(bankBranch.getBranchId()))
+                throw new DuplicateEntryException("Branch IFSC '"+bankBranchDto.getBranchIfsc()+"' already exist!");
 
             bankBranch.setBranchIfsc(bankBranchDto.getBranchIfsc());
         }
@@ -310,13 +331,19 @@ public class BankBranchServiceImpl implements BankBranchService {
             bankBranch.setBranchPhoneNumber(bankBranchDto.getBranchPhoneNumber());
 
         if(bankBranchDto.getBranchMicr() != null)
+        {
+            BankBranch branchWithSameMicr = bankBranchRepository.findByBranchMicrIgnoreCase(bankBranchDto.getBranchMicr());
+            if(branchWithSameMicr != null && !branchWithSameMicr.getBranchId().equals(bankBranch.getBranchId()))
+                throw new DuplicateEntryException("Branch MICR '"+bankBranchDto.getBranchMicr()+"' already exist!");
+
             bankBranch.setBranchMicr(bankBranchDto.getBranchMicr());
+        }
 
         if(bankBranchDto.getFromTiming() != null)
-            bankBranch.setFromTiming(LocalTime.now());
+            bankBranch.setFromTiming(bankBranchDto.getFromTiming());
 
         if(bankBranchDto.getToTiming() != null)
-            bankBranch.setToTiming(LocalTime.now());
+            bankBranch.setToTiming(bankBranchDto.getToTiming());
 
         if(bankBranchDto.getBankId() != null)
         {
@@ -340,6 +367,7 @@ public class BankBranchServiceImpl implements BankBranchService {
     }
 
     @Override
+    @Transactional
     public String deleteBankBranch(int bankBranchId) {
 
         BankBranch bankBranch = bankBranchRepository.findById(bankBranchId)

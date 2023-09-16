@@ -28,16 +28,16 @@ public class BankBranchController {
     }
 
     @GetMapping("{bankBranchId}")
-    public ResponseEntity<BankBranchDto> getBankBranchById(@PathVariable int bandBranchId)
+    public ResponseEntity<BankBranchDto> getBankBranchById(@PathVariable int bankBranchId)
     {
-        return new ResponseEntity<>(bankBranchService.getBankBranchById(bandBranchId), HttpStatus.OK);
+        return new ResponseEntity<>(bankBranchService.getBankBranchById(bankBranchId), HttpStatus.OK);
     }
 
     @GetMapping("search")
     public ResponseEntity<HttpResponse> searchBankBranchByKeyword(@RequestParam(value = "keyword", defaultValue = "", required = false) String keyword,
                                                                   @RequestParam(value = "pageNumber", defaultValue = "0", required = false) Integer pageNumber,
                                                                   @RequestParam(value = "pageSize", defaultValue = "10", required = false) Integer pageSize,
-                                                                  @RequestParam(value = "sortBy", defaultValue = "bankBranchId", required = false) String sortBy,
+                                                                  @RequestParam(value = "sortBy", defaultValue = "branchId", required = false) String sortBy,
                                                                   @RequestParam(value = "sortDirection", defaultValue = "asc", required = false) String sortDirection)
     {
         return new ResponseEntity<>(bankBranchService.searchBankBranchByKeyword(keyword, pageNumber, pageSize, sortBy, sortDirection), HttpStatus.OK);
@@ -47,7 +47,7 @@ public class BankBranchController {
     public ResponseEntity<HttpResponse> getBankBranchByBankId(@PathVariable int bankId,
                                                               @RequestParam(value = "pageNumber", defaultValue = "0", required = false) Integer pageNumber,
                                                               @RequestParam(value = "pageSize", defaultValue = "10", required = false) Integer pageSize,
-                                                              @RequestParam(value = "sortBy", defaultValue = "bankBranchId", required = false) String sortBy,
+                                                              @RequestParam(value = "sortBy", defaultValue = "branchId", required = false) String sortBy,
                                                               @RequestParam(value = "sortDirection", defaultValue = "asc", required = false) String sortDirection)
     {
         return new ResponseEntity<>(bankBranchService.getBankBranchesByBankId(bankId, pageNumber, pageSize, sortBy, sortDirection), HttpStatus.OK);
@@ -57,7 +57,7 @@ public class BankBranchController {
     public ResponseEntity<HttpResponse> getBankBranchByStateId(@PathVariable int stateId,
                                                               @RequestParam(value = "pageNumber", defaultValue = "0", required = false) Integer pageNumber,
                                                               @RequestParam(value = "pageSize", defaultValue = "10", required = false) Integer pageSize,
-                                                              @RequestParam(value = "sortBy", defaultValue = "bankBranchId", required = false) String sortBy,
+                                                              @RequestParam(value = "sortBy", defaultValue = "branchId", required = false) String sortBy,
                                                               @RequestParam(value = "sortDirection", defaultValue = "asc", required = false) String sortDirection)
     {
         return new ResponseEntity<>(bankBranchService.getBankBranchesByStateId(stateId, pageNumber, pageSize, sortBy, sortDirection), HttpStatus.OK);
@@ -66,7 +66,7 @@ public class BankBranchController {
     public ResponseEntity<HttpResponse> getBankBranchByDistrictId(@PathVariable int districtId,
                                                                @RequestParam(value = "pageNumber", defaultValue = "0", required = false) Integer pageNumber,
                                                                @RequestParam(value = "pageSize", defaultValue = "10", required = false) Integer pageSize,
-                                                               @RequestParam(value = "sortBy", defaultValue = "bankBranchId", required = false) String sortBy,
+                                                               @RequestParam(value = "sortBy", defaultValue = "branchId", required = false) String sortBy,
                                                                @RequestParam(value = "sortDirection", defaultValue = "asc", required = false) String sortDirection)
     {
         return new ResponseEntity<>(bankBranchService.getBankBranchesByDistrictId(districtId, pageNumber, pageSize, sortBy, sortDirection), HttpStatus.OK);
@@ -75,7 +75,7 @@ public class BankBranchController {
     @GetMapping("all")
     public ResponseEntity<HttpResponse> getAllBankBranches( @RequestParam(value = "pageNumber", defaultValue = "0", required = false) Integer pageNumber,
                                                             @RequestParam(value = "pageSize", defaultValue = "10", required = false) Integer pageSize,
-                                                            @RequestParam(value = "sortBy", defaultValue = "bankBranchId", required = false) String sortBy,
+                                                            @RequestParam(value = "sortBy", defaultValue = "branchId", required = false) String sortBy,
                                                             @RequestParam(value = "sortDirection", defaultValue = "asc", required = false) String sortDirection)
     {
         return new ResponseEntity<>(bankBranchService.getAllBankBranches(pageNumber, pageSize, sortBy, sortDirection), HttpStatus.OK);
@@ -84,7 +84,7 @@ public class BankBranchController {
     @GetMapping
     public ResponseEntity<HttpResponse> getAllActiveBankBranches(@RequestParam(value = "pageNumber", defaultValue = "0", required = false) Integer pageNumber,
                                                                 @RequestParam(value = "pageSize", defaultValue = "10", required = false) Integer pageSize,
-                                                                @RequestParam(value = "sortBy", defaultValue = "bankBranchId", required = false) String sortBy,
+                                                                @RequestParam(value = "sortBy", defaultValue = "branchId", required = false) String sortBy,
                                                                 @RequestParam(value = "sortDirection", defaultValue = "asc", required = false) String sortDirection)
     {
         return new ResponseEntity<>(bankBranchService.getAllActiveBankBranches(pageNumber, pageSize, sortBy, sortDirection), HttpStatus.OK);
@@ -92,7 +92,7 @@ public class BankBranchController {
     @GetMapping("activeBank")
     public ResponseEntity<HttpResponse> getAlLBankBranchesByActiveBank(@RequestParam(value = "pageNumber", defaultValue = "0", required = false) Integer pageNumber,
                                                                  @RequestParam(value = "pageSize", defaultValue = "10", required = false) Integer pageSize,
-                                                                 @RequestParam(value = "sortBy", defaultValue = "bankBranchId", required = false) String sortBy,
+                                                                 @RequestParam(value = "sortBy", defaultValue = "branchId", required = false) String sortBy,
                                                                  @RequestParam(value = "sortDirection", defaultValue = "asc", required = false) String sortDirection)
     {
         return new ResponseEntity<>(bankBranchService.getAlLBankBranchesByActiveBank(pageNumber, pageSize, sortBy, sortDirection), HttpStatus.OK);
@@ -104,7 +104,7 @@ public class BankBranchController {
         return new ResponseEntity<>(bankBranchService.updateBankBranch(bankBranchDto, bankBranchId), HttpStatus.OK);
     }
 
-    @DeleteMapping
+    @DeleteMapping("{bankBranchId}")
     public ResponseEntity<String> deleteBankBranch(@PathVariable int bankBranchId)
     {
         return new ResponseEntity<>(bankBranchService.deleteBankBranch(bankBranchId), HttpStatus.OK);

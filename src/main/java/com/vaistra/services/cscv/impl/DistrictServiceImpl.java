@@ -149,7 +149,7 @@ public class DistrictServiceImpl implements DistrictService {
                 Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
 
         Pageable pageable = PageRequest.of(pageNumber, pageSize, sort);
-        Page<District> pageDistrict = districtRepository.findAllByState_Country(country, pageable);
+        Page<District> pageDistrict = districtRepository.findAllByCountry(country, pageable);
         List<DistrictDto> districts = appUtils.districtsToDtos(pageDistrict.getContent());
 
         return HttpResponse.builder()

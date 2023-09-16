@@ -13,8 +13,8 @@ import org.springframework.stereotype.Repository;
 public interface VillageRepository extends JpaRepository<Village, Integer> {
 
     Page<Village> findAllBySubDistrict(SubDistrict subDistrict, Pageable p);
-    Page<Village> findAllBySubDistrict_District_State(State state, Pageable p);
-    Page<Village> findAllBySubDistrict_District_State_Country(Country country, Pageable p);
+    Page<Village> findAllByState(State state, Pageable p);
+    Page<Village> findAllByCountry(Country country, Pageable p);
     Page<Village> findAllBySubDistrict_Status(boolean b, Pageable p);
     boolean existsByVillageName(String name);
     Village findByVillageNameIgnoreCase(String name);

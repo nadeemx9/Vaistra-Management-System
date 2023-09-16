@@ -44,5 +44,4 @@ public class BankBranch {
 
     private Boolean status;
 
-
 }

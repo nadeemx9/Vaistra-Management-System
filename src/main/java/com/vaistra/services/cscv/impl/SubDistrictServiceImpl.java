@@ -144,7 +144,7 @@ public class SubDistrictServiceImpl implements SubDistrictService {
     }
 
     @Override
-    public HttpResponse getAlLSubDistrictsByState(int stateId, int pageNumber, int pageSize, String sortBy, String sortDirection) {
+    public HttpResponse getAllSubDistrictsByState(int stateId, int pageNumber, int pageSize, String sortBy, String sortDirection) {
 
         State state = stateRepository.findById(stateId)
                 .orElseThrow(()->new ResourceNotFoundException("State with ID '"+stateId+"' not found!"));
@@ -153,7 +153,7 @@ public class SubDistrictServiceImpl implements SubDistrictService {
                 Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
 
         Pageable pageable = PageRequest.of(pageNumber, pageSize, sort);
-        Page<SubDistrict> pageSubDistrict = subDistrictRepository.findAllByDistrict_State(state, pageable);
+        Page<SubDistrict> pageSubDistrict = subDistrictRepository.findAllByState(state, pageable);
         List<SubDistrictDto> subDistricts = appUtils.subDistrictsToDtos(pageSubDistrict.getContent());
 
         return HttpResponse.builder()
@@ -177,7 +177,7 @@ public class SubDistrictServiceImpl implements SubDistrictService {
                 Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
 
         Pageable pageable = PageRequest.of(pageNumber, pageSize, sort);
-        Page<SubDistrict> pageSubDistrict = subDistrictRepository.findAllByDistrict_State_Country(country, pageable);
+        Page<SubDistrict> pageSubDistrict = subDistrictRepository.findAllByCountry(country, pageable);
         List<SubDistrictDto> subDistricts = appUtils.subDistrictsToDtos(pageSubDistrict.getContent());
 
         return HttpResponse.builder()

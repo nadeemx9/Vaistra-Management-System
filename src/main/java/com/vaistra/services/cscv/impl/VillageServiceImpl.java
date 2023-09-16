@@ -147,7 +147,7 @@ public class VillageServiceImpl implements VillageService {
                 Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
 
         Pageable pageable = PageRequest.of(pageNumber, pageSize, sort);
-        Page<Village> pageVillage = villageRepository.findAllBySubDistrict_District_State(state, pageable);
+        Page<Village> pageVillage = villageRepository.findAllByState(state, pageable);
         List<VillageDto> villages = appUtils.villagesToDtos(pageVillage.getContent());
 
         return HttpResponse.builder()
@@ -164,13 +164,13 @@ public class VillageServiceImpl implements VillageService {
     @Override
     public HttpResponse getAllVillagesByCountry(int countryId, int pageNumber, int pageSize, String sortBy, String sortDirection) {
         Country country = countryRepository.findById(countryId)
-                .orElseThrow(()->new ResourceNotFoundException("State with ID '"+countryId+"' not found!"));
+                .orElseThrow(()->new ResourceNotFoundException("Country with ID '"+countryId+"' not found!"));
 
         Sort sort = (sortDirection.equalsIgnoreCase("asc")) ?
                 Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
 
         Pageable pageable = PageRequest.of(pageNumber, pageSize, sort);
-        Page<Village> pageVillage = villageRepository.findAllBySubDistrict_District_State_Country(country, pageable);
+        Page<Village> pageVillage = villageRepository.findAllByCountry(country, pageable);
         List<VillageDto> villages = appUtils.villagesToDtos(pageVillage.getContent());
 
         return HttpResponse.builder()

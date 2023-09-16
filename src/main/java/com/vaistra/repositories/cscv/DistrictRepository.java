@@ -11,7 +11,7 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface DistrictRepository extends JpaRepository<District, Integer> {
     Page<District> findAllByState(State state, Pageable p);
-    Page<District> findAllByState_Country(Country country, Pageable p);
+    Page<District> findAllByCountry(Country country, Pageable p);
 
     District findByDistrictNameIgnoreCase(String name);
     boolean existsByDistrictNameIgnoreCase(String name);

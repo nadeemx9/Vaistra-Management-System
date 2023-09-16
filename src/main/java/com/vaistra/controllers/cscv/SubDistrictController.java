@@ -66,7 +66,7 @@ public class SubDistrictController {
                                                                        @RequestParam(value = "sortBy", defaultValue = "subDistrictId", required = false) String sortBy,
                                                                        @RequestParam(value = "sortDirection", defaultValue = "asc", required = false) String sortDirection)
     {
-        return new ResponseEntity<>(subDistrictService.getAlLSubDistrictsByState(stateId, pageNumber, pageSize, sortBy, sortDirection), HttpStatus.OK);
+        return new ResponseEntity<>(subDistrictService.getAllSubDistrictsByState(stateId, pageNumber, pageSize, sortBy, sortDirection), HttpStatus.OK);
     }
     @GetMapping("countryId/{countryId}")
     public ResponseEntity<HttpResponse> getAlLSubDistrictsByCountryId(@PathVariable int countryId,

@@ -18,7 +18,7 @@ public class User implements UserDetails {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int userId;
+    private Integer userId;
     private String email;
     private String password;
 
@@ -26,7 +26,7 @@ public class User implements UserDetails {
 
     private String lastName;
 
-    private boolean status;
+    private Boolean status;
 
 
     @Override
