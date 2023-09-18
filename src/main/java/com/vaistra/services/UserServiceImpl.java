@@ -64,8 +64,8 @@ public class UserServiceImpl implements UserService {
 
         User newUser = userRepository.save(user);
 
-        Confirmation confirmation = new Confirmation(newUser);
-        confirmationRepository.save(confirmation);
+//        Confirmation confirmation = new Confirmation(newUser);
+//        confirmationRepository.save(confirmation);
 
        /* TODO : Send email to user with Token */
 //            emailService.sendSimpleMailMessage(newUser.getEmail(), newUser.getEmail(), confirmation.getToken());
@@ -102,8 +102,11 @@ public class UserServiceImpl implements UserService {
 
             user.setEmail(userDto.getEmail().trim());
         }
-        if(user.getPassword() != null)
-            user.setPassword(passwordEncoder.encode(userDto.getPassword().trim()));
+        if(userDto.getFirstName() != null)
+            user.setFirstName(userDto.getFirstName().trim());
+
+        if(userDto.getLastName() != null)
+            user.setLastName(userDto.getLastName().trim());
 
         return appUtils.userToDto(userRepository.save(user));
     }
@@ -132,31 +135,34 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public String forgotPassword(UserDto password, int userId, UserDetails loggedInUser) {
-        User user = userRepository.findById(userId).
-                orElseThrow(()->new ResourceNotFoundException("User with id '"+userId+"' not found!"));
-        if(!user.getEmail().equals(loggedInUser.getUsername()))
-            throw new UserUnauthorizedException("User with email '"+loggedInUser.getUsername()+"' is not allowed to change password!");
+    public String forgotPassword(PasswordDto passwordDto) {
+        User user = userRepository.findByEmailIgnoreCase(passwordDto.getEmail());
 
-        if(passwordEncoder.matches(password.getPassword(), loggedInUser.getPassword()))
+        if(user == null)
+            throw new ResourceNotFoundException("User with email '"+passwordDto.getEmail()+"' not found!");
+
+
+        if(passwordEncoder.matches(passwordDto.getNewPassword(), user.getPassword()))
             throw new ResourceNotFoundException("Old and New password should not match!");
 
-        String newPassword = passwordEncoder.encode(password.getPassword());
-
-        emailService.sendResetPasswordLink(user, newPassword);
+        String newPassword = passwordEncoder.encode(passwordDto.getNewPassword());
+        Confirmation confirmation = confirmationRepository.save(new Confirmation(user));
+        emailService.sendResetPasswordLink(user, newPassword, confirmation.getToken());
         return "Check your mail inbox to reset the password!";
     }
 
     @Override
-    public String resetPassword(int userId, UserDetails loggedInUser, String newPassword) {
-        User user = userRepository.findById(userId).
-                orElseThrow(()->new ResourceNotFoundException("User with id '"+userId+"' not found!"));
-        if(!user.getEmail().equals(loggedInUser.getUsername()))
-            throw new UserUnauthorizedException("User with email '"+loggedInUser.getUsername()+"' is not allowed to change password!");
+    public String resetPassword(String token, String newPassword) {
+       Confirmation confirmation = confirmationRepository.findByToken(token);
 
-        user.setPassword(newPassword);
-        userRepository.save(user);
+       if(confirmation == null)
+           throw new ResourceNotFoundException("Invalid Argument!");
 
+       User user = confirmation.getUser();
+
+       user.setPassword(newPassword);
+       userRepository.save(user);
+       confirmationRepository.delete(confirmation);
         return "Password Changed Successfully!";
     }
 }

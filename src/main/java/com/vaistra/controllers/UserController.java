@@ -65,14 +65,14 @@ public class UserController {
         return new ResponseEntity<>(userService.updateUser(userDto, userId), HttpStatus.OK);
     }
 
-    @PostMapping("forgot-password/{userId}")
-    public ResponseEntity<String> forgotPassword(@RequestBody UserDto password, @PathVariable int userId, @AuthenticationPrincipal UserDetails loggedInUser)
+    @PostMapping("forgot-password")
+    public ResponseEntity<String> forgotPassword(@RequestBody PasswordDto passwordDto)
     {
-        return new ResponseEntity<>(userService.forgotPassword(password, userId, loggedInUser), HttpStatus.OK);
+        return new ResponseEntity<>(userService.forgotPassword(passwordDto), HttpStatus.OK);
     }
-    @GetMapping("reset-password/{userId}")
-    public ResponseEntity<String> resetPassword(@PathVariable int userId, @AuthenticationPrincipal UserDetails loggedInUser, @RequestParam("newPassword") String newPassword)
+    @GetMapping("reset-password")
+    public ResponseEntity<String> resetPassword(@RequestParam("token") String token, @RequestParam("newPassword") String newPassword)
     {
-        return new ResponseEntity<>(userService.resetPassword(userId, loggedInUser, newPassword), HttpStatus.OK);
+        return new ResponseEntity<>(userService.resetPassword(token, newPassword), HttpStatus.OK);
     }
 }

@@ -16,6 +16,6 @@ public interface UserService {
 
     Boolean verifyToken(String token);
 
-    String forgotPassword(UserDto password, int userId, UserDetails loggedInUser);
-    String resetPassword(int userId, UserDetails loggedInUser, String password);
+    String forgotPassword(PasswordDto passwordDto);
+    String resetPassword(String token, String password);
 }

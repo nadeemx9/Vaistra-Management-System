@@ -1,5 +1,6 @@
 package com.vaistra.services;
 
+import com.vaistra.entities.Confirmation;
 import com.vaistra.entities.User;
 import com.vaistra.services.EmailService;
 import com.vaistra.utils.AppUtils;
@@ -40,14 +41,14 @@ public class EmailServiceImpl implements EmailService {
 
     @Override
     @Async
-    public void sendResetPasswordLink(User user, String password) {
+    public void sendResetPasswordLink(User user, String password, String token) {
         try {
             SimpleMailMessage message = new SimpleMailMessage();
             message.setSubject("RESET PASSWORD");
 
             message.setFrom(fromEmail);
             message.setTo(user.getEmail());
-            message.setText("HELLO, "+user.getFirstName()+"\nClick the below link to change the password..\n\n"+host+"/user/reset-password/"+user.getUserId()+"?newPassword="+password);
+            message.setText("HELLO, "+user.getFirstName()+"\nClick the below link to change the password..\n\n"+host+"/user/reset-password?newPassword="+password+"&token="+token);
 
             emailSender.send(message);
 
