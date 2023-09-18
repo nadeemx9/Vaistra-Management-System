@@ -128,7 +128,7 @@ public class UserServiceImpl implements UserService {
         if(confirmation == null)
             throw new ResourceNotFoundException("Confirmation with token '"+token+"' not found");
 
-        User user = userRepository.findByEmailIgnoreCase(confirmation.getUser().getEmail());
+        User user = userRepository.findByEmailIgnoreCase(confirmation.getEmail());
         user.setStatus(true);
         userRepository.save(user);
         return Boolean.TRUE;
@@ -146,7 +146,7 @@ public class UserServiceImpl implements UserService {
             throw new ResourceNotFoundException("Old and New password should not match!");
 
         String newPassword = passwordEncoder.encode(passwordDto.getNewPassword());
-        Confirmation confirmation = confirmationRepository.save(new Confirmation(user));
+        Confirmation confirmation = confirmationRepository.save(new Confirmation(user.getEmail()));
         emailService.sendResetPasswordLink(user, newPassword, confirmation.getToken());
         return "Check your mail inbox to reset the password!";
     }
@@ -158,7 +158,12 @@ public class UserServiceImpl implements UserService {
        if(confirmation == null)
            throw new ResourceNotFoundException("Invalid Argument!");
 
-       User user = confirmation.getUser();
+       User user = userRepository.findByEmailIgnoreCase(confirmation.getEmail());
+
+       if(user == null) {
+           confirmationRepository.delete(confirmation);
+           throw new ResourceNotFoundException("User with email '" + confirmation.getEmail() + "' not found!");
+       }
 
        user.setPassword(newPassword);
        userRepository.save(user);

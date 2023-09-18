@@ -21,13 +21,11 @@ public class Confirmation {
     private String token;
     private LocalDateTime createdAt;
 
-    @OneToOne(targetEntity = User.class, fetch = FetchType.EAGER)
-    @JoinColumn(name = "user_id")
-    private User user;
+    private String email;
 
-    public Confirmation(User user)
+    public Confirmation(String email)
     {
-        this.user = user;
+        this.email = email;
         this.createdAt = LocalDateTime.now();
         this.token = UUID.randomUUID().toString();
     }
