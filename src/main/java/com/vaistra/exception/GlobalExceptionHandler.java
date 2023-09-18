@@ -85,7 +85,12 @@ public class GlobalExceptionHandler {
         return Map.of("errorMessage", ex.getMessage());
     }
 
-
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    @ExceptionHandler(UserUnauthorizedException.class)
+    public Map<String, String> handleUserUnauthorizedException(UserUnauthorizedException ex)
+    {
+        return Map.of("errorMessage", ex.getMessage());
+    }
 
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(IOException.class)
