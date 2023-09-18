@@ -1,14 +1,19 @@
 package com.vaistra.controllers;
 
+import com.vaistra.dto.PasswordDto;
 import com.vaistra.dto.UserDto;
+import com.vaistra.entities.User;
 import com.vaistra.services.UserService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 
+import java.security.Principal;
 import java.util.List;
 
 @RestController
@@ -60,5 +65,14 @@ public class UserController {
         return new ResponseEntity<>(userService.updateUser(userDto, userId), HttpStatus.OK);
     }
 
-
+    @PostMapping("forgot-password/{userId}")
+    public ResponseEntity<String> forgotPassword(@RequestBody UserDto password, @PathVariable int userId, @AuthenticationPrincipal UserDetails loggedInUser)
+    {
+        return new ResponseEntity<>(userService.forgotPassword(password, userId, loggedInUser), HttpStatus.OK);
+    }
+    @GetMapping("reset-password/{userId}")
+    public ResponseEntity<String> resetPassword(@PathVariable int userId, @AuthenticationPrincipal UserDetails loggedInUser, @RequestParam("newPassword") String newPassword)
+    {
+        return new ResponseEntity<>(userService.resetPassword(userId, loggedInUser, newPassword), HttpStatus.OK);
+    }
 }

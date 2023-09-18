@@ -1,10 +1,12 @@
 package com.vaistra.services;
 
+import com.vaistra.dto.PasswordDto;
 import com.vaistra.entities.Confirmation;
 import com.vaistra.entities.User;
 import com.vaistra.exception.DuplicateEntryException;
 import com.vaistra.exception.ResourceNotFoundException;
 import com.vaistra.dto.UserDto;
+import com.vaistra.exception.UserUnauthorizedException;
 import com.vaistra.repositories.ConfirmationRepository;
 import com.vaistra.repositories.UserRepository;
 import com.vaistra.services.EmailService;
@@ -15,9 +17,12 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.security.Principal;
+import java.util.Base64;
 import java.util.List;
 
 @Service
@@ -124,5 +129,34 @@ public class UserServiceImpl implements UserService {
         user.setStatus(true);
         userRepository.save(user);
         return Boolean.TRUE;
+    }
+
+    @Override
+    public String forgotPassword(UserDto password, int userId, UserDetails loggedInUser) {
+        User user = userRepository.findById(userId).
+                orElseThrow(()->new ResourceNotFoundException("User with id '"+userId+"' not found!"));
+        if(!user.getEmail().equals(loggedInUser.getUsername()))
+            throw new UserUnauthorizedException("User with email '"+loggedInUser.getUsername()+"' is not allowed to change password!");
+
+        if(passwordEncoder.matches(password.getPassword(), loggedInUser.getPassword()))
+            throw new ResourceNotFoundException("Old and New password should not match!");
+
+        String newPassword = passwordEncoder.encode(password.getPassword());
+
+        emailService.sendResetPasswordLink(user, newPassword);
+        return "Check your mail inbox to reset the password!";
+    }
+
+    @Override
+    public String resetPassword(int userId, UserDetails loggedInUser, String newPassword) {
+        User user = userRepository.findById(userId).
+                orElseThrow(()->new ResourceNotFoundException("User with id '"+userId+"' not found!"));
+        if(!user.getEmail().equals(loggedInUser.getUsername()))
+            throw new UserUnauthorizedException("User with email '"+loggedInUser.getUsername()+"' is not allowed to change password!");
+
+        user.setPassword(newPassword);
+        userRepository.save(user);
+
+        return "Password Changed Successfully!";
     }
 }
