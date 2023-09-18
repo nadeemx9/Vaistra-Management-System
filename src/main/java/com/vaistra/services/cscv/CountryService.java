@@ -3,6 +3,7 @@ package com.vaistra.services.cscv;
 import com.vaistra.dto.cscv.CountryDto;
 import com.vaistra.dto.cscv.CountryPatchDto;
 import com.vaistra.dto.HttpResponse;
+import org.springframework.web.multipart.MultipartFile;
 
 public interface CountryService {
     CountryDto addCountry(CountryDto countryDto);
@@ -23,5 +24,5 @@ public interface CountryService {
 
     HttpResponse searchCountry(String keyword, int pageNumber, int pageSize, String sortBy, String sortDirection);
 
-
+    String uploadCountryCSV(MultipartFile file);
 }

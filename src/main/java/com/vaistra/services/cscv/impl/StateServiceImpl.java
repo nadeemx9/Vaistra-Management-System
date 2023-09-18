@@ -185,7 +185,7 @@ public class StateServiceImpl implements StateService {
             State stateWithSameName = stateRepository.findByStateNameIgnoreCase(stateDto.getStateName().trim());
 
             if(stateWithSameName != null && !stateWithSameName.getStateId().equals(state.getStateId()))
-                throw new DuplicateEntryException("Country '"+stateDto.getStateName()+"' already exist!");
+                throw new DuplicateEntryException("State '"+stateDto.getStateName()+"' already exist!");
 
             state.setStateName(stateDto.getStateName().trim().toUpperCase());
         }

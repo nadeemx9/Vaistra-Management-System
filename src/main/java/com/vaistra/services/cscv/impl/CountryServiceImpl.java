@@ -9,14 +9,24 @@ import com.vaistra.dto.HttpResponse;
 import com.vaistra.repositories.cscv.CountryRepository;
 import com.vaistra.services.cscv.CountryService;
 import com.vaistra.utils.AppUtils;
+import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVParser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+import java.nio.charset.Charset;
 import java.util.List;
+import java.util.Objects;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Function;
+import java.util.function.Predicate;
 
 @Service
 public class CountryServiceImpl implements CountryService {
@@ -185,5 +195,44 @@ public class CountryServiceImpl implements CountryService {
 
     }
 
+    public String uploadCountryCSV(MultipartFile file) {
 
+        if(file.isEmpty()){
+            throw new ResourceNotFoundException("Country CSV File not found...!");
+        }
+        if(!Objects.equals(file.getContentType(), "text/csv")){
+            throw new IllegalArgumentException("Invalid file type. Please upload a CSV file.");
+        }
+
+        try {
+            List<Country> countries = CSVParser.parse(file.getInputStream(), Charset.defaultCharset(), CSVFormat.DEFAULT)
+                    .stream().skip(1) // Skip the first row
+                    .map(record -> {
+                        Country country = new Country();
+                        country.setCountryName(record.get(0)); // Assuming the first column is "country"
+                        country.setStatus(Boolean.parseBoolean(record.get(1))); // Assuming the second column is "isActive"
+                        return country;
+                    })
+                    .toList();
+
+            // Filter out duplicates by country name
+            List<Country> nonDuplicateCountries = countries.stream()
+                    .filter(distinctByKey(Country::getCountryName))
+                    .toList();
+
+
+            long uploadedRecordCount = nonDuplicateCountries.size();
+            countryRepository.saveAll(nonDuplicateCountries);
+
+            return "CSV file uploaded successfully. " + uploadedRecordCount + " records uploaded.";
+
+        }catch (Exception e){
+            return e.getMessage();
+        }
+    }
+
+    private static <T> Predicate<T> distinctByKey(Function<? super T, ?> keyExtractor) {
+        Set<Object> seen = ConcurrentHashMap.newKeySet();
+        return t -> seen.add(keyExtractor.apply(t));
+    }
 }

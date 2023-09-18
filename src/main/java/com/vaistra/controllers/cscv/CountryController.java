@@ -9,6 +9,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
 
 @RestController
 @RequestMapping("country")
@@ -79,6 +82,11 @@ public class CountryController {
     @PutMapping("restore/{countryId}")
     public ResponseEntity<String> restoreCountryById(@PathVariable int countryId) {
         return new ResponseEntity<>(countryService.restoreCountryById(countryId), HttpStatus.OK);
+    }
+
+    @PostMapping("/UploadCsv")
+    public ResponseEntity<String> uploadCountryCSV(@RequestParam MultipartFile file) throws IOException {
+        return new ResponseEntity<>(countryService.uploadCountryCSV(file),HttpStatus.OK);
     }
 
 }
