@@ -32,7 +32,7 @@ public class StateController {
 
     @GetMapping("{stateId}")
     public ResponseEntity<StateDto> getStateById(@PathVariable int stateId) {
-        return new ResponseEntity<>(stateService.getStateById(stateId), HttpStatus.FOUND);
+        return new ResponseEntity<>(stateService.getStateById(stateId), HttpStatus.OK);
     }
 
     @GetMapping("all")
@@ -40,7 +40,7 @@ public class StateController {
                                                      @RequestParam(value = "pageSize", defaultValue = "5", required = false) Integer pageSize,
                                                      @RequestParam(value = "sortBy", defaultValue = "stateId", required = false) String sortBy,
                                                      @RequestParam(value = "sortDirection", defaultValue = "asc", required = false) String sortDirection) {
-        return new ResponseEntity<>(stateService.getAllStates(pageNumber, pageSize, sortBy, sortDirection), HttpStatus.FOUND);
+        return new ResponseEntity<>(stateService.getAllStates(pageNumber, pageSize, sortBy, sortDirection), HttpStatus.OK);
     }
     @GetMapping
     public ResponseEntity<HttpResponse> getAllStatesByActiveCountry(@RequestParam(value = "pageNumber", defaultValue = "0", required = false) Integer pageNumber,
