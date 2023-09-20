@@ -2,6 +2,7 @@ package com.vaistra.controllers.cscv;
 
 import com.vaistra.dto.HttpResponse;
 import com.vaistra.dto.cscv.StateDto;
+import com.vaistra.dto.cscv.StateUpdateDto;
 import com.vaistra.services.cscv.StateService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -69,7 +70,7 @@ public class StateController {
     }
 
     @PutMapping("{stateId}")
-    public ResponseEntity<StateDto> updateState(@RequestBody StateDto stateDto, @PathVariable int stateId) {
+    public ResponseEntity<StateDto> updateState(@Valid @RequestBody StateUpdateDto stateDto, @PathVariable int stateId) {
         return new ResponseEntity<>(stateService.updateState(stateDto, stateId), HttpStatus.OK);
     }
 

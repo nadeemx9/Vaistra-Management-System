@@ -1,5 +1,6 @@
 package com.vaistra.services.cscv.impl;
 
+import com.vaistra.dto.cscv.DistrictUpdateDto;
 import com.vaistra.entities.cscv.Country;
 import com.vaistra.entities.cscv.District;
 import com.vaistra.entities.cscv.State;
@@ -200,7 +201,7 @@ public class DistrictServiceImpl implements DistrictService {
     }
 
     @Override
-    public DistrictDto updateDistrict(DistrictDto districtDto, int id) {
+    public DistrictDto updateDistrict(DistrictUpdateDto districtDto, int id) {
 
         // HANDLE IF DISTRICT EXIST BY ID
         District district = districtRepository.findById(id)

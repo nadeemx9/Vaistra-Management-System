@@ -2,6 +2,7 @@ package com.vaistra.services.cscv;
 
 import com.vaistra.dto.HttpResponse;
 import com.vaistra.dto.cscv.StateDto;
+import com.vaistra.dto.cscv.StateUpdateDto;
 
 public interface StateService {
     StateDto addState(StateDto stateDto);
@@ -11,7 +12,7 @@ public interface StateService {
     HttpResponse getAllStates(int pageNumber, int pageSize, String sortBy, String sortDirection);
     HttpResponse getAllStatesByActiveCountry(int pageNumber, int pageSize, String sortBy, String sortDirection);
 
-    StateDto updateState(StateDto stateDto, int id);
+    StateDto updateState(StateUpdateDto stateDto, int id);
 
     String deleteStateById(int id);
 

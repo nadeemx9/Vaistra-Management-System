@@ -3,6 +3,7 @@ package com.vaistra.services.mastermines.impl;
 import com.vaistra.dto.HttpResponse;
 import com.vaistra.dto.mastermines.EquipmentDto;
 import com.vaistra.dto.mastermines.VehicleDto;
+import com.vaistra.dto.mastermines.VehicleUpdateDto;
 import com.vaistra.entities.mastermines.Equipment;
 import com.vaistra.entities.mastermines.Vehicle;
 import com.vaistra.exception.DuplicateEntryException;
@@ -99,7 +100,7 @@ public class VehicleServiceImpl implements VehicleService {
     }
 
     @Override
-    public VehicleDto updateVehicle(VehicleDto vehicleDto, int vehicleId) {
+    public VehicleDto updateVehicle(VehicleUpdateDto vehicleDto, int vehicleId) {
 
         Vehicle vehicle = vehicleRepository.findById(vehicleId)
                 .orElseThrow(()->new ResourceNotFoundException("Vehicle with ID '"+vehicleId+"' not found!"));

@@ -1,8 +1,8 @@
 package com.vaistra.services.cscv;
 
 import com.vaistra.dto.cscv.CountryDto;
-import com.vaistra.dto.cscv.CountryPatchDto;
 import com.vaistra.dto.HttpResponse;
+import com.vaistra.dto.cscv.CountryUpdateDto;
 import org.springframework.web.multipart.MultipartFile;
 
 public interface CountryService {
@@ -14,7 +14,7 @@ public interface CountryService {
 
     HttpResponse getAllCountriesByActive(int pageNumber, int pageSize, String sortBy, String sortDirection);
 
-    CountryDto updateCountry(CountryDto country, int id);
+    CountryDto updateCountry(CountryUpdateDto country, int id);
 
     String deleteCountryById(int id);
 

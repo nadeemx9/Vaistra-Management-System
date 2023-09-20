@@ -1,10 +1,10 @@
 package com.vaistra.services.cscv.impl;
 
+import com.vaistra.dto.cscv.CountryUpdateDto;
 import com.vaistra.entities.cscv.Country;
 import com.vaistra.exception.DuplicateEntryException;
 import com.vaistra.exception.ResourceNotFoundException;
 import com.vaistra.dto.cscv.CountryDto;
-import com.vaistra.dto.cscv.CountryPatchDto;
 import com.vaistra.dto.HttpResponse;
 import com.vaistra.repositories.cscv.CountryRepository;
 import com.vaistra.services.cscv.CountryService;
@@ -19,7 +19,6 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.List;
 import java.util.Objects;
@@ -143,7 +142,7 @@ public class CountryServiceImpl implements CountryService {
     }
 
     @Override
-    public CountryDto updateCountry(CountryDto c, int id) {
+    public CountryDto updateCountry(CountryUpdateDto c, int id) {
 
         // HANDLE IF COUNTRY EXIST BY ID
         Country country = countryRepository.findById(id)

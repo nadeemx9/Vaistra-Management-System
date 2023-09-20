@@ -2,6 +2,7 @@ package com.vaistra.controllers.mastermines;
 
 import com.vaistra.dto.HttpResponse;
 import com.vaistra.dto.mastermines.MineralDto;
+import com.vaistra.dto.mastermines.MineralUpdateDto;
 import com.vaistra.services.mastermines.MineralService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -51,7 +52,7 @@ public class MineralController {
         return new ResponseEntity<>(mineralService.searchMineralByKeyword(keyword, pageNumber, pageSize, sortBy, sortDirection), HttpStatus.OK);
     }
     @PutMapping("{mineralId}")
-    public ResponseEntity<MineralDto> updateMineral(@RequestBody MineralDto mineralDto, @PathVariable int mineralId)
+    public ResponseEntity<MineralDto> updateMineral(@Valid @RequestBody MineralUpdateDto mineralDto, @PathVariable int mineralId)
     {
         return new ResponseEntity<>(mineralService.updateMineral(mineralDto, mineralId), HttpStatus.OK);
     }

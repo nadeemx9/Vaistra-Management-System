@@ -2,6 +2,7 @@ package com.vaistra.services.mastermines.impl;
 
 import com.vaistra.dto.HttpResponse;
 import com.vaistra.dto.mastermines.DesignationDto;
+import com.vaistra.dto.mastermines.DesignationUpdateDto;
 import com.vaistra.dto.mastermines.MineralDto;
 import com.vaistra.entities.mastermines.Designation;
 import com.vaistra.entities.mastermines.Mineral;
@@ -98,7 +99,7 @@ public class DesignationServiceImpl implements DesignationService {
     }
 
     @Override
-    public DesignationDto updateDesignation(DesignationDto designationDto, int designationId) {
+    public DesignationDto updateDesignation(DesignationUpdateDto designationDto, int designationId) {
 
         Designation designation = designationRepository.findById(designationId)
                 .orElseThrow(()->new ResourceNotFoundException("Designation with ID '"+designationId+"' not found!"));

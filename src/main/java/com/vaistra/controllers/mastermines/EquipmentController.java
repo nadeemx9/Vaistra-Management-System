@@ -2,6 +2,7 @@ package com.vaistra.controllers.mastermines;
 
 import com.vaistra.dto.HttpResponse;
 import com.vaistra.dto.mastermines.EquipmentDto;
+import com.vaistra.dto.mastermines.EquipmentUpdateDto;
 import com.vaistra.services.mastermines.EquipmentService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -52,7 +53,7 @@ public class EquipmentController {
     }
 
     @PutMapping("{equipmentId}")
-    public ResponseEntity<EquipmentDto> updateEquipment(@RequestBody EquipmentDto equipmentDto, @PathVariable int equipmentId)
+    public ResponseEntity<EquipmentDto> updateEquipment(@Valid @RequestBody EquipmentUpdateDto equipmentDto, @PathVariable int equipmentId)
     {
         return new ResponseEntity<>(equipmentService.updateEquipment(equipmentDto, equipmentId), HttpStatus.OK);
     }

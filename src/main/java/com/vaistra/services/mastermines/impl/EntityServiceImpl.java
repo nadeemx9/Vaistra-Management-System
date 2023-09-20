@@ -2,6 +2,7 @@ package com.vaistra.services.mastermines.impl;
 
 import com.vaistra.dto.HttpResponse;
 import com.vaistra.dto.mastermines.EntityDto;
+import com.vaistra.dto.mastermines.EntityUpdateDto;
 import com.vaistra.dto.mastermines.MineralDto;
 import com.vaistra.entities.mastermines.EntityTbl;
 import com.vaistra.entities.mastermines.Mineral;
@@ -99,7 +100,7 @@ public class EntityServiceImpl implements EntityService {
     }
 
     @Override
-    public EntityDto updateEntity(EntityDto entityDto, int entityId) {
+    public EntityDto updateEntity(EntityUpdateDto entityDto, int entityId) {
 
         EntityTbl entity = entityRepository.findById(entityId)
                 .orElseThrow(()->new ResourceNotFoundException("Entity with ID '"+entityId+"' not found!"));

@@ -1,5 +1,6 @@
 package com.vaistra.services.cscv.impl;
 
+import com.vaistra.dto.cscv.StateUpdateDto;
 import com.vaistra.entities.cscv.Country;
 import com.vaistra.entities.cscv.State;
 import com.vaistra.exception.DuplicateEntryException;
@@ -174,7 +175,7 @@ public class StateServiceImpl implements StateService {
     }
 
     @Override
-    public StateDto updateState(StateDto stateDto, int id) {
+    public StateDto updateState(StateUpdateDto stateDto, int id) {
 
         //  HANDLE IF STATE EXIST BY ID
         State state = stateRepository.findById(id)
@@ -192,7 +193,7 @@ public class StateServiceImpl implements StateService {
 
         if(stateDto.getCountryId() != null)
         {
-            Country country = countryRepository.findById(stateDto.getStateId())
+            Country country = countryRepository.findById(stateDto.getCountryId())
                     .orElseThrow(()->new ResourceNotFoundException("Country with ID '"+stateDto.getCountryId()+"' not found!"));
 
             state.setCountry(country);

@@ -1,8 +1,10 @@
 package com.vaistra.services;
 
 import com.vaistra.dto.PasswordDto;
+import com.vaistra.dto.UserUpdateDto;
 import com.vaistra.entities.Confirmation;
 import com.vaistra.entities.User;
+import com.vaistra.exception.ConfirmationTokenExpiredException;
 import com.vaistra.exception.DuplicateEntryException;
 import com.vaistra.exception.ResourceNotFoundException;
 import com.vaistra.dto.UserDto;
@@ -22,6 +24,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.security.Principal;
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.Base64;
 import java.util.List;
 
@@ -90,7 +94,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserDto updateUser(UserDto userDto, int id) {
+    public UserDto updateUser(UserUpdateDto userDto, int id) {
         User user = userRepository.findById(id).
                 orElseThrow(()->new ResourceNotFoundException("User with id '"+id+"' not found!"));
 
@@ -158,6 +162,14 @@ public class UserServiceImpl implements UserService {
        if(confirmation == null)
            throw new ResourceNotFoundException("Invalid Argument!");
 
+        // Check if the token creation time exceeds 10 minutes
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime tokenCreationTime = confirmation.getCreatedAt();
+        long minutesSinceCreation = Duration.between(tokenCreationTime, now).toMinutes();
+
+        if (minutesSinceCreation > 10)
+            throw new ConfirmationTokenExpiredException("Reset Password Link expired!");
+
        User user = userRepository.findByEmailIgnoreCase(confirmation.getEmail());
 
        if(user == null) {
@@ -168,6 +180,6 @@ public class UserServiceImpl implements UserService {
        user.setPassword(newPassword);
        userRepository.save(user);
        confirmationRepository.delete(confirmation);
-        return "Password Changed Successfully!";
+       return "Password Changed Successfully!";
     }
 }

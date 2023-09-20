@@ -2,6 +2,7 @@ package com.vaistra.controllers.cscv;
 
 import com.vaistra.dto.cscv.DistrictDto;
 import com.vaistra.dto.HttpResponse;
+import com.vaistra.dto.cscv.DistrictUpdateDto;
 import com.vaistra.services.cscv.DistrictService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -79,7 +80,7 @@ public class DistrictController {
     }
 
     @PutMapping("{districtId}")
-    public ResponseEntity<DistrictDto> updateDistrict(@RequestBody DistrictDto districtDto, @PathVariable int districtId)
+    public ResponseEntity<DistrictDto> updateDistrict(@Valid @RequestBody DistrictUpdateDto districtDto, @PathVariable int districtId)
     {
         return new ResponseEntity<>(districtService.updateDistrict(districtDto, districtId), HttpStatus.OK);
     }

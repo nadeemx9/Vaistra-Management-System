@@ -2,6 +2,7 @@ package com.vaistra.services.cscv;
 
 import com.vaistra.dto.cscv.DistrictDto;
 import com.vaistra.dto.HttpResponse;
+import com.vaistra.dto.cscv.DistrictUpdateDto;
 
 public interface DistrictService {
     DistrictDto addDistrict(DistrictDto districtDto);
@@ -11,7 +12,7 @@ public interface DistrictService {
     HttpResponse getAllDistricts(int pageNumber, int pageSize, String sortBy, String sortDirection);
     HttpResponse getAllDistrictsByActiveState(int pageNumber, int pageSize, String sortBy, String sortDirection);
 
-    DistrictDto updateDistrict(DistrictDto districtDto, int id);
+    DistrictDto updateDistrict(DistrictUpdateDto districtDto, int id);
 
     String deleteDistrictById(int id);
 

@@ -1,5 +1,6 @@
 package com.vaistra.services.cscv.impl;
 
+import com.vaistra.dto.cscv.SubDistrictUpdateDto;
 import com.vaistra.entities.cscv.Country;
 import com.vaistra.entities.cscv.District;
 import com.vaistra.entities.cscv.State;
@@ -226,7 +227,7 @@ public class SubDistrictServiceImpl implements SubDistrictService {
     }
 
     @Override
-    public SubDistrictDto updateSubDistrict(SubDistrictDto subDistrictDto, int id) {
+    public SubDistrictDto updateSubDistrict(SubDistrictUpdateDto subDistrictDto, int id) {
 
         // HANDLE IF SUB-DISTRICT EXIST BY ID
         SubDistrict subDistrict = subDistrictRepository.findById(id)

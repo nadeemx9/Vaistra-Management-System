@@ -3,6 +3,7 @@ package com.vaistra.services.mastermines.impl;
 import com.vaistra.dto.HttpResponse;
 import com.vaistra.dto.mastermines.DesignationDto;
 import com.vaistra.dto.mastermines.EquipmentDto;
+import com.vaistra.dto.mastermines.EquipmentUpdateDto;
 import com.vaistra.entities.mastermines.Designation;
 import com.vaistra.entities.mastermines.Equipment;
 import com.vaistra.exception.DuplicateEntryException;
@@ -100,7 +101,7 @@ public class EquipmentServiceImpl implements EquipmentService {
     }
 
     @Override
-    public EquipmentDto updateEquipment(EquipmentDto equipmentDto, int equipmentId) {
+    public EquipmentDto updateEquipment(EquipmentUpdateDto equipmentDto, int equipmentId) {
 
         if(equipmentDto.getEquipmentName() == null)
             throw new ResourceNotFoundException("Equipment name is null!");

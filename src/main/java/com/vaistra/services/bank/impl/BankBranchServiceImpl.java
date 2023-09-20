@@ -2,6 +2,7 @@ package com.vaistra.services.bank.impl;
 
 import com.vaistra.dto.HttpResponse;
 import com.vaistra.dto.bank.BankBranchDto;
+import com.vaistra.dto.bank.BankBranchUpdateDto;
 import com.vaistra.entities.bank.Bank;
 import com.vaistra.entities.bank.BankBranch;
 import com.vaistra.entities.cscv.District;
@@ -280,7 +281,7 @@ public class BankBranchServiceImpl implements BankBranchService {
 
     @Override
     @Transactional
-    public BankBranchDto updateBankBranch(BankBranchDto bankBranchDto, int bankBranchId) {
+    public BankBranchDto updateBankBranch(BankBranchUpdateDto bankBranchDto, int bankBranchId) {
 
         BankBranch bankBranch = bankBranchRepository.findById(bankBranchId)
                 .orElseThrow(()->new ResourceNotFoundException("Bank Branch with "));

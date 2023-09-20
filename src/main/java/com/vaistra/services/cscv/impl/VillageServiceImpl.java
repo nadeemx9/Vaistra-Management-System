@@ -1,5 +1,6 @@
 package com.vaistra.services.cscv.impl;
 
+import com.vaistra.dto.cscv.VillageUpdateDto;
 import com.vaistra.entities.cscv.*;
 import com.vaistra.exception.DuplicateEntryException;
 import com.vaistra.exception.InactiveStatusException;
@@ -219,7 +220,7 @@ public class VillageServiceImpl implements VillageService {
     }
 
     @Override
-    public VillageDto updateVillage(VillageDto villageDto, int villageId) {
+    public VillageDto updateVillage(VillageUpdateDto villageDto, int villageId) {
 
         // HANDLE IF VILLAGE EXIST BY ID
         Village village = villageRepository.findById(villageId)

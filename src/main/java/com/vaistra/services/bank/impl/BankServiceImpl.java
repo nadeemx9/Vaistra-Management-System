@@ -3,6 +3,7 @@ package com.vaistra.services.bank.impl;
 import com.vaistra.dto.HttpResponse;
 
 import com.vaistra.dto.bank.BankDto;
+import com.vaistra.dto.bank.BankUpdateDto;
 import com.vaistra.entities.bank.Bank;
 
 import com.vaistra.exception.DuplicateEntryException;
@@ -152,7 +153,7 @@ public class BankServiceImpl implements BankService {
 
     @Override
     @Transactional
-    public BankDto updateBank(BankDto bankDto, int bankId, MultipartFile file) throws IOException {
+    public BankDto updateBank(BankUpdateDto bankDto, int bankId, MultipartFile file) throws IOException {
 
         Bank bank = bankRepository.findById(bankId)
                 .orElseThrow(()->new ResourceNotFoundException("Bank with ID '"+bankId+"' not found!"));

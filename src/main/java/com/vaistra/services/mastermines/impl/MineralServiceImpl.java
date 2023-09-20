@@ -2,6 +2,7 @@ package com.vaistra.services.mastermines.impl;
 
 import com.vaistra.dto.HttpResponse;
 import com.vaistra.dto.mastermines.MineralDto;
+import com.vaistra.dto.mastermines.MineralUpdateDto;
 import com.vaistra.entities.mastermines.Mineral;
 import com.vaistra.exception.DuplicateEntryException;
 import com.vaistra.exception.ResourceNotFoundException;
@@ -109,7 +110,7 @@ public class MineralServiceImpl implements MineralService {
     }
 
     @Override
-    public MineralDto updateMineral(MineralDto mineralDto, int mineralId) {
+    public MineralDto updateMineral(MineralUpdateDto mineralDto, int mineralId) {
 
         Mineral mineral = mineralRepository.findById(mineralId)
                 .orElseThrow(()->new ResourceNotFoundException("Mineral with ID '"+mineralId+"' not found!"));

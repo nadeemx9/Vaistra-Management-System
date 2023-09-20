@@ -2,6 +2,7 @@ package com.vaistra.services.bank;
 
 import com.vaistra.dto.HttpResponse;
 import com.vaistra.dto.bank.BankBranchDto;
+import com.vaistra.dto.bank.BankBranchUpdateDto;
 
 public interface BankBranchService {
 
@@ -14,6 +15,6 @@ public interface BankBranchService {
     HttpResponse getAllBankBranches(int pageNumber, int pageSize, String sortBy, String sortDirection);
     HttpResponse getAllActiveBankBranches(int pageNumber, int pageSize, String sortBy, String sortDirection);
     HttpResponse getAlLBankBranchesByActiveBank(int pageNumber, int pageSize, String sortBy, String sortDirection);
-    BankBranchDto updateBankBranch(BankBranchDto bankBranchDto, int bankBranchId);
+    BankBranchDto updateBankBranch(BankBranchUpdateDto bankBranchDto, int bankBranchId);
     String deleteBankBranch(int bankBranchId);
 }

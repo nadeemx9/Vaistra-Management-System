@@ -1,8 +1,8 @@
 package com.vaistra.controllers.cscv;
 
 import com.vaistra.dto.cscv.CountryDto;
-import com.vaistra.dto.cscv.CountryPatchDto;
 import com.vaistra.dto.HttpResponse;
+import com.vaistra.dto.cscv.CountryUpdateDto;
 import com.vaistra.services.cscv.CountryService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -64,7 +64,7 @@ public class CountryController {
     }
 
     @PutMapping("{countryId}")
-    public ResponseEntity<CountryDto> updateCountry(@RequestBody CountryDto country, @PathVariable int countryId) {
+    public ResponseEntity<CountryDto> updateCountry(@Valid @RequestBody CountryUpdateDto country, @PathVariable int countryId) {
         return new ResponseEntity<>(countryService.updateCountry(country, countryId), HttpStatus.ACCEPTED);
     }
 

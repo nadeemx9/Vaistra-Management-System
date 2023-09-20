@@ -3,6 +3,7 @@ package com.vaistra.controllers.cscv;
 
 import com.vaistra.dto.HttpResponse;
 import com.vaistra.dto.cscv.VillageDto;
+import com.vaistra.dto.cscv.VillageUpdateDto;
 import com.vaistra.services.cscv.VillageService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -91,7 +92,7 @@ public class VillageController {
     }
 
     @PutMapping("{villageId}")
-    public ResponseEntity<VillageDto> updateVillage(@RequestBody VillageDto villageDto, @PathVariable int villageId)
+    public ResponseEntity<VillageDto> updateVillage(@Valid @RequestBody VillageUpdateDto villageDto, @PathVariable int villageId)
     {
         return new ResponseEntity<>(villageService.updateVillage(villageDto, villageId), HttpStatus.OK);
     }

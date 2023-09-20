@@ -2,6 +2,7 @@ package com.vaistra.controllers.bank;
 
 import com.vaistra.dto.HttpResponse;
 import com.vaistra.dto.bank.BankDto;
+import com.vaistra.dto.bank.BankUpdateDto;
 import com.vaistra.services.bank.BankService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -76,7 +77,7 @@ public class BankController {
 
     @PutMapping("{bankId}")
     public ResponseEntity<BankDto> updateBank(@PathVariable int bankId,
-                                              @RequestPart("bankData") BankDto bankDto,
+                                              @Valid @RequestPart("bankData") BankUpdateDto bankDto,
                                               @RequestPart("logo") MultipartFile file) throws IOException
     {
         return new ResponseEntity<>(bankService.updateBank(bankDto, bankId, file), HttpStatus.OK);

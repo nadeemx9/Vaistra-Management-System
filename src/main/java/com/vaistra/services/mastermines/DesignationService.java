@@ -2,6 +2,7 @@ package com.vaistra.services.mastermines;
 
 import com.vaistra.dto.HttpResponse;
 import com.vaistra.dto.mastermines.DesignationDto;
+import com.vaistra.dto.mastermines.DesignationUpdateDto;
 
 
 public interface DesignationService {
@@ -11,6 +12,6 @@ public interface DesignationService {
     DesignationDto getDesignationById(int designationId);
     HttpResponse getAllDesignations(int pageNumber, int pageSize, String sortBy, String sortDirection);
     HttpResponse searchDesignationsByKeyword(String keyword, int pageNumber, int pageSize, String sortBy, String sortDirection);
-    DesignationDto updateDesignation(DesignationDto designationDto, int designationId);
+    DesignationDto updateDesignation(DesignationUpdateDto designationDto, int designationId);
     String deleteDesignation(int designationId);
 }

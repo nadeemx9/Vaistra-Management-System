@@ -2,6 +2,7 @@ package com.vaistra.controllers;
 
 import com.vaistra.dto.PasswordDto;
 import com.vaistra.dto.UserDto;
+import com.vaistra.dto.UserUpdateDto;
 import com.vaistra.entities.User;
 import com.vaistra.services.UserService;
 import jakarta.validation.Valid;
@@ -60,13 +61,13 @@ public class UserController {
     }
 
     @PutMapping("{userId}")
-    public ResponseEntity<UserDto> updateUser(@RequestBody UserDto userDto, @PathVariable int userId)
+    public ResponseEntity<UserDto> updateUser(@Valid @RequestBody UserUpdateDto userDto, @PathVariable int userId)
     {
         return new ResponseEntity<>(userService.updateUser(userDto, userId), HttpStatus.OK);
     }
 
     @PostMapping("forgot-password")
-    public ResponseEntity<String> forgotPassword(@RequestBody PasswordDto passwordDto)
+    public ResponseEntity<String> forgotPassword(@Valid @RequestBody PasswordDto passwordDto)
     {
         return new ResponseEntity<>(userService.forgotPassword(passwordDto), HttpStatus.OK);
     }

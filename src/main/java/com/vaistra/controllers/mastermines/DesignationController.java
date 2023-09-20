@@ -2,6 +2,7 @@ package com.vaistra.controllers.mastermines;
 
 import com.vaistra.dto.HttpResponse;
 import com.vaistra.dto.mastermines.DesignationDto;
+import com.vaistra.dto.mastermines.DesignationUpdateDto;
 import com.vaistra.services.mastermines.DesignationService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -52,7 +53,7 @@ public class DesignationController {
     }
 
     @PutMapping("{designationId}")
-    public ResponseEntity<DesignationDto> updateDesignation(@RequestBody DesignationDto designationDto, @PathVariable int designationId)
+    public ResponseEntity<DesignationDto> updateDesignation(@Valid @RequestBody DesignationUpdateDto designationDto, @PathVariable int designationId)
     {
         return new ResponseEntity<>(designationService.updateDesignation(designationDto, designationId), HttpStatus.OK);
     }

@@ -92,10 +92,16 @@ public class GlobalExceptionHandler {
         return Map.of("errorMessage", ex.getMessage());
     }
     @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ExceptionHandler(ConfirmationTokenExpiredException.class)
+    public Map<String, String> handleConfirmationTokenExpiredException(ConfirmationTokenExpiredException ex)
+    {
+        return Map.of("errorMessage", ex.getMessage());
+    }
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(IllegalArgumentException.class)
     public Map<String, String> handleIllegalArgumentException(IllegalArgumentException ex)
     {
-        return Map.of("errorMessage", ex.getMessage());
+        return Map.of("IllegalStateExpression", ex.getMessage());
     }
 
     @ResponseStatus(HttpStatus.BAD_REQUEST)
