@@ -47,7 +47,7 @@ public class StateController {
                                                                     @RequestParam(value = "pageSize", defaultValue = "5", required = false) Integer pageSize,
                                                                     @RequestParam(value = "sortBy", defaultValue = "stateId", required = false) String sortBy,
                                                                     @RequestParam(value = "sortDirection", defaultValue = "asc", required = false) String sortDirection) {
-        return new ResponseEntity<>(stateService.getAllStatesByActiveCountry(pageNumber, pageSize, sortBy, sortDirection), HttpStatus.FOUND);
+        return new ResponseEntity<>(stateService.getAllStatesByActiveCountry(pageNumber, pageSize, sortBy, sortDirection), HttpStatus.OK);
     }
     @GetMapping("countryId/{countryId}")
     public ResponseEntity<HttpResponse> getStateByCountryId(@PathVariable int countryId,
