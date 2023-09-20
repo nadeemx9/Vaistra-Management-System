@@ -19,9 +19,11 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
@@ -207,11 +209,23 @@ public class CountryServiceImpl implements CountryService {
             List<Country> countries = CSVParser.parse(file.getInputStream(), Charset.defaultCharset(), CSVFormat.DEFAULT)
                     .stream().skip(1) // Skip the first row
                     .map(record -> {
-                        Country country = new Country();
-                        country.setCountryName(record.get(0)); // Assuming the first column is "country"
-                        country.setStatus(Boolean.parseBoolean(record.get(1))); // Assuming the second column is "isActive"
-                        return country;
+                        String countryName = record.get(0).trim();
+                        boolean isActive = Boolean.parseBoolean(record.get(1));
+
+
+                        Optional<Country> existCountry = Optional.ofNullable(countryRepository.findByCountryNameIgnoreCase(countryName));
+
+                        if(existCountry.isPresent()){
+                            return null;
+                        }
+                        else {
+                            Country country = new Country();
+                            country.setCountryName(countryName); // Assuming the first column is "country"
+                            country.setStatus(isActive); // Assuming the second column is "isActive"
+                            return country;
+                        }
                     })
+                    .filter(Objects::nonNull) // Filter out null entries (duplicates)
                     .toList();
 
             // Filter out duplicates by country name
@@ -234,4 +248,5 @@ public class CountryServiceImpl implements CountryService {
         Set<Object> seen = ConcurrentHashMap.newKeySet();
         return t -> seen.add(keyExtractor.apply(t));
     }
+
 }
