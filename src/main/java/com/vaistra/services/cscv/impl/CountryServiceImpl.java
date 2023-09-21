@@ -18,8 +18,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-
-import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.List;
 import java.util.Objects;
@@ -115,9 +113,9 @@ public class CountryServiceImpl implements CountryService {
         Integer intKeyword = null;
         Boolean booleanKeyword = null;
 
-        if(keyword.equalsIgnoreCase("true"))
+        if(keyword.equalsIgnoreCase("true")) {
             booleanKeyword = Boolean.TRUE;
-        else if (keyword.equalsIgnoreCase("false"))
+        } else if (keyword.equalsIgnoreCase("false"))
             booleanKeyword = Boolean.FALSE;
 
         try {

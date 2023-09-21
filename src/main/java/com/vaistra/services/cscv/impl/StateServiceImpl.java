@@ -12,14 +12,24 @@ import com.vaistra.repositories.cscv.CountryRepository;
 import com.vaistra.repositories.cscv.StateRepository;
 import com.vaistra.services.cscv.StateService;
 import com.vaistra.utils.AppUtils;
+import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVParser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.nio.charset.Charset;
 import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Function;
+import java.util.function.Predicate;
 
 @Service
 public class StateServiceImpl implements StateService {
@@ -232,5 +242,74 @@ public class StateServiceImpl implements StateService {
         return null;
     }
 
+
+    public String uploadStateCSV(MultipartFile file) {
+        if(file.isEmpty()){
+            throw new ResourceNotFoundException("State CSV File not found...!");
+        }
+        if(!Objects.equals(file.getContentType(), "text/csv")){
+            throw new IllegalArgumentException("Invalid file type. Please upload a CSV file.");
+        }
+
+        try {
+            List<State> states = CSVParser.parse(file.getInputStream(), Charset.defaultCharset(), CSVFormat.DEFAULT)
+                    .stream().skip(1) // Skip the first row
+                    .map(record -> {
+                        String stateName = record.get(1).trim();
+                        Boolean isActive = Boolean.parseBoolean(record.get(2));
+
+                        Optional<State> existState = Optional.ofNullable(stateRepository.findByStateNameIgnoreCase(stateName));
+
+                        if(existState.isPresent()){
+                            return null;
+                        }
+
+                        else {
+                            State state = new State();
+                            state.setStateName(stateName); // Assuming the first column is "stateName"
+                            state.setStatus(isActive); // Assuming the second column is "isActive"
+                            // Get the country name from the CSV file
+                            String countryName = record.get(0).trim(); // Assuming the third column is "countryName"
+
+                            // Try to find the country by name
+                            Country country = countryRepository.findByCountryNameIgnoreCase(countryName);
+
+                            // If the country does not exist, create a new one
+                            if (country == null) {
+                                country = new Country();
+                                country.setCountryName(countryName.trim());
+                                country.setStatus(true); // You can set the "isActive" flag as needed
+                                countryRepository.save(country);
+                            }
+
+                            state.setCountry(country);
+                            return state;
+                        }
+
+                    })
+                    .toList();
+
+            // Filter out duplicates by country name
+            List<State> nonDuplicateState = states.stream()
+                    .filter(distinctByKey(State::getStateName))
+                    .toList();
+
+            // Save the non-duplicate entities to the database
+            long uploadedRecordCount = nonDuplicateState.size();
+            stateRepository.saveAll(nonDuplicateState);
+
+            return "CSV file uploaded successfully. " + uploadedRecordCount + " records uploaded.";
+
+
+        }catch (Exception e){
+            return e.getMessage();
+        }
+
+    }
+
+    private static <T> Predicate<T> distinctByKey(Function<? super T, ?> keyExtractor) {
+        Set<Object> seen = ConcurrentHashMap.newKeySet();
+        return t -> seen.add(keyExtractor.apply(t));
+    }
 
 }

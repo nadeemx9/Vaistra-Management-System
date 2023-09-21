@@ -9,6 +9,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
 
 @RestController
 @RequestMapping("state")
@@ -89,5 +92,8 @@ public class StateController {
 //        return new ResponseEntity<>(stateService.restoreStateById(stateId), HttpStatus.OK);
 //    }
 
-
+    @PostMapping("/UploadCsv")
+    public ResponseEntity<String> uploadStateCSV(@RequestParam MultipartFile file) throws IOException {
+        return new ResponseEntity<>(stateService.uploadStateCSV(file),HttpStatus.OK);
+    }
 }

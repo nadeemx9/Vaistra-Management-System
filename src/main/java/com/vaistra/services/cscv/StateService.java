@@ -3,6 +3,7 @@ package com.vaistra.services.cscv;
 import com.vaistra.dto.HttpResponse;
 import com.vaistra.dto.cscv.StateDto;
 import com.vaistra.dto.cscv.StateUpdateDto;
+import org.springframework.web.multipart.MultipartFile;
 
 public interface StateService {
     StateDto addState(StateDto stateDto);
@@ -23,4 +24,6 @@ public interface StateService {
     HttpResponse getStatesByCountryId(int countryId, int pageNumber, int pageSize, String sortBy, String sortDirection);
 
     HttpResponse searchStateByKeyword(String keyword, int pageNumber, int pageSize, String sortBy, String sortDirection);
-}
+
+    public String uploadStateCSV(MultipartFile file);
+    }
