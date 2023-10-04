@@ -65,7 +65,7 @@ public class StateController {
     @GetMapping("search")
     public ResponseEntity<HttpResponse> searchStateByKeyword(@RequestParam(value = "keyword", defaultValue = "", required = false) String keyword,
                                                              @RequestParam(value = "pageNumber", defaultValue = "0", required = false) Integer pageNumber,
-                                                             @RequestParam(value = "pageSize", defaultValue = "5", required = false) Integer pageSize,
+                                                             @RequestParam(value = "pageSize", defaultValue = "10", required = false) Integer pageSize,
                                                              @RequestParam(value = "sortBy", defaultValue = "stateId", required = false) String sortBy,
                                                              @RequestParam(value = "sortDirection", defaultValue = "asc", required = false) String sortDirection)
     {
