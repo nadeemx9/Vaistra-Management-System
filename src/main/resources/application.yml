@@ -9,6 +9,12 @@ spring:
     multipart:
       max-file-size: 30MB
 
+  batch:
+    jdbc:
+      initialize-schema: always
+    job:
+      enabled: false
+
   mail:
 
     host: ${EMAIL_HOST}

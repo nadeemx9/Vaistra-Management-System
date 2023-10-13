@@ -15,4 +15,5 @@ public interface StateRepository extends JpaRepository<State, Integer> {
     Page<State> findAllByCountry_Status(boolean b, Pageable p);
     Page<State> findAllByStateIdOrStatusOrStateNameContainingIgnoreCaseOrCountry_CountryNameContainingIgnoreCase(Integer stateId, Boolean status ,String stateName, String countryName, Pageable p);
 
+    boolean existsByStateNameIgnoreCase(String sname);
 }
