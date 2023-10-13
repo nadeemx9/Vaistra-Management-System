@@ -86,7 +86,7 @@ public class DistrictServiceImpl implements DistrictService {
         Sort sort = (sortDirection.equalsIgnoreCase("asc")) ?
                 Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
 
-        Pageable pageable = PageRequest.of(pageNumber, pageSize, sort);
+        Pageable pageable = PageRequest.of(pageNumber, Integer.MAX_VALUE, sort);
         Page<District> pageDistrict = districtRepository.findAll(pageable);
         List<DistrictDto> districts = appUtils.districtsToDtos(pageDistrict.getContent());
 
