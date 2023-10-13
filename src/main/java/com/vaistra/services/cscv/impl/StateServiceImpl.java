@@ -88,7 +88,7 @@ public class StateServiceImpl implements StateService {
         Sort sort = (sortDirection.equalsIgnoreCase("asc")) ?
                 Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
 
-        Pageable pageable = PageRequest.of(pageNumber, Integer.MAX_VALUE, sort);
+        Pageable pageable = PageRequest.of(pageNumber, pageSize);
         Page<State> pageState = stateRepository.findAll(pageable);
         List<StateDto> states = appUtils.statesToDtos(pageState.getContent());
 

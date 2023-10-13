@@ -35,7 +35,7 @@ public class DistrictController {
 
     @GetMapping("all")
     public ResponseEntity<HttpResponse> getAllDistricts(@RequestParam(value = "pageNumber", defaultValue = "0", required = false) Integer pageNumber,
-                                                             @RequestParam(value = "pageSize", defaultValue = "5", required = false) Integer pageSize,
+                                                             @RequestParam(value = "pageSize", defaultValue = "2147483647", required = false) Integer pageSize,
                                                              @RequestParam(value = "sortBy", defaultValue = "districtId", required = false) String sortBy,
                                                              @RequestParam(value = "sortDirection", defaultValue = "asc", required = false) String sortDirection)
     {

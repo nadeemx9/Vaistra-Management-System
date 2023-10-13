@@ -19,7 +19,6 @@ public class CountryController {
 
     //---------------------------------------------------CONSTRUCTOR INJECTION------------------------------------------
     private final CountryService countryService;
-
     @Autowired
     public CountryController(CountryService countryService) {
         this.countryService = countryService;
@@ -33,7 +32,7 @@ public class CountryController {
 
     @GetMapping
     public ResponseEntity<HttpResponse> getAllCountriesByActive(@RequestParam(value = "pageNumber", defaultValue = "0", required = false) Integer pageNumber,
-                                                                @RequestParam(value = "pageSize", defaultValue = "5", required = false) Integer pageSize,
+                                                                @RequestParam(value = "pageSize", defaultValue = "2147483647", required = false) Integer pageSize,
                                                                 @RequestParam(value = "sortBy", defaultValue = "countryId", required = false) String sortBy,
                                                                 @RequestParam(value = "sortDirection", defaultValue = "asc", required = false) String sortDirection) {
 

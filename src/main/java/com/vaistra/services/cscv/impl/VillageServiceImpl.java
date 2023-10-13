@@ -83,7 +83,7 @@ public class VillageServiceImpl implements VillageService {
         Sort sort = (sortDirection.equalsIgnoreCase("asc")) ?
                 Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
 
-        Pageable pageable = PageRequest.of(pageNumber, Integer.MAX_VALUE, sort);
+        Pageable pageable = PageRequest.of(pageNumber, pageSize, sort);
         Page<Village> pageVillage = villageRepository.findAll(pageable);
         List<VillageDto> villages = appUtils.villagesToDtos(pageVillage.getContent());
 

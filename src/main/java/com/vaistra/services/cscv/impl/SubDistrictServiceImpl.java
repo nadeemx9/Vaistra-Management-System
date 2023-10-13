@@ -87,7 +87,7 @@ public class SubDistrictServiceImpl implements SubDistrictService {
         Sort sort = (sortDirection.equalsIgnoreCase("asc")) ?
                 Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
 
-        Pageable pageable = PageRequest.of(pageNumber, Integer.MAX_VALUE, sort);
+        Pageable pageable = PageRequest.of(pageNumber, pageSize, sort);
         Page<SubDistrict> pageSubDistrict = subDistrictRepository.findAll(pageable);
         List<SubDistrictDto> subDistricts = appUtils.subDistrictsToDtos(pageSubDistrict.getContent());
 

@@ -74,7 +74,7 @@ public class CountryServiceImpl implements CountryService {
         Sort sort = (sortDirection.equalsIgnoreCase("asc")) ?
                 Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
 
-        Pageable pageable = PageRequest.of(pageNumber, Integer.MAX_VALUE, sort);
+        Pageable pageable = PageRequest.of(pageNumber, pageSize, sort);
         Page<Country> pageCountry = countryRepository.findAll(pageable);
         List<CountryDto> countries = appUtils.countriesToDtos(pageCountry.getContent());
 
