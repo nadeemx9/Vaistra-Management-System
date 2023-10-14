@@ -37,7 +37,7 @@ public class CountryBatchConfig {
     @Bean
     public Step chunkStepCountry(JobRepository jobRepository, PlatformTransactionManager transactionManager, FlatFileItemReader<Country> reader){
         return new StepBuilder("countryReaderStep",jobRepository)
-                .<Country, Country>chunk(500000,transactionManager)
+                 .<Country, Country>chunk(500000,transactionManager)
                 .reader(reader)
                 .processor(processor())
                 .writer(writer())
