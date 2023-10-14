@@ -18,6 +18,7 @@ import org.springframework.batch.core.*;
 import org.springframework.batch.core.launch.JobLauncher;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -51,8 +52,10 @@ public class StateServiceImpl implements StateService {
     private final AppUtils appUtils;
     private final JobLauncher jobLauncher;
     private final Job job;
+
     private final String localStorage = new ClassPathResource("TempFile/File").getFile().getAbsolutePath();
-    //    private final String localStorage = "C:/Users/admin07/Desktop/LocalStorage/";
+//    private final String localStorage = "";
+//    private final String localStorage = "C:/Users/admin07/Desktop/LocalStorage/";
     private final DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyyMMdd");
     private final DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HHmmss");
 
@@ -262,6 +265,7 @@ public class StateServiceImpl implements StateService {
     }
 
 
+    @Override
     public String uploadStateCSV(MultipartFile file) {
         if(file == null)
             throw new ResourceNotFoundException("CSV File is not Uploaded   ");
@@ -282,11 +286,11 @@ public class StateServiceImpl implements StateService {
             File fileToImport = new File(localStorage + path);
             file.transferTo(fileToImport);
 
-            JobParameters jobParametersState = new JobParametersBuilder()
+            JobParameters jobParameters = new JobParametersBuilder()
                     .addString("inputFileState", localStorage + path)
                     .toJobParameters();
 
-            JobExecution execution =  jobLauncher.run(job, jobParametersState);
+            JobExecution execution =  jobLauncher.run(job, jobParameters);
 
             if (execution.getExitStatus().equals(ExitStatus.COMPLETED)){
                 System.out.println("Job is Completed....");

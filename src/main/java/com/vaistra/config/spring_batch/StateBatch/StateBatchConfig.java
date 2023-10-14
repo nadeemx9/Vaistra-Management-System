@@ -31,7 +31,6 @@ import java.io.File;
 
 @Configuration
 public class StateBatchConfig {
-
     private final StateRepository stateRepository;
     private final CountryRepository countryRepository;
 
@@ -64,18 +63,21 @@ public class StateBatchConfig {
     @Bean
     @StepScope
     public ItemWriter<State> stateWriter(){
+        System.out.println("In Writer Method");
         return new StateWriter();
     }
 
     @Bean
     @StepScope
     public ItemProcessor<State,State> stateProcessor(){
+        System.out.println("In Processor Method");
         return new CompositeItemProcessor<>(new StateProcessor());
     }
 
     @Bean
     @StepScope
     public FlatFileItemReader<State> stateReader(@Value("#{jobParameters[inputFileState]}") String pathToFile){
+        System.out.println("In Reader Method");
         return new FlatFileItemReaderBuilder<State>()
                 .name("stateReader")
                 .resource(new FileSystemResource(new File(pathToFile)))
@@ -89,17 +91,17 @@ public class StateBatchConfig {
                         State state = new State();
                         String name = fs.readString("countryName");
                         String sname = fs.readString("stateName");
-                        String isActive = fs.readString("isActive");
-
-                        boolean active = isActive.equalsIgnoreCase("true");
+                        boolean active = fs.readString("isActive").equalsIgnoreCase("true");
 
                         Country country = countryRepository.findByCountryNameIgnoreCase(name);
+
                         if(country == null){
                             country = new Country();
                             country.setCountryName(name);
                             country.setStatus(true);
                             countryRepository.save(country);
                         }
+
                         if(!stateRepository.existsByStateNameIgnoreCase(sname)) {
                             state.setCountry(country);
                             state.setStateName(sname);
