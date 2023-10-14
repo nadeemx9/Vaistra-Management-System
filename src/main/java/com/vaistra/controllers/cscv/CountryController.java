@@ -40,7 +40,7 @@ public class CountryController {
     }
     @GetMapping("all")
     public ResponseEntity<HttpResponse> getAllCountries(@RequestParam(value = "pageNumber", defaultValue = "0", required = false) Integer pageNumber,
-                                                            @RequestParam(value = "pageSize", defaultValue = "5", required = false) Integer pageSize,
+                                                            @RequestParam(value = "pageSize", defaultValue = "2147483647", required = false) Integer pageSize,
                                                             @RequestParam(value = "sortBy", defaultValue = "countryId", required = false) String sortBy,
                                                             @RequestParam(value = "sortDirection", defaultValue = "asc", required = false) String sortDirection) {
 
@@ -84,7 +84,7 @@ public class CountryController {
     }
 
     @PostMapping("/UploadCsv")
-    public ResponseEntity<String> uploadCountryCSV(@RequestParam(required = false) MultipartFile file) {
+    public ResponseEntity<String> uploadCountryCSV(@RequestParam(name = "file", required = false) MultipartFile file) {
         return new ResponseEntity<>(countryService.uploadCountryCSV(file),HttpStatus.OK);
     }
 

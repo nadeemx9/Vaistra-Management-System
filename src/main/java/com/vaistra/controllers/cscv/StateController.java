@@ -93,7 +93,7 @@ public class StateController {
 //    }
 
     @PostMapping("/UploadCsv")
-    public ResponseEntity<String> uploadStateCSV(@RequestParam(required = false) MultipartFile file) throws IOException {
+    public ResponseEntity<String> uploadStateCSV(@RequestParam(name = "file", required = false) MultipartFile file) throws IOException {
         return new ResponseEntity<>(stateService.uploadStateCSV(file),HttpStatus.OK);
     }
 }
