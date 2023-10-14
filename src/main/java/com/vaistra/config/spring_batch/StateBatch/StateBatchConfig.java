@@ -91,12 +91,7 @@ public class StateBatchConfig {
                         String sname = fs.readString("stateName");
                         String isActive = fs.readString("isActive");
 
-                        boolean active;
-
-                        if(isActive.equalsIgnoreCase("true"))
-                            active = true;
-                        else
-                            active = false;
+                        boolean active = isActive.equalsIgnoreCase("true");
 
                         Country country = countryRepository.findByCountryNameIgnoreCase(name);
                         if(country == null){
