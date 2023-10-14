@@ -9,7 +9,7 @@ public class StateProcessor implements ItemProcessor<State, State> {
     @Override
     public State process(State state) throws Exception {
         state.setStateName(state.getStateName());
-        state.setStatus(true);
+        state.setStatus(state.getStatus());
         state.setCountry(state.getCountry());
         return state;
     }

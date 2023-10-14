@@ -10,7 +10,7 @@ public class CountryProcessor implements ItemProcessor<Country,Country> {
     @Override
     public Country process(Country country) throws Exception {
         country.setCountryName(country.getCountryName().trim());
-        country.setStatus(true);
+        country.setStatus(country.getStatus());
         return country;
     }
 }
