@@ -84,7 +84,7 @@ public class CountryController {
     }
 
     @PostMapping("/UploadCsv")
-    public ResponseEntity<String> uploadCountryCSV(@RequestParam MultipartFile file) throws IOException {
+    public ResponseEntity<String> uploadCountryCSV(@RequestParam(required = false) MultipartFile file) {
         return new ResponseEntity<>(countryService.uploadCountryCSV(file),HttpStatus.OK);
     }
 

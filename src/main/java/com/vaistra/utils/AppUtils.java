@@ -249,5 +249,19 @@ public class AppUtils {
                 || extension.equals("PDF")
                 || extension.equals("PNG");
     }
+    public boolean isSupportedExtensionBatch(String ext){
+        int i = ext.lastIndexOf(".");
+
+        String extension = "";
+
+        if(i != -1){
+            extension = ext.substring(i + 1);
+        }
+
+        return extension != null && (
+                extension.equals("csv")
+                        || extension.equals("excel"))
+                || extension.equals("CSV");
+    }
 
 }

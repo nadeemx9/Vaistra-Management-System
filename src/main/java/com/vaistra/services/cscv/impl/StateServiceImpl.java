@@ -14,7 +14,11 @@ import com.vaistra.services.cscv.StateService;
 import com.vaistra.utils.AppUtils;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
+import org.springframework.batch.core.*;
+import org.springframework.batch.core.launch.JobLauncher;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -22,7 +26,14 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
+import java.io.IOException;
 import java.nio.charset.Charset;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -38,13 +49,21 @@ public class StateServiceImpl implements StateService {
     private final StateRepository stateRepository;
     private final CountryRepository countryRepository;
     private final AppUtils appUtils;
+    private final JobLauncher jobLauncher;
+    private final Job job;
+    private final String localStorage = new ClassPathResource("TempFile/File").getFile().getAbsolutePath();
+    //    private final String localStorage = "C:/Users/admin07/Desktop/LocalStorage/";
+    private final DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyyMMdd");
+    private final DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HHmmss");
 
 
     @Autowired
-    public StateServiceImpl(StateRepository stateRepository, CountryRepository countryRepository, AppUtils appUtils) {
+    public StateServiceImpl(StateRepository stateRepository, CountryRepository countryRepository, AppUtils appUtils, JobLauncher jobLauncher,@Qualifier("stateReaderJob") Job job) throws IOException {
         this.stateRepository = stateRepository;
         this.countryRepository = countryRepository;
         this.appUtils = appUtils;
+        this.jobLauncher = jobLauncher;
+        this.job = job;
     }
 
 
@@ -244,72 +263,42 @@ public class StateServiceImpl implements StateService {
 
 
     public String uploadStateCSV(MultipartFile file) {
-        if(file.isEmpty()){
-            throw new ResourceNotFoundException("State CSV File not found...!");
-        }
-        if(!Objects.equals(file.getContentType(), "text/csv")){
+        if(file == null)
+            throw new ResourceNotFoundException("CSV File is not Uploaded   ");
+
+        if(file.isEmpty())
+            throw new ResourceNotFoundException("Country CSV File not found...!");
+
+        if(!Objects.equals(file.getContentType(), "text/csv"))
             throw new IllegalArgumentException("Invalid file type. Please upload a CSV file.");
-        }
+
+        if(!appUtils.isSupportedExtensionBatch(file.getOriginalFilename()))
+            throw new ResourceNotFoundException("Only CSV and Excel File is Accepted");
 
         try {
-            List<State> states = CSVParser.parse(file.getInputStream(), Charset.defaultCharset(), CSVFormat.DEFAULT)
-                    .stream().skip(1) // Skip the first row
-                    .map(record -> {
-                        String stateName = record.get(1).trim();
-                        Boolean isActive = Boolean.parseBoolean(record.get(2));
+            String orignalFileName = file.getOriginalFilename();
+            assert orignalFileName != null;
+            String path = LocalDate.now().format(dateFormatter) + "_" + LocalTime.now().format(timeFormatter) + "_State_" + orignalFileName;
+            File fileToImport = new File(localStorage + path);
+            file.transferTo(fileToImport);
 
-                        Optional<State> existState = Optional.ofNullable(stateRepository.findByStateNameIgnoreCase(stateName));
+            JobParameters jobParametersState = new JobParametersBuilder()
+                    .addString("inputFileState", localStorage + path)
+                    .toJobParameters();
 
-                        if(existState.isPresent()){
-                            return null;
-                        }
+            JobExecution execution =  jobLauncher.run(job, jobParametersState);
 
-                        else {
-                            State state = new State();
-                            state.setStateName(stateName); // Assuming the first column is "stateName"
-                            state.setStatus(isActive); // Assuming the second column is "isActive"
-                            // Get the country name from the CSV file
-                            String countryName = record.get(0).trim(); // Assuming the third column is "countryName"
+            if (execution.getExitStatus().equals(ExitStatus.COMPLETED)){
+                System.out.println("Job is Completed....");
+                Files.deleteIfExists(Paths.get(localStorage + path));
+            }
 
-                            // Try to find the country by name
-                            Country country = countryRepository.findByCountryNameIgnoreCase(countryName);
-
-                            // If the country does not exist, create a new one
-                            if (country == null) {
-                                country = new Country();
-                                country.setCountryName(countryName.trim());
-                                country.setStatus(true); // You can set the "isActive" flag as needed
-                                countryRepository.save(country);
-                            }
-
-                            state.setCountry(country);
-                            return state;
-                        }
-
-                    })
-                    .toList();
-
-            // Filter out duplicates by country name
-            List<State> nonDuplicateState = states.stream()
-                    .filter(distinctByKey(State::getStateName))
-                    .toList();
-
-            // Save the non-duplicate entities to the database
-            long uploadedRecordCount = nonDuplicateState.size();
-            stateRepository.saveAll(nonDuplicateState);
-
-            return "CSV file uploaded successfully. " + uploadedRecordCount + " records uploaded.";
-
+            return "Import Successfully";
 
         }catch (Exception e){
+            e.printStackTrace();
             return e.getMessage();
         }
-
-    }
-
-    private static <T> Predicate<T> distinctByKey(Function<? super T, ?> keyExtractor) {
-        Set<Object> seen = ConcurrentHashMap.newKeySet();
-        return t -> seen.add(keyExtractor.apply(t));
     }
 
 }

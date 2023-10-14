@@ -9,23 +9,27 @@ import com.vaistra.dto.HttpResponse;
 import com.vaistra.repositories.cscv.CountryRepository;
 import com.vaistra.services.cscv.CountryService;
 import com.vaistra.utils.AppUtils;
-import org.apache.commons.csv.CSVFormat;
-import org.apache.commons.csv.CSVParser;
+import org.springframework.batch.core.*;
+import org.springframework.batch.core.launch.JobLauncher;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-import java.nio.charset.Charset;
+
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.Function;
-import java.util.function.Predicate;
 
 @Service
 public class CountryServiceImpl implements CountryService {
@@ -34,11 +38,19 @@ public class CountryServiceImpl implements CountryService {
 
     private final CountryRepository countryRepository;
     private final AppUtils appUtils;
+    private final JobLauncher jobLauncher;
+    private final Job job;
+    private final String localStorage = new ClassPathResource("TempFile/File").getFile().getAbsolutePath();
+//    private final String localStorage = "C:/Users/admin07/Desktop/LocalStorage/";
+    private final DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyyMMdd");
+    private final DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HHmmss");
 
     @Autowired
-    public CountryServiceImpl(CountryRepository countryRepository, AppUtils appUtils) {
+    public CountryServiceImpl(CountryRepository countryRepository, AppUtils appUtils, JobLauncher jobLauncher,@Qualifier("countryReaderJob") Job job) throws IOException {
         this.countryRepository = countryRepository;
         this.appUtils = appUtils;
+        this.jobLauncher = jobLauncher;
+        this.job = job;
     }
 
 
@@ -195,56 +207,38 @@ public class CountryServiceImpl implements CountryService {
     }
 
     public String uploadCountryCSV(MultipartFile file) {
-
-        if(file.isEmpty()){
+        if(file == null)
+            throw new ResourceNotFoundException("CSV File is not Uploaded   ");
+        if(file.isEmpty())
             throw new ResourceNotFoundException("Country CSV File not found...!");
-        }
-        if(!Objects.equals(file.getContentType(), "text/csv")){
+        if(!Objects.equals(file.getContentType(), "text/csv"))
             throw new IllegalArgumentException("Invalid file type. Please upload a CSV file.");
-        }
+        if(!appUtils.isSupportedExtensionBatch(file.getOriginalFilename()))
+            throw new ResourceNotFoundException("Only CSV and Excel File is Accepted");
 
         try {
-            List<Country> countries = CSVParser.parse(file.getInputStream(), Charset.defaultCharset(), CSVFormat.DEFAULT)
-                    .stream().skip(1) // Skip the first row
-                    .map(record -> {
-                        String countryName = record.get(0).trim();
-                        boolean isActive = Boolean.parseBoolean(record.get(1));
+            String orignalFileName = file.getOriginalFilename();
+            assert orignalFileName != null;
+            String path = LocalDate.now().format(dateFormatter) + "_" + LocalTime.now().format(timeFormatter) + "_Country_" + orignalFileName;
+            File fileToImport = new File(localStorage + path);
+            file.transferTo(fileToImport);
 
+            JobParameters jobParameters = new JobParametersBuilder()
+                    .addString("inputFile", localStorage + path)
+                    .toJobParameters();
 
-                        Optional<Country> existCountry = Optional.ofNullable(countryRepository.findByCountryNameIgnoreCase(countryName));
+            JobExecution execution =  jobLauncher.run(job, jobParameters);
 
-                        if(existCountry.isPresent()){
-                            return null;
-                        }
-                        else {
-                            Country country = new Country();
-                            country.setCountryName(countryName); // Assuming the first column is "country"
-                            country.setStatus(isActive); // Assuming the second column is "isActive"
-                            return country;
-                        }
-                    })
-                    .filter(Objects::nonNull) // Filter out null entries (duplicates)
-                    .toList();
+            if (execution.getExitStatus().equals(ExitStatus.COMPLETED)){
+                Files.deleteIfExists(Paths.get(localStorage + path));
+            }
 
-            // Filter out duplicates by country name
-            List<Country> nonDuplicateCountries = countries.stream()
-                    .filter(distinctByKey(Country::getCountryName))
-                    .toList();
-
-
-            long uploadedRecordCount = nonDuplicateCountries.size();
-            countryRepository.saveAll(nonDuplicateCountries);
-
-            return "CSV file uploaded successfully. " + uploadedRecordCount + " records uploaded.";
+            return "Import Successfully";
 
         }catch (Exception e){
+            e.printStackTrace();
             return e.getMessage();
         }
-    }
-
-    private static <T> Predicate<T> distinctByKey(Function<? super T, ?> keyExtractor) {
-        Set<Object> seen = ConcurrentHashMap.newKeySet();
-        return t -> seen.add(keyExtractor.apply(t));
     }
 
 }
