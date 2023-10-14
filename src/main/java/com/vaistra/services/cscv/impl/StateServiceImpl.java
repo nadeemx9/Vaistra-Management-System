@@ -44,7 +44,7 @@ public class StateServiceImpl implements StateService {
     private final JobLauncher jobLauncher;
     private final Job job;
 
-    private final String localStorage = new ClassPathResource("TempFile/File").getFile().getAbsolutePath();
+//    private final String localStorage = new ClassPathResource("TempFile/File").getFile().getAbsolutePath();
 //    private final String localStorage = "";
 //    private final String localStorage = "C:/Users/admin07/Desktop/LocalStorage/";
     private final DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyyMMdd");
@@ -258,42 +258,44 @@ public class StateServiceImpl implements StateService {
 
     @Override
     public String uploadStateCSV(MultipartFile file) {
-        if(file == null)
-            throw new ResourceNotFoundException("CSV File is not Uploaded   ");
+//        if(file == null)
+//            throw new ResourceNotFoundException("CSV File is not Uploaded   ");
+//
+//        if(file.isEmpty())
+//            throw new ResourceNotFoundException("Country CSV File not found...!");
+//
+//        if(!Objects.equals(file.getContentType(), "text/csv"))
+//            throw new IllegalArgumentException("Invalid file type. Please upload a CSV file.");
+//
+//        if(!appUtils.isSupportedExtensionBatch(file.getOriginalFilename()))
+//            throw new ResourceNotFoundException("Only CSV and Excel File is Accepted");
+//
+//        try {
+//            String orignalFileName = file.getOriginalFilename();
+//            assert orignalFileName != null;
+//            String path = LocalDate.now().format(dateFormatter) + "_" + LocalTime.now().format(timeFormatter) + "_State_" + orignalFileName;
+//            File fileToImport = new File(localStorage + path);
+//            file.transferTo(fileToImport);
+//
+//            JobParameters jobParameters = new JobParametersBuilder()
+//                    .addString("inputFileState", localStorage + path)
+//                    .toJobParameters();
+//
+//            JobExecution execution =  jobLauncher.run(job, jobParameters);
+//
+//            if (execution.getExitStatus().equals(ExitStatus.COMPLETED)){
+//                System.out.println("Job is Completed....");
+//                Files.deleteIfExists(Paths.get(localStorage + path));
+//            }
+//
+//            return "Import Successfully";
+//
+//        }catch (Exception e){
+//            e.printStackTrace();
+//            return e.getMessage();
+//        }
 
-        if(file.isEmpty())
-            throw new ResourceNotFoundException("Country CSV File not found...!");
-
-        if(!Objects.equals(file.getContentType(), "text/csv"))
-            throw new IllegalArgumentException("Invalid file type. Please upload a CSV file.");
-
-        if(!appUtils.isSupportedExtensionBatch(file.getOriginalFilename()))
-            throw new ResourceNotFoundException("Only CSV and Excel File is Accepted");
-
-        try {
-            String orignalFileName = file.getOriginalFilename();
-            assert orignalFileName != null;
-            String path = LocalDate.now().format(dateFormatter) + "_" + LocalTime.now().format(timeFormatter) + "_State_" + orignalFileName;
-            File fileToImport = new File(localStorage + path);
-            file.transferTo(fileToImport);
-
-            JobParameters jobParameters = new JobParametersBuilder()
-                    .addString("inputFileState", localStorage + path)
-                    .toJobParameters();
-
-            JobExecution execution =  jobLauncher.run(job, jobParameters);
-
-            if (execution.getExitStatus().equals(ExitStatus.COMPLETED)){
-                System.out.println("Job is Completed....");
-                Files.deleteIfExists(Paths.get(localStorage + path));
-            }
-
-            return "Import Successfully";
-
-        }catch (Exception e){
-            e.printStackTrace();
-            return e.getMessage();
-        }
+        return null;
     }
 
 }
