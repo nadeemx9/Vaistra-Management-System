@@ -99,10 +99,8 @@ public class StateBatchConfig {
                         String countryName = fs.readString("countryName");
                         boolean active = fs.readString("status").equalsIgnoreCase("true");
 
-//                        State state = stateRepository.findByStateNameIgnoreCase(stateName);
                         Country country = countryRepository.findByCountryNameIgnoreCase(countryName);
 
-//                        if(state == null) {
                             State state = new State();
                             state.setStateName(stateName);
                             state.setStatus(active);
@@ -111,9 +109,10 @@ public class StateBatchConfig {
                                 country = new Country();
                                 country.setCountryName(countryName);
                                 country.setStatus(true);
+                                countryRepository.save(country);
                             }
                             state.setCountry(country);
-//                        }
+
                         return state;
                     }
 
