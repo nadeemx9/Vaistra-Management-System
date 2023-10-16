@@ -1,5 +1,7 @@
 package com.vaistra.services.cscv.impl;
 
+import com.opencsv.CSVWriter;
+import com.vaistra.config.spring_batch.CountryBatch.CountryWriter;
 import com.vaistra.dto.cscv.CountryUpdateDto;
 import com.vaistra.entities.cscv.Country;
 import com.vaistra.exception.DuplicateEntryException;
@@ -13,7 +15,6 @@ import org.springframework.batch.core.*;
 import org.springframework.batch.core.launch.JobLauncher;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.core.io.ClassPathResource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -23,11 +24,11 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
+import java.io.StringWriter;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -221,6 +222,7 @@ public class CountryServiceImpl implements CountryService {
             assert orignalFileName != null;
             file.transferTo(tempFile);
 
+
             System.out.println(tempFile.getAbsolutePath());
 
             JobParameters jobParameters = new JobParametersBuilder()
@@ -229,7 +231,10 @@ public class CountryServiceImpl implements CountryService {
 
             JobExecution execution =  jobLauncher.run(job, jobParameters);
 
+            long records = 0;
+
             if (execution.getExitStatus().equals(ExitStatus.COMPLETED)){
+                records = CountryWriter.getCounter();
                 System.out.println("Job is Completed");
                 if(tempFile.exists()){
                     if(tempFile.delete())
@@ -237,9 +242,10 @@ public class CountryServiceImpl implements CountryService {
                     else
                         System.out.println("Can't Delete File");
                 }
+                CountryWriter.setCounter(0);
             }
 
-            return "Import Successfully";
+            return "CSV file uploaded successfully. " + records + " countries uploaded.";
 
         }catch (Exception e){
             e.printStackTrace();
@@ -247,4 +253,19 @@ public class CountryServiceImpl implements CountryService {
         }
     }
 
+    @Override
+    public String generateCsvData() {
+        List<String[]> demo = new ArrayList<>();
+        demo.add(new String[]{"Countries", "Status"});
+        demo.add(new String[]{"India", "true"});
+        demo.add(new String[]{"Pakistan", "false"});
+
+        StringWriter writer = new StringWriter();
+        CSVWriter csvWriter = new CSVWriter(writer);
+
+        // Write demo to the CSV
+        csvWriter.writeAll(demo);
+
+        return writer.toString();
+    }
 }

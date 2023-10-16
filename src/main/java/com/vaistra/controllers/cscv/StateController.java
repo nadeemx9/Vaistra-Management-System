@@ -6,12 +6,14 @@ import com.vaistra.dto.cscv.StateUpdateDto;
 import com.vaistra.services.cscv.StateService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.ByteArrayResource;
+import org.springframework.core.io.Resource;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-
-import java.io.IOException;
 
 @RestController
 @RequestMapping("state")
@@ -93,7 +95,23 @@ public class StateController {
 //    }
 
     @PostMapping("/UploadCsv")
-    public ResponseEntity<String> uploadStateCSV(@RequestParam(required = false) MultipartFile file) throws IOException {
+    public ResponseEntity<String> uploadStateCSV(@RequestParam(required = false) MultipartFile file) {
         return new ResponseEntity<>(stateService.uploadStateCSV(file),HttpStatus.OK);
+    }
+
+    @GetMapping("/demoCsv")
+    public ResponseEntity<Resource> downloadDemo(){
+        String csvData = stateService.generateCsvData();
+        byte[] csvBytes = csvData.getBytes();
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
+        headers.set(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=demo.csv");
+
+        ByteArrayResource resource = new ByteArrayResource(csvBytes);
+
+        return ResponseEntity.ok()
+                .headers(headers)
+                .body(resource);
     }
 }

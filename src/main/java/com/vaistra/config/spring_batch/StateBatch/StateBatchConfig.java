@@ -1,9 +1,12 @@
 package com.vaistra.config.spring_batch.StateBatch;
 
+import com.vaistra.dto.cscv.StateDto;
 import com.vaistra.entities.cscv.Country;
 import com.vaistra.entities.cscv.State;
 import com.vaistra.repositories.cscv.CountryRepository;
 import com.vaistra.repositories.cscv.StateRepository;
+import com.vaistra.utils.AppUtils;
+import lombok.Getter;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.configuration.annotation.StepScope;
@@ -31,12 +34,16 @@ import java.io.File;
 
 @Configuration
 public class StateBatchConfig {
+    @Getter
+    private static long counter;
     private final StateRepository stateRepository;
+    private final AppUtils appUtils;
     private final CountryRepository countryRepository;
 
     @Autowired
-    public StateBatchConfig(StateRepository stateRepository, CountryRepository countryRepository) {
+    public StateBatchConfig(StateRepository stateRepository, AppUtils appUtils, CountryRepository countryRepository) {
         this.stateRepository = stateRepository;
+        this.appUtils = appUtils;
         this.countryRepository = countryRepository;
     }
 
@@ -83,38 +90,37 @@ public class StateBatchConfig {
                 .resource(new FileSystemResource(new File(pathToFile)))
                 .delimited()
                 .names(new String[]{
-                        "countryName","stateName","isActive"
+                        "countryName","stateName","status"
                 })
-                .fieldSetMapper(    new BeanWrapperFieldSetMapper<>() {
+                .fieldSetMapper(    new BeanWrapperFieldSetMapper<State>() {
                     @Override
                     public State mapFieldSet(FieldSet fs) throws BindException {
-                        State state = new State();
-                        String name = fs.readString("countryName");
-                        String sname = fs.readString("stateName");
-                        boolean active = fs.readString("isActive").equalsIgnoreCase("true");
+                        String stateName = fs.readString("stateName");
+                        String countryName = fs.readString("countryName");
+                        boolean active = fs.readString("status").equalsIgnoreCase("true");
 
-                        Country country = countryRepository.findByCountryNameIgnoreCase(name);
+//                        State state = stateRepository.findByStateNameIgnoreCase(stateName);
+                        Country country = countryRepository.findByCountryNameIgnoreCase(countryName);
 
-                        if(country == null){
-                            country = new Country();
-                            country.setCountryName(name);
-                            country.setStatus(true);
-                            countryRepository.save(country);
-                        }
-
-                        if(!stateRepository.existsByStateNameIgnoreCase(sname)) {
-                            state.setCountry(country);
-                            state.setStateName(sname);
+//                        if(state == null) {
+                            State state = new State();
+                            state.setStateName(stateName);
                             state.setStatus(active);
-                            return state;
-                        }
-                        return null;
+
+                            if (country == null) {
+                                country = new Country();
+                                country.setCountryName(countryName);
+                                country.setStatus(true);
+                            }
+                            state.setCountry(country);
+//                        }
+                        return state;
                     }
+
                     @Override
                     public void setTargetType(Class<? extends State> type) {
                         super.setTargetType(type);
                     }
-
                 })
                 .linesToSkip(1)
                 .strict(false)  // Set to non-strict mode

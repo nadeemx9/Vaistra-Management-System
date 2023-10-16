@@ -6,12 +6,14 @@ import com.vaistra.dto.cscv.CountryUpdateDto;
 import com.vaistra.services.cscv.CountryService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.ByteArrayResource;
+import org.springframework.core.io.Resource;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-
-import java.io.IOException;
 
 @RestController
 @RequestMapping("country")
@@ -87,6 +89,22 @@ public class CountryController {
     @PostMapping("/UploadCsv")
     public ResponseEntity<String> uploadCountryCSV(@RequestParam(required = false) MultipartFile file) {
         return new ResponseEntity<>(countryService.uploadCountryCSV(file),HttpStatus.OK);
+    }
+
+    @GetMapping("/demoCsv")
+    public ResponseEntity<Resource> downloadDemo(){
+        String csvData = countryService.generateCsvData();
+        byte[] csvBytes = csvData.getBytes();
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
+        headers.set(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=demo.csv");
+
+        ByteArrayResource resource = new ByteArrayResource(csvBytes);
+
+        return ResponseEntity.ok()
+                .headers(headers)
+                .body(resource);
     }
 
 }

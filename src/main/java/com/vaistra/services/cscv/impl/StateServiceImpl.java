@@ -1,5 +1,8 @@
 package com.vaistra.services.cscv.impl;
 
+import com.opencsv.CSVWriter;
+import com.vaistra.config.spring_batch.StateBatch.StateBatchConfig;
+import com.vaistra.config.spring_batch.StateBatch.StateWriter;
 import com.vaistra.dto.cscv.StateUpdateDto;
 import com.vaistra.entities.cscv.Country;
 import com.vaistra.entities.cscv.State;
@@ -12,14 +15,10 @@ import com.vaistra.repositories.cscv.CountryRepository;
 import com.vaistra.repositories.cscv.StateRepository;
 import com.vaistra.services.cscv.StateService;
 import com.vaistra.utils.AppUtils;
-import org.apache.commons.csv.CSVFormat;
-import org.apache.commons.csv.CSVParser;
 import org.springframework.batch.core.*;
 import org.springframework.batch.core.launch.JobLauncher;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.io.ClassPathResource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -29,20 +28,11 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.URL;
-import java.nio.charset.Charset;
-import java.nio.file.Files;
-import java.nio.file.Paths;
+import java.io.StringWriter;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.Function;
-import java.util.function.Predicate;
+import java.util.*;
 
 @Service
 public class StateServiceImpl implements StateService {
@@ -288,22 +278,44 @@ public class StateServiceImpl implements StateService {
 
             JobExecution execution =  jobLauncher.run(job, jobParameters);
 
+            long records = 0;
+
             if (execution.getExitStatus().equals(ExitStatus.COMPLETED)){
                 System.out.println("Job is Completed....");
+                records = StateWriter.getCounter();
                 if(tempFile.exists()) {
                     if (tempFile.delete())
                         System.out.println("File Deleted");
                     else
                         System.out.println("Can't Delete File");
                 }
+                StateWriter.setCounter(0);
             }
 
-            return "Import Successfully";
+            return "CSV file uploaded successfully. " + records + " states uploaded.";
 
         }catch (Exception e){
             e.printStackTrace();
             return e.getMessage();
         }
+    }
+
+    @Override
+    public String generateCsvData() {
+        List<String[]> demo = new ArrayList<>();
+        demo.add(new String[]{"countryName", "stateName","IsActive"});
+        demo.add(new String[]{"India", "Gujarat","true"});
+        demo.add(new String[]{"India", "Punjab","false"});
+        demo.add(new String[]{"Pakistan", "Balochistan" , "false"});
+        demo.add(new String[]{"Germany", "Berlin" , "true"});
+
+        StringWriter writer = new StringWriter();
+        CSVWriter csvWriter = new CSVWriter(writer);
+
+        // Write demo to the CSV
+        csvWriter.writeAll(demo);
+
+        return writer.toString();
     }
 
 }

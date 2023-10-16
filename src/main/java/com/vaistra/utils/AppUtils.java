@@ -259,8 +259,7 @@ public class AppUtils {
         }
 
         return extension != null && (
-                extension.equals("csv")
-                        || extension.equals("excel"))
+                extension.equals("csv"))
                 || extension.equals("CSV");
     }
 

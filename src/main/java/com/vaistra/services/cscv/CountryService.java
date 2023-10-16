@@ -25,4 +25,6 @@ public interface CountryService {
     HttpResponse searchCountry(String keyword, int pageNumber, int pageSize, String sortBy, String sortDirection);
 
     String uploadCountryCSV(MultipartFile file);
+
+    String generateCsvData();
 }
