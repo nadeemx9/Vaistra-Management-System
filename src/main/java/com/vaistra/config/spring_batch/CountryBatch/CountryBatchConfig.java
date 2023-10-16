@@ -65,7 +65,7 @@ public class CountryBatchConfig {
                 .resource(new FileSystemResource(new File(pathToFile)))
                 .delimited()
                 .names(new String[]{
-                        "countryName","status"
+                        "countryName","Status"
                 })
                 .fieldSetMapper(new BeanWrapperFieldSetMapper<>() {{
                     setTargetType(Country.class);

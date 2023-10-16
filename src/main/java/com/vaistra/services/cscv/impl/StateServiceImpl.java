@@ -29,6 +29,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URL;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -52,10 +53,6 @@ public class StateServiceImpl implements StateService {
     private final AppUtils appUtils;
     private final JobLauncher jobLauncher;
     private final Job job;
-
-    private final String localStorage = new ClassPathResource("TempFile/File").getFile().getAbsolutePath();
-//    private final String localStorage = "";
-//    private final String localStorage = "C:/Users/admin07/Desktop/LocalStorage/";
     private final DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyyMMdd");
     private final DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HHmmss");
 
@@ -280,21 +277,25 @@ public class StateServiceImpl implements StateService {
             throw new ResourceNotFoundException("Only CSV and Excel File is Accepted");
 
         try {
+            File tempFile = File.createTempFile(LocalDate.now().format(dateFormatter) + "_" + LocalTime.now().format(timeFormatter) + "_Country_" +"temp", ".csv");
             String orignalFileName = file.getOriginalFilename();
             assert orignalFileName != null;
-            String path = LocalDate.now().format(dateFormatter) + "_" + LocalTime.now().format(timeFormatter) + "_State_" + orignalFileName;
-            File fileToImport = new File(localStorage + path);
-            file.transferTo(fileToImport);
+            file.transferTo(tempFile);
 
             JobParameters jobParameters = new JobParametersBuilder()
-                    .addString("inputFileState", localStorage + path)
+                    .addString("inputFileState", tempFile.getAbsolutePath())
                     .toJobParameters();
 
             JobExecution execution =  jobLauncher.run(job, jobParameters);
 
             if (execution.getExitStatus().equals(ExitStatus.COMPLETED)){
                 System.out.println("Job is Completed....");
-                Files.deleteIfExists(Paths.get(localStorage + path));
+                if(tempFile.exists()) {
+                    if (tempFile.delete())
+                        System.out.println("File Deleted");
+                    else
+                        System.out.println("Can't Delete File");
+                }
             }
 
             return "Import Successfully";

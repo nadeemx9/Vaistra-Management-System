@@ -40,8 +40,6 @@ public class CountryServiceImpl implements CountryService {
     private final AppUtils appUtils;
     private final JobLauncher jobLauncher;
     private final Job job;
-    private final String localStorage = new ClassPathResource("TempFile/File").getFile().getAbsolutePath();
-//    private final String localStorage = "C:/Users/admin07/Desktop/LocalStorage/";
     private final DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyyMMdd");
     private final DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HHmmss");
 
@@ -218,20 +216,27 @@ public class CountryServiceImpl implements CountryService {
             throw new ResourceNotFoundException("Only CSV and Excel File is Accepted");
 
         try {
+            File tempFile = File.createTempFile(LocalDate.now().format(dateFormatter) + "_" + LocalTime.now().format(timeFormatter) + "_Country_" +"temp", ".csv");
             String orignalFileName = file.getOriginalFilename();
             assert orignalFileName != null;
-            String path = LocalDate.now().format(dateFormatter) + "_" + LocalTime.now().format(timeFormatter) + "_Country_" + orignalFileName;
-            File fileToImport = new File(localStorage + path);
-            file.transferTo(fileToImport);
+            file.transferTo(tempFile);
+
+            System.out.println(tempFile.getAbsolutePath());
 
             JobParameters jobParameters = new JobParametersBuilder()
-                    .addString("inputFile", localStorage + path)
+                    .addString("inputFile", tempFile.getAbsolutePath())
                     .toJobParameters();
 
             JobExecution execution =  jobLauncher.run(job, jobParameters);
 
             if (execution.getExitStatus().equals(ExitStatus.COMPLETED)){
-                Files.deleteIfExists(Paths.get(localStorage + path));
+                System.out.println("Job is Completed");
+                if(tempFile.exists()){
+                    if(tempFile.delete())
+                        System.out.println("File Deleted");
+                    else
+                        System.out.println("Can't Delete File");
+                }
             }
 
             return "Import Successfully";
