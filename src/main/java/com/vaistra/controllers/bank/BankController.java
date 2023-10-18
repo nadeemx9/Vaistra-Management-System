@@ -28,7 +28,7 @@ public class BankController {
 
     @PostMapping
     public ResponseEntity<BankDto> addBank(@Valid @RequestPart("bankData") BankDto bankDto,
-                                           @RequestPart("logo") MultipartFile file) throws IOException
+                                           @RequestParam(value = "logo", required = false) MultipartFile file) throws IOException
     {
         return new ResponseEntity<>(bankService.addBank(bankDto, file), HttpStatus.CREATED);
     }

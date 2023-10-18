@@ -1,8 +1,8 @@
 package com.vaistra.config;
 
-import com.vaistra.entities.User;
+import com.vaistra.logindb.entities.User;
 import com.vaistra.exception.ResourceNotFoundException;
-import com.vaistra.repositories.UserRepository;
+import com.vaistra.logindb.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;

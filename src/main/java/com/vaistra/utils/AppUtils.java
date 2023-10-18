@@ -1,15 +1,15 @@
 package com.vaistra.utils;
 
+import com.vaistra.cscvdb.entities.*;
 import com.vaistra.dto.bank.BankBranchDto;
 import com.vaistra.dto.bank.BankDto;
 import com.vaistra.dto.mastermines.*;
-import com.vaistra.entities.*;
-import com.vaistra.entities.bank.Bank;
-import com.vaistra.entities.bank.BankBranch;
-import com.vaistra.entities.cscv.*;
+import com.vaistra.bankdb.entities.Bank;
+import com.vaistra.bankdb.entities.BankBranch;
 import com.vaistra.dto.*;
 import com.vaistra.dto.cscv.*;
-import com.vaistra.entities.mastermines.*;
+import com.vaistra.logindb.entities.User;
+import com.vaistra.masterminesdb.entities.*;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.TypeToken;
 import org.springframework.beans.factory.annotation.Autowired;

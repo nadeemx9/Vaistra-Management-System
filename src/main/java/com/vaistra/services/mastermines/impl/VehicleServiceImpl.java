@@ -1,14 +1,12 @@
 package com.vaistra.services.mastermines.impl;
 
 import com.vaistra.dto.HttpResponse;
-import com.vaistra.dto.mastermines.EquipmentDto;
 import com.vaistra.dto.mastermines.VehicleDto;
 import com.vaistra.dto.mastermines.VehicleUpdateDto;
-import com.vaistra.entities.mastermines.Equipment;
-import com.vaistra.entities.mastermines.Vehicle;
+import com.vaistra.masterminesdb.entities.Vehicle;
 import com.vaistra.exception.DuplicateEntryException;
 import com.vaistra.exception.ResourceNotFoundException;
-import com.vaistra.repositories.mastermines.VehicleRepository;
+import com.vaistra.masterminesdb.repositories.VehicleRepository;
 import com.vaistra.services.mastermines.VehicleService;
 import com.vaistra.utils.AppUtils;
 import org.springframework.beans.factory.annotation.Autowired;

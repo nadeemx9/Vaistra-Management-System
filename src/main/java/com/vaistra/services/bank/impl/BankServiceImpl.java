@@ -4,11 +4,11 @@ import com.vaistra.dto.HttpResponse;
 
 import com.vaistra.dto.bank.BankDto;
 import com.vaistra.dto.bank.BankUpdateDto;
-import com.vaistra.entities.bank.Bank;
+import com.vaistra.bankdb.entities.Bank;
 
 import com.vaistra.exception.DuplicateEntryException;
 import com.vaistra.exception.ResourceNotFoundException;
-import com.vaistra.repositories.bank.BankRepository;
+import com.vaistra.bankdb.repositories.BankRepository;
 import com.vaistra.services.bank.BankService;
 import com.vaistra.utils.AppUtils;
 import org.springframework.beans.factory.annotation.Autowired;

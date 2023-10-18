@@ -1,7 +1,6 @@
 package com.vaistra.services;
 
-import com.vaistra.entities.Confirmation;
-import com.vaistra.entities.User;
+import com.vaistra.logindb.entities.User;
 
 public interface EmailService {
     void sendSimpleMailMessage(String name, String to, String token);

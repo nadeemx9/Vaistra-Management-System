@@ -1,13 +1,13 @@
 package com.vaistra.services.cscv.impl;
 
+import com.vaistra.cscvdb.entities.*;
+import com.vaistra.cscvdb.repositories.*;
 import com.vaistra.dto.cscv.VillageUpdateDto;
-import com.vaistra.entities.cscv.*;
 import com.vaistra.exception.DuplicateEntryException;
 import com.vaistra.exception.InactiveStatusException;
 import com.vaistra.exception.ResourceNotFoundException;
 import com.vaistra.dto.HttpResponse;
 import com.vaistra.dto.cscv.VillageDto;
-import com.vaistra.repositories.cscv.*;
 import com.vaistra.services.cscv.VillageService;
 import com.vaistra.utils.AppUtils;
 import org.springframework.beans.factory.annotation.Autowired;

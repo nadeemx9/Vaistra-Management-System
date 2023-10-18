@@ -1,8 +1,6 @@
 package com.vaistra.services;
 
-import com.vaistra.entities.Confirmation;
-import com.vaistra.entities.User;
-import com.vaistra.services.EmailService;
+import com.vaistra.logindb.entities.User;
 import com.vaistra.utils.AppUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;

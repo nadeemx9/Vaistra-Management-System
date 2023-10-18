@@ -3,18 +3,14 @@ package com.vaistra.controllers;
 import com.vaistra.dto.PasswordDto;
 import com.vaistra.dto.UserDto;
 import com.vaistra.dto.UserUpdateDto;
-import com.vaistra.entities.User;
 import com.vaistra.services.UserService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 
-import java.security.Principal;
 import java.util.List;
 
 @RestController

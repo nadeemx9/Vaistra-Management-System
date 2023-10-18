@@ -1,19 +1,19 @@
 package com.vaistra.services.cscv.impl;
 
 import com.vaistra.dto.cscv.SubDistrictUpdateDto;
-import com.vaistra.entities.cscv.Country;
-import com.vaistra.entities.cscv.District;
-import com.vaistra.entities.cscv.State;
-import com.vaistra.entities.cscv.SubDistrict;
+import com.vaistra.cscvdb.entities.Country;
+import com.vaistra.cscvdb.entities.District;
+import com.vaistra.cscvdb.entities.State;
+import com.vaistra.cscvdb.entities.SubDistrict;
 import com.vaistra.exception.DuplicateEntryException;
 import com.vaistra.exception.InactiveStatusException;
 import com.vaistra.exception.ResourceNotFoundException;
 import com.vaistra.dto.HttpResponse;
 import com.vaistra.dto.cscv.SubDistrictDto;
-import com.vaistra.repositories.cscv.CountryRepository;
-import com.vaistra.repositories.cscv.DistrictRepository;
-import com.vaistra.repositories.cscv.StateRepository;
-import com.vaistra.repositories.cscv.SubDistrictRepository;
+import com.vaistra.cscvdb.repositories.CountryRepository;
+import com.vaistra.cscvdb.repositories.DistrictRepository;
+import com.vaistra.cscvdb.repositories.StateRepository;
+import com.vaistra.cscvdb.repositories.SubDistrictRepository;
 import com.vaistra.services.cscv.SubDistrictService;
 import com.vaistra.utils.AppUtils;
 import org.springframework.beans.factory.annotation.Autowired;

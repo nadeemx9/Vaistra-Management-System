@@ -2,31 +2,25 @@ package com.vaistra.services;
 
 import com.vaistra.dto.PasswordDto;
 import com.vaistra.dto.UserUpdateDto;
-import com.vaistra.entities.Confirmation;
-import com.vaistra.entities.User;
+import com.vaistra.logindb.entities.Confirmation;
+import com.vaistra.logindb.entities.User;
 import com.vaistra.exception.ConfirmationTokenExpiredException;
 import com.vaistra.exception.DuplicateEntryException;
 import com.vaistra.exception.ResourceNotFoundException;
 import com.vaistra.dto.UserDto;
-import com.vaistra.exception.UserUnauthorizedException;
-import com.vaistra.repositories.ConfirmationRepository;
-import com.vaistra.repositories.UserRepository;
-import com.vaistra.services.EmailService;
-import com.vaistra.services.UserService;
+import com.vaistra.logindb.repositories.ConfirmationRepository;
+import com.vaistra.logindb.repositories.UserRepository;
 import com.vaistra.utils.AppUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.security.Principal;
 import java.time.Duration;
 import java.time.LocalDateTime;
-import java.util.Base64;
 import java.util.List;
 
 @Service

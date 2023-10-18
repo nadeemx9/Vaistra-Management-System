@@ -5,6 +5,9 @@ spring:
   profiles:
     active: ${ENV:dev}
 
+  jta:
+    enabled: true
+
   servlet:
     multipart:
       max-file-size: 30MB

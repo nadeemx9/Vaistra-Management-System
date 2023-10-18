@@ -1,8 +1,31 @@
 spring:
+
   datasource:
-    url: jdbc:postgresql://localhost:5432/vaistra-management-system
-    username: postgres
-    password: root
+#    url: jdbc:postgresql://localhost:5432/vaistra-management-system
+#    username: postgres
+#    password: root
+
+    logindb:
+      url: jdbc:postgresql://localhost:5432/logindb
+      username: postgres
+      password: root
+
+
+    cscvdb:
+      url: jdbc:postgresql://localhost:5432/cscvdb
+      username: postgres
+      password: root
+
+    masterminesdb:
+      url: jdbc:postgresql://localhost:5432/masterminesdb
+      username: postgres
+      password: root
+
+    bankdb:
+      url: jdbc:postgresql://localhost:5432/bankdb
+      username: postgres
+      password: root
+
 
   jpa:
     hibernate:
