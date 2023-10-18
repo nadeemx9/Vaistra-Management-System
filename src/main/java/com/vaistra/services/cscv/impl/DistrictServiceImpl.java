@@ -1,5 +1,7 @@
 package com.vaistra.services.cscv.impl;
 
+import com.vaistra.bankdb.entities.BankBranch;
+import com.vaistra.bankdb.repositories.BankBranchRepository;
 import com.vaistra.dto.cscv.DistrictUpdateDto;
 import com.vaistra.cscvdb.entities.Country;
 import com.vaistra.cscvdb.entities.District;
@@ -29,16 +31,18 @@ public class DistrictServiceImpl implements DistrictService {
     //---------------------------------------------------CONSTRUCTOR INJECTION------------------------------------------
     private final DistrictRepository districtRepository;
     private final StateRepository stateRepository;
+    private final BankBranchRepository bankBranchRepository;
     private final CountryRepository countryRepository;
     private final AppUtils appUtils;
 
 
     @Autowired
     public DistrictServiceImpl(DistrictRepository districtRepository, StateRepository stateRepository,
-                               CountryRepository countryRepository, AppUtils appUtils)
+                               BankBranchRepository bankBranchRepository, CountryRepository countryRepository, AppUtils appUtils)
     {
         this.districtRepository = districtRepository;
         this.stateRepository = stateRepository;
+        this.bankBranchRepository = bankBranchRepository;
         this.countryRepository = countryRepository;
         this.appUtils = appUtils;
     }
@@ -237,8 +241,12 @@ public class DistrictServiceImpl implements DistrictService {
 
     @Override
     public String deleteDistrictById(int id) {
-        districtRepository.findById(id)
+        District district = districtRepository.findById(id)
                 .orElseThrow(()->new ResourceNotFoundException("District with id '"+id+"' not found!"));
+
+        List<BankBranch> bankBranch = bankBranchRepository.findAllByDistrictId(district.getDistrictId());
+
+        bankBranchRepository.deleteAll(bankBranch);
 
         districtRepository.deleteById(id);
         return "District with id '"+id+"' deleted!";

@@ -48,7 +48,8 @@ public class MineralServiceImpl implements MineralService {
         mineral.setCategory(mineralDto.getCategory().trim());
         mineral.setAtrName(mineralDto.getAtrName().trim());
         mineral.setHsnCode(mineralDto.getHsnCode().trim());
-        mineral.setGrade(Arrays.asList(mineralDto.getGrade()));
+        if(mineralDto.getGrade()!=null)
+            mineral.setGrade(Arrays.asList(mineralDto.getGrade()));
 
         return appUtils.mineralToDto(mineralRepository.save(mineral));
     }

@@ -1,6 +1,5 @@
 package com.vaistra.controllers.bank;
 
-
 import com.vaistra.dto.HttpResponse;
 import com.vaistra.dto.bank.BankBranchDto;
 import com.vaistra.dto.bank.BankBranchUpdateDto;

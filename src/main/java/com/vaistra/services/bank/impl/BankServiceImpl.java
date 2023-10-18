@@ -39,6 +39,9 @@ public class BankServiceImpl implements BankService {
     @Transactional
     public BankDto addBank(BankDto bankDto, MultipartFile file) throws IOException {
 
+        if(file==null)
+            throw new ResourceNotFoundException("File Should not be null");
+
         if(bankRepository.existsByBankLongNameIgnoreCase(bankDto.getBankLongName()))
             throw new DuplicateEntryException("Bank '"+bankDto.getBankLongName()+"' already exist!");
         if(file.isEmpty())

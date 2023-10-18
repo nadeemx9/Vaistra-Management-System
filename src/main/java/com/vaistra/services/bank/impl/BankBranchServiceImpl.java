@@ -81,8 +81,8 @@ public class BankBranchServiceImpl implements BankBranchService {
         if(!district.getStatus())
             throw new InactiveStatusException("District '"+district.getDistrictName()+"' is inactive");
 
-        State state = stateRepository.findById(district.getState().getStateId())
-                .orElseThrow(()->new ResourceNotFoundException("State with ID '"+district.getState().getStateId()+"' not found!"));
+//        State state = stateRepository.findById(district.getState().getStateId())
+//                .orElseThrow(()->new ResourceNotFoundException("State with ID '"+district.getState().getStateId()+"' not found!"));
 
         BankBranch bankBranch = new BankBranch();
         bankBranch.setBranchName(bankBranchDto.getBranchName());
@@ -94,8 +94,8 @@ public class BankBranchServiceImpl implements BankBranchService {
         bankBranch.setFromTiming(bankBranchDto.getFromTiming());
         bankBranch.setToTiming(bankBranchDto.getToTiming());
         bankBranch.setBank(bank);
-        bankBranch.setState(state);
-        bankBranch.setDistrict(district);
+        bankBranch.setDistrictId(bankBranchDto.getDistrictId());
+        bankBranch.setStateId(district.getState().getStateId());
 
         if(bankBranch.getStatus() == null)
             bankBranch.setStatus(true);
@@ -133,8 +133,8 @@ public class BankBranchServiceImpl implements BankBranchService {
                 Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
 
         Pageable pageable = PageRequest.of(pageNumber, pageSize, sort);
-        Page<BankBranch> pageBankBranch = bankBranchRepository.findAllByBranchIdOrStatusOrBranchNameContainingIgnoreCaseOrBranchCodeContainingIgnoreCaseOrBranchAddressContainingIgnoreCaseOrBranchIfscContainingIgnoreCaseOrBranchMicrContainingIgnoreCaseOrBank_BankLongNameContainingIgnoreCaseOrState_StateNameContainingIgnoreCaseOrDistrict_DistrictNameContainingIgnoreCase
-                (integerKeyword, booleanKeyword,keyword ,keyword, keyword, keyword, keyword, keyword, keyword, keyword, pageable);
+        Page<BankBranch> pageBankBranch = bankBranchRepository.findAllByBranchIdOrStatusOrBranchNameContainingIgnoreCaseOrBranchCodeContainingIgnoreCaseOrBranchAddressContainingIgnoreCaseOrBranchIfscContainingIgnoreCaseOrBranchMicrContainingIgnoreCaseOrBank_BankLongNameContainingIgnoreCaseOrStateIdOrDistrictId
+                (integerKeyword, booleanKeyword,keyword ,keyword, keyword, keyword, keyword, keyword, integerKeyword, integerKeyword, pageable);
         List<BankBranchDto> bankBranches = appUtils.bankBranchesToDtos(pageBankBranch.getContent());
 
         return HttpResponse.builder()
@@ -182,7 +182,7 @@ public class BankBranchServiceImpl implements BankBranchService {
                 Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
 
         Pageable pageable = PageRequest.of(pageNumber, pageSize, sort);
-        Page<BankBranch> pageBankBranch = bankBranchRepository.findAllByState(state, pageable);
+        Page<BankBranch> pageBankBranch = bankBranchRepository.findAllByStateId(stateId, pageable);
         List<BankBranchDto> bankBranches = appUtils.bankBranchesToDtos(pageBankBranch.getContent());
 
         return HttpResponse.builder()
@@ -206,7 +206,7 @@ public class BankBranchServiceImpl implements BankBranchService {
                 Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
 
         Pageable pageable = PageRequest.of(pageNumber, pageSize, sort);
-        Page<BankBranch> pageBankBranch = bankBranchRepository.findAllByDistrict_DistrictId(districtId, pageable);
+        Page<BankBranch> pageBankBranch = bankBranchRepository.findAllByDistrictId(districtId, pageable);
         List<BankBranchDto> bankBranches = appUtils.bankBranchesToDtos(pageBankBranch.getContent());
 
         return HttpResponse.builder()
@@ -357,11 +357,11 @@ public class BankBranchServiceImpl implements BankBranchService {
         {
             District district = districtRepository.findById(bankBranchDto.getDistrictId())
                     .orElseThrow(()->new ResourceNotFoundException("District with ID '"+bankBranchDto.getDistrictId()+"' not found!"));
-            bankBranch.setDistrict(district);
+            bankBranch.setDistrictId(district.getDistrictId());
 
             State state = stateRepository.findById(district.getState().getStateId())
                     .orElseThrow(()->new ResourceNotFoundException("State with ID '"+district.getState().getStateId()+"' not found!"));
-            bankBranch.setState(state);
+            bankBranch.setStateId(state.getStateId());
         }
 
         return appUtils.bankBranchToDto(bankBranchRepository.save(bankBranch));

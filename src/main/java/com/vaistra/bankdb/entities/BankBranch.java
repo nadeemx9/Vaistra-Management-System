@@ -1,7 +1,7 @@
 package com.vaistra.bankdb.entities;
 
-import com.vaistra.cscvdb.entities.District;
-import com.vaistra.cscvdb.entities.State;
+//import com.vaistra.cscvdb.entities.District;
+//import com.vaistra.cscvdb.entities.State;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -34,13 +34,9 @@ public class BankBranch {
     @JoinColumn(name = "bank_id")
     private Bank bank;
 
-    @ManyToOne
-    @JoinColumn(name = "state_id")
-    private State state;
+    private Integer stateId;
 
-    @ManyToOne
-    @JoinColumn(name = "district_id")
-    private District district;
+    private Integer districtId;
 
     private Boolean status;
 

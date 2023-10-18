@@ -1,5 +1,7 @@
 package com.vaistra.services.cscv.impl;
 
+import com.vaistra.bankdb.entities.BankBranch;
+import com.vaistra.bankdb.repositories.BankBranchRepository;
 import com.vaistra.dto.cscv.StateUpdateDto;
 import com.vaistra.cscvdb.entities.Country;
 import com.vaistra.cscvdb.entities.State;
@@ -13,18 +15,26 @@ import com.vaistra.cscvdb.repositories.StateRepository;
 import com.vaistra.services.cscv.StateService;
 import com.vaistra.utils.AppUtils;
 
+import org.springframework.batch.core.*;
+import org.springframework.batch.core.launch.JobLauncher;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
 import java.io.IOException;
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Objects;
 
 @Service
 public class StateServiceImpl implements StateService {
@@ -33,15 +43,21 @@ public class StateServiceImpl implements StateService {
     private final StateRepository stateRepository;
     private final CountryRepository countryRepository;
     private final AppUtils appUtils;
+    private final JobLauncher jobLauncher;
+    private final Job job;
+    private final BankBranchRepository bankBranchRepository;
     private final DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyyMMdd");
     private final DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HHmmss");
 
 
     @Autowired
-    public StateServiceImpl(StateRepository stateRepository, CountryRepository countryRepository, AppUtils appUtils) throws IOException {
+    public StateServiceImpl(StateRepository stateRepository, CountryRepository countryRepository, AppUtils appUtils, JobLauncher jobLauncher, @Qualifier("stateReaderJob") Job job, BankBranchRepository bankBranchRepository) throws IOException {
         this.stateRepository = stateRepository;
         this.countryRepository = countryRepository;
         this.appUtils = appUtils;
+        this.jobLauncher = jobLauncher;
+        this.job = job;
+        this.bankBranchRepository = bankBranchRepository;
     }
 
 
@@ -209,13 +225,19 @@ public class StateServiceImpl implements StateService {
         return appUtils.stateToDto(stateRepository.save(state));
     }
 
+    @Transactional
     @Override
     public String deleteStateById(int id) {
 
         State state = stateRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("State with id '" + id + "' not found!"));
 
+        List<BankBranch> bankBranch = bankBranchRepository.findAllByStateId(state.getStateId());
+
+        bankBranchRepository.deleteAll(bankBranch);
+
         stateRepository.delete(state);
+
         return "State with id " + id + "' deleted!";
     }
 
@@ -242,47 +264,46 @@ public class StateServiceImpl implements StateService {
 
     @Override
     public String uploadStateCSV(MultipartFile file) {
-//        if(file == null)
-//            throw new ResourceNotFoundException("CSV File is not Uploaded   ");
-//
-//        if(file.isEmpty())
-//            throw new ResourceNotFoundException("Country CSV File not found...!");
-//
-//        if(!Objects.equals(file.getContentType(), "text/csv"))
-//            throw new IllegalArgumentException("Invalid file type. Please upload a CSV file.");
-//
-//        if(!appUtils.isSupportedExtensionBatch(file.getOriginalFilename()))
-//            throw new ResourceNotFoundException("Only CSV and Excel File is Accepted");
-//
-//        try {
-//            File tempFile = File.createTempFile(LocalDate.now().format(dateFormatter) + "_" + LocalTime.now().format(timeFormatter) + "_Country_" +"temp", ".csv");
-//            String orignalFileName = file.getOriginalFilename();
-//            assert orignalFileName != null;
-//            file.transferTo(tempFile);
-//
-//            JobParameters jobParameters = new JobParametersBuilder()
-//                    .addString("inputFileState", tempFile.getAbsolutePath())
-//                    .toJobParameters();
-//
-//            JobExecution execution =  jobLauncher.run(job, jobParameters);
-//
-//            if (execution.getExitStatus().equals(ExitStatus.COMPLETED)){
-//                System.out.println("Job is Completed....");
-//                if(tempFile.exists()) {
-//                    if (tempFile.delete())
-//                        System.out.println("File Deleted");
-//                    else
-//                        System.out.println("Can't Delete File");
-//                }
-//            }
-//
-//            return "Import Successfully";
-//
-//        }catch (Exception e){
-//            e.printStackTrace();
-//            return e.getMessage();
-//        }
-        return null;
+        if(file == null)
+            throw new ResourceNotFoundException("CSV File is not Uploaded   ");
+
+        if(file.isEmpty())
+            throw new ResourceNotFoundException("Country CSV File not found...!");
+
+        if(!Objects.equals(file.getContentType(), "text/csv"))
+            throw new IllegalArgumentException("Invalid file type. Please upload a CSV file.");
+
+        if(!appUtils.isSupportedExtensionBatch(file.getOriginalFilename()))
+            throw new ResourceNotFoundException("Only CSV and Excel File is Accepted");
+
+        try {
+            File tempFile = File.createTempFile(LocalDate.now().format(dateFormatter) + "_" + LocalTime.now().format(timeFormatter) + "_Country_" +"temp", ".csv");
+            String orignalFileName = file.getOriginalFilename();
+            assert orignalFileName != null;
+            file.transferTo(tempFile);
+
+            JobParameters jobParameters = new JobParametersBuilder()
+                    .addString("inputFileState", tempFile.getAbsolutePath())
+                    .toJobParameters();
+
+            JobExecution execution =  jobLauncher.run(job, jobParameters);
+
+            if (execution.getExitStatus().equals(ExitStatus.COMPLETED)){
+                System.out.println("Job is Completed....");
+                if(tempFile.exists()) {
+                    if (tempFile.delete())
+                        System.out.println("File Deleted");
+                    else
+                        System.out.println("Can't Delete File");
+                }
+            }
+
+            return "Import Successfully";
+
+        }catch (Exception e){
+            e.printStackTrace();
+            return e.getMessage();
+        }
     }
 
 }

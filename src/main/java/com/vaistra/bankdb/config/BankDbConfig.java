@@ -33,6 +33,7 @@ public class BankDbConfig {
     @Autowired
     private Environment environment;
 
+//    @Primary
     @Bean("bankdbDataSource")
     public DataSource dataSource()
     {
@@ -45,6 +46,7 @@ public class BankDbConfig {
         return dataSource;
     }
 
+//    @Primary
     @Bean("bankdbEntityManagerFactoryBean")
     public LocalContainerEntityManagerFactoryBean entityManagerFactoryBean()
     {
@@ -66,6 +68,7 @@ public class BankDbConfig {
         return entityManagerFactoryBean;
     }
 
+//    @Primary
     @Bean("bankdbTransactionManagerBean")
     public PlatformTransactionManager transactionManager()
     {

@@ -50,7 +50,8 @@ public class LoginDbConfig {
         Map<String, String> props = new HashMap<>();
         props.put("hibernate.hbm2ddl.auto", "update");
         props.put("hibernate.show-sql", "true");
-        props.put("hibernate.dialect","org.hibernate.dialect.PostgreSQLDialect");        entityManagerFactoryBean.setJpaPropertyMap(props);
+        props.put("hibernate.dialect","org.hibernate.dialect.PostgreSQLDialect");
+        entityManagerFactoryBean.setJpaPropertyMap(props);
 
         JpaVendorAdapter adapter = new HibernateJpaVendorAdapter();
         entityManagerFactoryBean.setJpaVendorAdapter(adapter);

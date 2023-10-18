@@ -1,9 +1,6 @@
 package com.vaistra.cscvdb.config;
 
-import jakarta.persistence.EntityManagerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.boot.orm.jpa.EntityManagerFactoryBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
@@ -31,6 +28,7 @@ public class CSCVDbConfig {
     @Autowired
     private Environment environment;
 
+    @Primary
     @Bean("cscvdbDataSource")
     public DataSource dataSource()
     {
@@ -43,6 +41,7 @@ public class CSCVDbConfig {
         return dataSource;
     }
 
+    @Primary
     @Bean("cscvdbEntityManagerFactoryBean")
     public LocalContainerEntityManagerFactoryBean entityManagerFactoryBean()
     {
@@ -64,6 +63,7 @@ public class CSCVDbConfig {
         return entityManagerFactoryBean;
     }
 
+    @Primary
     @Bean("cscvdbTransactionManagerBean")
     public PlatformTransactionManager transactionManager()
     {

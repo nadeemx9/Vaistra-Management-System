@@ -1,15 +1,17 @@
 package com.vaistra.config.spring_batch.StateBatch;
 
+import com.vaistra.cscvdb.entities.State;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.batch.item.ItemProcessor;
 
 @Slf4j
-public class StateProcessor {
+public class StateProcessor implements ItemProcessor<State,State> {
 
-//    @Override
-//    public State process(State state) throws Exception {
-//        state.setStateName(state.getStateName());
-//        state.setStatus(state.getStatus());
-//        state.setCountry(state.getCountry());
-//        return state;
-//    }
+    @Override
+    public State process(State state) throws Exception {
+        state.setStateName(state.getStateName());
+        state.setStatus(state.getStatus());
+        state.setCountry(state.getCountry());
+        return state;
+    }
 }
