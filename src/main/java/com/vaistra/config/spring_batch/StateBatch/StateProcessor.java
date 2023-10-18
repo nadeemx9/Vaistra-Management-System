@@ -7,13 +7,13 @@ import org.springframework.batch.item.ItemProcessor;
 import org.springframework.beans.factory.annotation.Autowired;
 
 @Slf4j
-public class StateProcessor implements ItemProcessor<State, State> {
+public class StateProcessor{
 
-    @Override
-    public State process(State state) throws Exception {
-        state.setStateName(state.getStateName());
-        state.setStatus(state.getStatus());
-        state.setCountry(state.getCountry());
-        return state;
-    }
+//    @Override
+//    public State process(State state) throws Exception {
+//        state.setStateName(state.getStateName());
+//        state.setStatus(state.getStatus());
+//        state.setCountry(state.getCountry());
+//        return state;
+//    }
 }

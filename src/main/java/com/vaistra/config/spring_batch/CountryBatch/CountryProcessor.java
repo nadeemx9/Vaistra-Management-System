@@ -5,12 +5,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.item.ItemProcessor;
 
 @Slf4j
-public class CountryProcessor implements ItemProcessor<Country,Country> {
+public class CountryProcessor{
 
-    @Override
-    public Country process(Country country) throws Exception {
-        country.setCountryName(country.getCountryName().trim());
-        country.setStatus(country.getStatus());
-        return country;
-    }
+//    @Override
+//    public Country process(Country country) throws Exception {
+//        country.setCountryName(country.getCountryName().trim());
+//        country.setStatus(country.getStatus());
+//        return country;
+//    }
 }

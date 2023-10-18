@@ -8,14 +8,14 @@ import org.springframework.batch.item.ItemWriter;
 import org.springframework.beans.factory.annotation.Autowired;
 
 @Slf4j
-public class StateWriter implements ItemWriter<State> {
+public class StateWriter{
 
-    @Autowired
-    private StateRepository stateRepository;
-
-    @Override
-    public void write(Chunk<? extends State> chunk) throws Exception {
-//        if(!stateRepository.existsByStateNameIgnoreCase(chunk.iterator().next().getStateName()))
-            stateRepository.saveAll(chunk);
-    }
+//    @Autowired
+//    private StateRepository stateRepository;
+//
+//    @Override
+//    public void write(Chunk<? extends State> chunk) throws Exception {
+////        if(!stateRepository.existsByStateNameIgnoreCase(chunk.iterator().next().getStateName()))
+//            stateRepository.saveAll(chunk);
+//    }
 }
