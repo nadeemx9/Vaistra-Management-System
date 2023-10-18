@@ -1,36 +1,28 @@
 package com.vaistra.services.cscv.impl;
 
+import com.vaistra.dto.HttpResponse;
+import com.vaistra.dto.cscv.StateDto;
 import com.vaistra.dto.cscv.StateUpdateDto;
 import com.vaistra.entities.cscv.Country;
 import com.vaistra.entities.cscv.State;
 import com.vaistra.exception.DuplicateEntryException;
 import com.vaistra.exception.InactiveStatusException;
 import com.vaistra.exception.ResourceNotFoundException;
-import com.vaistra.dto.HttpResponse;
-import com.vaistra.dto.cscv.StateDto;
 import com.vaistra.repositories.cscv.CountryRepository;
 import com.vaistra.repositories.cscv.StateRepository;
 import com.vaistra.services.cscv.StateService;
 import com.vaistra.utils.AppUtils;
-
-import org.springframework.batch.core.*;
-import org.springframework.batch.core.launch.JobLauncher;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-import java.io.File;
+
 import java.io.IOException;
-import java.time.LocalDate;
-import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
-import java.util.Objects;
 
 @Service
 public class StateServiceImpl implements StateService {
