@@ -3,6 +3,7 @@ spring:
     url: jdbc:postgresql://dpg-ck1vdcfhdsdc73d0722g-a.oregon-postgres.render.com:5432/vaistradb
     username: vaistradb_user
     password: AehoiOTYFsxexqqGHTOKm0j2Yrtrg4Pm
+
   jpa:
     hibernate:
       ddl-auto: update
