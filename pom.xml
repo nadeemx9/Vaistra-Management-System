@@ -98,6 +98,7 @@
 				<artifactId>spring-boot-maven-plugin</artifactId>
 			</plugin>
 		</plugins>
+		<finalName>cscv-github-action</finalName>
 	</build>
 
 </project>
