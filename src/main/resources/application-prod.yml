@@ -1,8 +1,8 @@
 spring:
   datasource:
-    url: jdbc:postgresql://dpg-ck1vdcfhdsdc73d0722g-a.oregon-postgres.render.com:5432/vaistradb
-    username: vaistradb_user
-    password: AehoiOTYFsxexqqGHTOKm0j2Yrtrg4Pm
+    url: jdbc:postgresql://${DB_HOST}:${DB_PORT}/${DB_NAME}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
 
   jpa:
     hibernate:
