@@ -17,6 +17,8 @@ import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequestMapping("country")
+@CrossOrigin(origins = "*")
+
 public class CountryController {
 
     //---------------------------------------------------CONSTRUCTOR INJECTION------------------------------------------

@@ -19,6 +19,7 @@ import java.io.IOException;
 
 @RestController
 @RequestMapping("state")
+@CrossOrigin(origins = "*")
 public class StateController {
 
 
