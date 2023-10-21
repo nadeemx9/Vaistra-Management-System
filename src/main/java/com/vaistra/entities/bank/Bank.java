@@ -22,8 +22,7 @@ public class Bank {
     private String bankShortName;
     private String bankLongName;
 
-    @Lob
-    private byte[] bankLogo;
+    private String bankLogo;
 
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "bank")
     private List<BankBranch> branches = new ArrayList<>();

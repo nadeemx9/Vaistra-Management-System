@@ -16,7 +16,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 
 @RestController
-@RequestMapping("bank")
+    @RequestMapping("bank")
 public class BankController {
 
     private final BankService bankService;
@@ -28,7 +28,7 @@ public class BankController {
 
     @PostMapping
     public ResponseEntity<BankDto> addBank(@Valid @RequestPart("bankData") BankDto bankDto,
-                                           @RequestPart("logo") MultipartFile file) throws IOException
+                                           @RequestParam(value = "logo",required = false) MultipartFile file) throws IOException
     {
         return new ResponseEntity<>(bankService.addBank(bankDto, file), HttpStatus.CREATED);
     }
@@ -77,15 +77,14 @@ public class BankController {
 
     @PutMapping("{bankId}")
     public ResponseEntity<BankDto> updateBank(@PathVariable int bankId,
-                                              @Valid @RequestPart("bankData") BankUpdateDto bankDto,
-                                              @RequestPart("logo") MultipartFile file) throws IOException
+                                              @Valid @RequestPart(value = "bankData",required = false) BankUpdateDto bankDto,
+                                              @RequestParam(value = "logo",required = false) MultipartFile file) throws IOException
     {
         return new ResponseEntity<>(bankService.updateBank(bankDto, bankId, file), HttpStatus.OK);
     }
 
     @DeleteMapping("{bankId}")
-    public ResponseEntity<String> deleteBank(@PathVariable int bankId)
-    {
+    public ResponseEntity<String> deleteBank(@PathVariable int bankId) throws IOException {
         return new ResponseEntity<>(bankService.deleteBank(bankId), HttpStatus.OK);
     }
 }

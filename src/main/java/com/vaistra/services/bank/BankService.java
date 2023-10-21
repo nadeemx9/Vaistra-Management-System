@@ -15,5 +15,5 @@ public interface BankService {
     HttpResponse getAlLBanks(int pageNumber, int pageSize, String sortBy, String sortDirection);
     HttpResponse getAlLActiveBanks(int pageNumber, int pageSize, String sortBy, String sortDirection);
     BankDto updateBank(BankUpdateDto bankDto, int bankId, MultipartFile file) throws IOException;
-    String deleteBank(int bankId);
+    String deleteBank(int bankId) throws IOException;
 }

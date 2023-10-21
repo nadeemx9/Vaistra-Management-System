@@ -1,5 +1,6 @@
 package com.vaistra.config;
 
+import com.cloudinary.Cloudinary;
 import com.vaistra.config.jwt.JwtAuthenticationEntryPoint;
 import com.vaistra.config.jwt.JwtAuthenticationFilter;
 import com.vaistra.config.jwt.JwtService;
@@ -27,6 +28,9 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.servlet.HandlerExceptionResolver;
+
+import java.util.HashMap;
+import java.util.Map;
 
 @Configuration
 @EnableWebSecurity
@@ -106,5 +110,16 @@ public class SecurityConfig {
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
         return source;
+    }
+
+    @Bean
+    public Cloudinary getCloudnary(){
+        Map config = new HashMap();
+        config.put("cloud_name","dqb5f6jwj");
+        config.put("api_key","992626438791469");
+        config.put("api_secret","ZBfmRAwxp9KCh0tCwpcLNXof1Qg");
+        config.put("secure",true);
+
+        return new Cloudinary(config);
     }
 }
