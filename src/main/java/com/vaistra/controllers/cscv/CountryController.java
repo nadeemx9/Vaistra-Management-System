@@ -1,17 +1,19 @@
 package com.vaistra.controllers.cscv;
 
-import com.vaistra.dto.cscv.CountryDto;
 import com.vaistra.dto.HttpResponse;
+import com.vaistra.dto.cscv.CountryDto;
 import com.vaistra.dto.cscv.CountryUpdateDto;
 import com.vaistra.services.cscv.CountryService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.ByteArrayResource;
+import org.springframework.core.io.Resource;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-
-import java.io.IOException;
 
 @RestController
 @RequestMapping("country")
@@ -19,6 +21,7 @@ public class CountryController {
 
     //---------------------------------------------------CONSTRUCTOR INJECTION------------------------------------------
     private final CountryService countryService;
+
     @Autowired
     public CountryController(CountryService countryService) {
         this.countryService = countryService;
@@ -38,11 +41,12 @@ public class CountryController {
 
         return new ResponseEntity<>(countryService.getAllCountriesByActive(pageNumber, pageSize, sortBy, sortDirection), HttpStatus.OK);
     }
+
     @GetMapping("all")
     public ResponseEntity<HttpResponse> getAllCountries(@RequestParam(value = "pageNumber", defaultValue = "0", required = false) Integer pageNumber,
-                                                            @RequestParam(value = "pageSize", defaultValue = "2147483647", required = false) Integer pageSize,
-                                                            @RequestParam(value = "sortBy", defaultValue = "countryId", required = false) String sortBy,
-                                                            @RequestParam(value = "sortDirection", defaultValue = "asc", required = false) String sortDirection) {
+                                                        @RequestParam(value = "pageSize", defaultValue = "2147483647", required = false) Integer pageSize,
+                                                        @RequestParam(value = "sortBy", defaultValue = "countryId", required = false) String sortBy,
+                                                        @RequestParam(value = "sortDirection", defaultValue = "asc", required = false) String sortDirection) {
 
         return new ResponseEntity<>(countryService.getAllCountries(pageNumber, pageSize, sortBy, sortDirection), HttpStatus.OK);
     }
@@ -57,8 +61,7 @@ public class CountryController {
                                                         @RequestParam(value = "pageNumber", defaultValue = "0", required = false) Integer pageNumber,
                                                         @RequestParam(value = "pageSize", defaultValue = "5", required = false) Integer pageSize,
                                                         @RequestParam(value = "sortBy", defaultValue = "countryId", required = false) String sortBy,
-                                                        @RequestParam(value = "sortDirection", defaultValue = "asc", required = false) String sortDirection)
-    {
+                                                        @RequestParam(value = "sortDirection", defaultValue = "asc", required = false) String sortDirection) {
         return new ResponseEntity<>(countryService.searchCountry(keyword, pageNumber, pageSize, sortBy, sortDirection), HttpStatus.OK);
     }
 
@@ -85,7 +88,22 @@ public class CountryController {
 
     @PostMapping("/UploadCsv")
     public ResponseEntity<String> uploadCountryCSV(@RequestParam(name = "file", required = false) MultipartFile file) {
-        return new ResponseEntity<>(countryService.uploadCountryCSV(file),HttpStatus.OK);
+        return new ResponseEntity<>(countryService.uploadCountryCSV(file), HttpStatus.OK);
     }
 
+    @GetMapping("/demoCsv")
+    public ResponseEntity<Resource> downloadDemo() {
+        String csvData = countryService.generateCsvData();
+        byte[] csvBytes = csvData.getBytes();
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
+        headers.set(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=demo.csv");
+
+        ByteArrayResource resource = new ByteArrayResource(csvBytes);
+
+        return ResponseEntity.ok()
+                .headers(headers)
+                .body(resource);
+    }
 }

@@ -1,11 +1,15 @@
 spring:
   datasource:
-    url: jdbc:postgresql://dpg-ck1vdcfhdsdc73d0722g-a.oregon-postgres.render.com:5432/vaistradb
-    username: vaistradb_user
-    password: AehoiOTYFsxexqqGHTOKm0j2Yrtrg4Pm
+    url: jdbc:postgresql://${DB_HOST:dpg-ck1vdcfhdsdc73d0722g-a.oregon-postgres.render.com}:${DB_PORT:5432}/${DB_NAME:vaistradb}
+    username: ${DB_USERNAME:vaistradb_user}
+    password: ${DB_PASSWORD:AehoiOTYFsxexqqGHTOKm0j2Yrtrg4Pm}
+
   jpa:
     hibernate:
       ddl-auto: update
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
 
 
 SERVER_PORT: 8080
