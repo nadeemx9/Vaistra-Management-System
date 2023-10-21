@@ -12,6 +12,12 @@ spring:
   jpa:
     show-sql: true
 
+  batch:
+    jdbc:
+      initialize-schema: always
+    job:
+      enabled: false
+
   mail:
     host: ${EMAIL_HOST}
     port: ${EMAIL_PORT}

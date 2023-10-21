@@ -25,5 +25,7 @@ public interface StateService {
 
     HttpResponse searchStateByKeyword(String keyword, int pageNumber, int pageSize, String sortBy, String sortDirection);
 
-    public String uploadStateCSV(MultipartFile file);
-    }
+    String uploadStateCSV(MultipartFile file);
+    String generateCsvData();
+
+}
