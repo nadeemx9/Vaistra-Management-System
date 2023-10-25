@@ -22,15 +22,16 @@ public class DemoService {
     private final DemoRepository demoRepository;
     private final JobLauncher jobLauncher;
     private final Job job;
-    private AppUtils appUtils;
+    private final AppUtils appUtils;
     private final DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyyMMdd");
     private final DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HHmmss");
 
     @Autowired
-    public DemoService(DemoRepository demoRepository,JobLauncher jobLauncher, @Qualifier("demoReaderJob")  Job job) {
+    public DemoService(DemoRepository demoRepository, JobLauncher jobLauncher, @Qualifier("demoReaderJob")  Job job, AppUtils appUtils) {
         this.demoRepository = demoRepository;
         this.jobLauncher = jobLauncher;
         this.job = job;
+        this.appUtils = appUtils;
     }
 
     public String importData(MultipartFile file) {

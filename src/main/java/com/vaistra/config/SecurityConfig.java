@@ -64,6 +64,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/user").permitAll()
                         .requestMatchers("/user/forgot-password").permitAll()
                         .requestMatchers("/user/reset-password").permitAll()
+                        .requestMatchers("/demo/csvImport").permitAll()
                         .anyRequest().authenticated()
                 )
                 .exceptionHandling(ex -> ex.authenticationEntryPoint(authenticationEntryPoint))
