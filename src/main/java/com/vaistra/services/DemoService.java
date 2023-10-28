@@ -90,19 +90,23 @@ public class DemoService {
         }
     }
 
-    public Page<DemoCSV> showData(int pageNumber, int pageSize, String sortBy, String sortDirection){
+    public Page<DemoCSV> showData(int pageNumber, int pageSize, String sortBy, String sortDirection,String date1,String date2){
         Sort sort = (sortDirection.equalsIgnoreCase("asc")) ?
-                Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
+                Sort.by("date").ascending().and(Sort.by("time").ascending())
+                : Sort.by("date").descending().and(Sort.by("time").descending());
 
         Pageable pageable = PageRequest.of(pageNumber, pageSize, sort);
 
-        Page<DemoCSV> demoCSV = demoRepository.findAll(pageable);
-        Page<DemoCSV> responce;
+//        Page<DemoCSV> demoCSV = demoRepository.findAll(pageable);
 
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
 
-        LocalDate date1 = LocalDate.of(1990,1,1);
-        LocalDate date2 = LocalDate.of(2030,12,31);
+        LocalDate date_1 = LocalDate.parse(date1,formatter);
+        LocalDate date_2 = LocalDate.parse(date2,formatter);
+
+//        Page<DemoCSV> getByDate = demoRepository.findMinuteTimestamps(date_1,date_2,pageable);
+
+        Page<DemoCSV> response = demoRepository.findByDateBetween(date_1,date_2,pageable);
 
 //        for (DemoCSV csv: demoCSV) {
 //            LocalDate recordDate = LocalDate.parse(csv.getDate(), formatter);
@@ -113,21 +117,22 @@ public class DemoService {
 
 //        List<DemoCSV> retrievedData =
 //        return new ResponseEntity<>(retrievedData, HttpStatus.OK);
-        return demoCSV;
+//        return getByDate;
+        return response;
     }
 
-    public List<DemoCSV> temp(){
+//    public List<DemoCSV> temp(){
 //        List<DemoCSV> demoCSVS = demoRepository.findAll();
-
+//
 //        List<DemoCSV> getByDate = demoRepository.findByDateBetween(LocalDate.of(2020,1,1),LocalDate.of(2021,12,31));
-
-        LocalDate date1 = LocalDate.of(2000,1,1);
-        LocalDate date2 = LocalDate.of(2006,12,31);
-
-        List<DemoCSV> getByDate = demoRepository.findMinuteTimestamps(date1,date2);
-
-        System.out.println("Data fetched by Query : "+getByDate.size());
-
-        return getByDate;
-    }
+//
+//        LocalDate date1 = LocalDate.of(2000,1,1);
+//        LocalDate date2 = LocalDate.of(2015,6,25);
+//
+//        List<DemoCSV> getByDate = demoRepository.findMinuteTimestamps(date1,date2);
+//
+//        System.out.println("Data fetched by Query : "+getByDate.size());
+//
+//        return getByDate;
+//    }
 }

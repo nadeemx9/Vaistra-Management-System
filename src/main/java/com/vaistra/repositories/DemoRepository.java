@@ -14,7 +14,7 @@ import java.util.stream.Stream;
 
 @Repository
 public interface DemoRepository extends JpaRepository<DemoCSV,Long> {
-        List<DemoCSV> findByDateBetween(LocalDate of, LocalDate of1);
+//        List<DemoCSV> findByDateBetween(LocalDate of, LocalDate of1);
 //        Page<DemoCSV> findByDateBetween(String s, String s1, Pageable pageable);
 
 //        @Query("SELECT CONCAT(d.date, ' ', d.time) AS minuteTimestamp FROM DemoCSV d " +
@@ -28,9 +28,9 @@ public interface DemoRepository extends JpaRepository<DemoCSV,Long> {
 //                "ORDER BY minuteTimestamp")
 
         @Query("SELECT d from DemoCSV d WHERE d.id in" +
-               "(SELECT d1.id from DemoCSV d1 WHERE d1.date >= ?1 AND d1.date <= ?2 )" +
+               "(SELECT d1.id from DemoCSV d1 WHERE d1.date >= ?1 AND d1.date <= ?2)" +
                "ORDER BY d.date,d.time")
-        List<DemoCSV> findMinuteTimestamps(LocalDate d1,LocalDate d2);
+        Page<DemoCSV> findMinuteTimestamps(LocalDate d1,LocalDate d2,Pageable pageable);
 
-
+        Page<DemoCSV> findByDateBetween(LocalDate date1, LocalDate date2, Pageable pageable);
 }

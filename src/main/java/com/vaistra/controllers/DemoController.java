@@ -31,16 +31,18 @@ public class DemoController {
         return demoService.importData(file);
     }
 
-//    @GetMapping("getData")
-//    public Page<DemoCSV> importCSV1(@RequestParam(value = "pageNumber", defaultValue = "0", required = false) Integer pageNumber,
-//                                   @RequestParam(value = "pageSize", defaultValue = "500", required = false) Integer pageSize,
-//                                   @RequestParam(value = "sortBy", defaultValue = "id", required = false) String sortBy,
-//                                   @RequestParam(value = "sortDirection", defaultValue = "asc", required = false) String sortDirection){
-//        return demoService.showData(pageNumber, pageSize, sortBy, sortDirection);
-//    }
-
     @GetMapping("getData")
-    public List<DemoCSV> getData(){
-        return demoService.temp();
+    public Page<DemoCSV> importCSV1(@RequestParam(value = "pageNumber", defaultValue = "0", required = false) Integer pageNumber,
+                                   @RequestParam(value = "pageSize", defaultValue = "500", required = false) Integer pageSize,
+                                   @RequestParam(value = "sortBy", defaultValue = "id", required = false) String sortBy,
+                                   @RequestParam(value = "sortDirection", defaultValue = "asc", required = false) String sortDirection,
+                                   @RequestParam(value = "fromDate") String date1,
+                                   @RequestParam(value = "toDate") String date2){
+        return demoService.showData(pageNumber, pageSize, sortBy, sortDirection,date1,date2);
     }
+
+//    @GetMapping("getData")
+//    public List<DemoCSV> getData(){
+//        return demoService.temp();
+//    }
 }
