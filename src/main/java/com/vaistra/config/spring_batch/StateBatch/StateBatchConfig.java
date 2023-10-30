@@ -27,6 +27,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.FileSystemResource;
+import org.springframework.core.task.TaskExecutor;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.validation.BindException;
 
@@ -64,7 +67,17 @@ public class StateBatchConfig {
                 .processor(stateProcessor())
                 .writer(stateWriter())
                 .allowStartIfComplete(true)
+                .taskExecutor(stateTaskExecutor())
                 .build();
+    }
+
+    @Bean
+    public TaskExecutor stateTaskExecutor() {
+        ThreadPoolTaskExecutor taskExecutor = new ThreadPoolTaskExecutor();
+        taskExecutor.setCorePoolSize(10); // Set the number of concurrent threads
+        taskExecutor.setMaxPoolSize(20); // Set the maximum number of threads
+        taskExecutor.setQueueCapacity(30); // Set the queue capacity for pending tasks
+        return taskExecutor;
     }
 
     @Bean

@@ -66,6 +66,8 @@ public class SecurityConfig {
                         .requestMatchers("/user/reset-password").permitAll()
                         .requestMatchers("/demo/csvImport").permitAll()
                         .requestMatchers("/demo/getData").permitAll()
+                        .requestMatchers("/state/UploadCsv").permitAll()
+                        .requestMatchers("/country/UploadCsv").permitAll()
                         .anyRequest().authenticated()
                 )
                 .exceptionHandling(ex -> ex.authenticationEntryPoint(authenticationEntryPoint))

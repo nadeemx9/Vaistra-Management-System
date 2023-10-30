@@ -33,4 +33,6 @@ public interface DemoRepository extends JpaRepository<DemoCSV,Long> {
         Page<DemoCSV> findMinuteTimestamps(LocalDate d1,LocalDate d2,Pageable pageable);
 
         Page<DemoCSV> findByDateBetween(LocalDate date1, LocalDate date2, Pageable pageable);
+
+        long countByDateBetween(LocalDate startDate, LocalDate endDate);
 }

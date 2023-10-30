@@ -267,7 +267,7 @@ public class StateServiceImpl implements StateService {
             throw new ResourceNotFoundException("Only CSV and Excel File is Accepted");
 
         try {
-            File tempFile = File.createTempFile(LocalDate.now().format(dateFormatter) + "_" + LocalTime.now().format(timeFormatter) + "_Country_" +"temp", ".csv");
+            File tempFile = File.createTempFile(LocalDate.now().format(dateFormatter) + "_" + LocalTime.now().format(timeFormatter) + "_Country_" + "temp", ".csv");
             String orignalFileName = file.getOriginalFilename();
             assert orignalFileName != null;
             file.transferTo(tempFile);

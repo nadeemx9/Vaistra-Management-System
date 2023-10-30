@@ -32,6 +32,7 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.transaction.PlatformTransactionManager;
 
 import java.io.File;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -56,7 +57,6 @@ public class GetRecordConfig {
         return new StepBuilder("countryReaderStep",jobRepository)
                 .<DemoCSV, DemoCSV>chunk(10000,transactionManager)
                 .reader(demoCSVFlatFileItemDataReader())
-                .processor(demoCSVItemProcessorData())
                 .writer(demoCSVItemWriterData())
                 .allowStartIfComplete(true)
                 .taskExecutor(taskExecutorData())
@@ -83,30 +83,36 @@ public class GetRecordConfig {
         };
     }
 
-    @Bean
-    @StepScope
-    public ItemProcessor<DemoCSV, DemoCSV> demoCSVItemProcessorData(){
-        // Create and configure your item processor if needed
-        return item -> {
-            // Process the item (e.g., apply business logic)
-            return item;
-        };
-    }
+//    @Bean
+//    @StepScope
+//    public ItemProcessor<DemoCSV, DemoCSV> demoCSVItemProcessorData(){
+//        // Create and configure your item processor if needed
+//        return item -> {
+//            // Process the item (e.g., apply business logic)
+//            return item;
+//        };
+//    }
 
     @Bean
     @StepScope
     public ItemReader<DemoCSV> demoCSVFlatFileItemDataReader(){
-        Sort sort = Sort.by("asc");
+//        Sort sort = Sort.by("asc");
+//
+//        Pageable pageable = PageRequest.of(1000, 0, sort);
+//
+//        Page<DemoCSV> demoCSV = demoRepository.findAll(pageable);
+//
+//        System.out.println(demoCSV.iterator().next().getDate() + ":" + demoCSV.iterator().next().getTime());
 
-        Pageable pageable = PageRequest.of(1000, 0, sort);
+        LocalDate date1 = LocalDate.of(2000,1,1);
+        LocalDate date2 = LocalDate.of(2007,10,18);
 
-        Page<DemoCSV> demoCSV = demoRepository.findAll(pageable);
+//        List<DemoCSV> demoCSV = demoRepository.findMinuteTimestamps(date1,date2);
 
-        System.out.println(demoCSV.iterator().next().getDate() + ":" + demoCSV.iterator().next().getTime());
+//        List<DemoCSV> d1 = (List<DemoCSV>) demoCSV;
 
-        List<DemoCSV> d1 = (List<DemoCSV>) demoCSV;
-
-        return new ListItemReader<>(d1);
+//        return new ListItemReader<>(demoCSV);
+        return null;
     }
 
 }

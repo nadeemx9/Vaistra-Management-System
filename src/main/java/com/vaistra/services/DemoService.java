@@ -5,17 +5,15 @@ import com.vaistra.entities.DemoCSV;
 import com.vaistra.exception.ResourceNotFoundException;
 import com.vaistra.repositories.DemoRepository;
 import com.vaistra.utils.AppUtils;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
+import jakarta.persistence.TypedQuery;
+import jakarta.persistence.criteria.*;
 import org.springframework.batch.core.*;
 import org.springframework.batch.core.launch.JobLauncher;
-import org.springframework.batch.core.repository.JobExecutionAlreadyRunningException;
-import org.springframework.batch.core.repository.JobInstanceAlreadyCompleteException;
-import org.springframework.batch.core.repository.JobRestartException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -23,9 +21,7 @@ import java.io.File;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 @Service
 public class DemoService {
@@ -36,6 +32,9 @@ public class DemoService {
     private final AppUtils appUtils;
     private final DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyyMMdd");
     private final DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HHmmss");
+
+    @PersistenceContext
+    private EntityManager entityManager;
 
     @Autowired
     public DemoService(DemoRepository demoRepository, JobLauncher jobLauncher, @Qualifier("demoReaderJob")  Job job,@Qualifier("demoGetDataJob") Job job2, AppUtils appUtils) {
@@ -90,49 +89,104 @@ public class DemoService {
         }
     }
 
-    public Page<DemoCSV> showData(int pageNumber, int pageSize, String sortBy, String sortDirection,String date1,String date2){
-        Sort sort = (sortDirection.equalsIgnoreCase("asc")) ?
-                Sort.by("date").ascending().and(Sort.by("time").ascending())
-                : Sort.by("date").descending().and(Sort.by("time").descending());
 
-        Pageable pageable = PageRequest.of(pageNumber, pageSize, sort);
-
-//        Page<DemoCSV> demoCSV = demoRepository.findAll(pageable);
-
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
-
-        LocalDate date_1 = LocalDate.parse(date1,formatter);
-        LocalDate date_2 = LocalDate.parse(date2,formatter);
-
-//        Page<DemoCSV> getByDate = demoRepository.findMinuteTimestamps(date_1,date_2,pageable);
-
-        Page<DemoCSV> response = demoRepository.findByDateBetween(date_1,date_2,pageable);
-
-//        for (DemoCSV csv: demoCSV) {
-//            LocalDate recordDate = LocalDate.parse(csv.getDate(), formatter);
-//            if(recordDate.isAfter(date1) && recordDate.isBefore(date2)){
-//                System.out.println(csv.getDate());
-//            }
-//        }
-
-//        List<DemoCSV> retrievedData =
-//        return new ResponseEntity<>(retrievedData, HttpStatus.OK);
-//        return getByDate;
-        return response;
-    }
-
-//    public List<DemoCSV> temp(){
-//        List<DemoCSV> demoCSVS = demoRepository.findAll();
+//    public Page<DemoCSV> showData(int pageNumber, int pageSize, String sortDirection,String date1,String date2){
+//        Sort sort = (sortDirection.equalsIgnoreCase("asc")) ?
+//                Sort.by("date").ascending().and(Sort.by("time").ascending())
+//                : Sort.by("date").descending().and(Sort.by("time").descending());
 //
-//        List<DemoCSV> getByDate = demoRepository.findByDateBetween(LocalDate.of(2020,1,1),LocalDate.of(2021,12,31));
+//        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
 //
-//        LocalDate date1 = LocalDate.of(2000,1,1);
-//        LocalDate date2 = LocalDate.of(2015,6,25);
+//        LocalDate date_1 = LocalDate.parse(date1,formatter);
 //
-//        List<DemoCSV> getByDate = demoRepository.findMinuteTimestamps(date1,date2);
+//        LocalDate date_2 = LocalDate.parse(date2,formatter);
 //
-//        System.out.println("Data fetched by Query : "+getByDate.size());
+//        Pageable pageable = PageRequest.of(pageNumber, pageSize, sort);
 //
-//        return getByDate;
+//        Page<DemoCSV> response = demoRepository.findByDateBetween(date_1,date_2,pageable);
+//
+//        return response;
 //    }
+
+    public Page<DemoCSV> showData(int pageNumber, int pageSize, String sortDirection,String date1,String date2){
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
+        LocalDate startDate = LocalDate.parse(date1, formatter);
+        LocalDate endDate = LocalDate.parse(date2, formatter);
+
+        PageRequest pageRequest = PageRequest.of(pageNumber, pageSize);
+
+        CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
+        CriteriaQuery<DemoCSV> criteriaQuery = criteriaBuilder.createQuery(DemoCSV.class);
+        Root<DemoCSV> root = criteriaQuery.from(DemoCSV.class);
+
+        criteriaQuery.select(root)
+                .where(criteriaBuilder.between(root.get("date"), startDate, endDate));
+
+        // Define the sorting based on the "sortDirection" parameter
+        Path<LocalDate> datePath = root.get("date");
+        Path<LocalTime> timePath = root.get("time");
+        Order dateOrder = sortDirection.equalsIgnoreCase("asc") ? criteriaBuilder.asc(datePath) : criteriaBuilder.desc(datePath);
+        Order timeOrder = sortDirection.equalsIgnoreCase("asc") ? criteriaBuilder.asc(timePath) : criteriaBuilder.desc(timePath);
+
+        criteriaQuery.orderBy(dateOrder, timeOrder);
+
+        TypedQuery<DemoCSV> query = entityManager.createQuery(criteriaQuery);
+        query.setFirstResult((int) pageRequest.getOffset());
+        query.setMaxResults(pageRequest.getPageSize());
+        List<DemoCSV> yourResultsList = query.getResultList();
+
+        CriteriaQuery<Long> countCriteriaQuery = criteriaBuilder.createQuery(Long.class);
+        Root<DemoCSV> countRoot = countCriteriaQuery.from(DemoCSV.class);
+
+        Predicate datePredicate = criteriaBuilder.between(countRoot.get("date"), startDate, endDate);
+        countCriteriaQuery.select(criteriaBuilder.count(countRoot))
+                .where(datePredicate);
+
+        TypedQuery<Long> countQuery = entityManager.createQuery(countCriteriaQuery);
+
+        long totalCount = countQuery.getSingleResult();
+
+        Page<DemoCSV> result = new PageImpl<>(yourResultsList, pageRequest, totalCount);
+
+        return result;
+    }
+//    public Page<DemoCSV> showData(int pageNumber, int pageSize, String sortDirection,String date1,String date2){
+//        Sort sort = (sortDirection.equalsIgnoreCase("asc")) ?
+//                Sort.by("date").ascending().and(Sort.by("time").ascending())
+//                : Sort.by("date").descending().and(Sort.by("time").descending());
+//
+//        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
+//        LocalDate startDate = LocalDate.parse(date1, formatter);
+//        LocalDate endDate = LocalDate.parse(date2, formatter);
+//
+//        PageRequest pageRequest = PageRequest.of(pageNumber,pageSize,sort);
+//
+//        // Your custom JPQL query
+//        String jpql = "SELECT d FROM DemoCSV d " +
+//                "WHERE d.date BETWEEN :startDate AND :endDate "  +
+//                "ORDER BY d.date,d.time";
+//
+//        TypedQuery<DemoCSV> query = entityManager.createQuery(jpql, DemoCSV.class);
+//        query.setParameter("startDate", startDate);
+//        query.setParameter("endDate", endDate);
+//        query.setFirstResult(pageRequest.getPageNumber() * pageRequest.getPageSize());
+//        query.setMaxResults(pageRequest.getPageSize());
+//
+//        List<DemoCSV> yourResultsList = query.getResultList();
+//
+//        String countJpql = "SELECT COUNT(d) FROM DemoCSV d " +
+//                "WHERE d.date BETWEEN :startDate AND :endDate";
+//        TypedQuery<Long> countQuery = entityManager.createQuery(countJpql, Long.class);
+//        countQuery.setParameter("startDate", startDate);
+//        countQuery.setParameter("endDate", endDate);
+//        long totalCount = countQuery.getSingleResult();
+//
+//        Page<DemoCSV> result = new PageImpl<>(yourResultsList, pageRequest, totalCount);
+//
+//        return result;
+//    }
+
+    public List<DemoCSV> temp(){
+        return null;
+    }
 }
