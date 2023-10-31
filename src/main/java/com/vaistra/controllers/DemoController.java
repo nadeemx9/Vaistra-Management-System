@@ -1,5 +1,6 @@
 package com.vaistra.controllers;
 
+import com.vaistra.dto.HttpResponse;
 import com.vaistra.entities.DemoCSV;
 import com.vaistra.services.DemoService;
 import org.springframework.batch.core.JobParametersInvalidException;
@@ -32,7 +33,7 @@ public class DemoController {
     }
 
     @GetMapping("getData")
-    public Page<DemoCSV> importCSV1(@RequestParam(value = "pageNumber", defaultValue = "0", required = false) Integer pageNumber,
+    public HttpResponse importCSV1(@RequestParam(value = "pageNumber", defaultValue = "0", required = false) Integer pageNumber,
                                    @RequestParam(value = "pageSize", defaultValue = "500", required = false) Integer pageSize,
                                    @RequestParam(value = "sortDirection", defaultValue = "asc", required = false) String sortDirection,
                                    @RequestParam(value = "fromDate") String date1,

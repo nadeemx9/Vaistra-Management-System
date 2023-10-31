@@ -1,12 +1,14 @@
 package com.vaistra.services;
 
 import com.vaistra.config.spring_batch.CountryBatch.CountryWriter;
+import com.vaistra.dto.HttpResponse;
 import com.vaistra.entities.DemoCSV;
 import com.vaistra.exception.ResourceNotFoundException;
 import com.vaistra.repositories.DemoRepository;
 import com.vaistra.utils.AppUtils;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
+import jakarta.persistence.Tuple;
 import jakarta.persistence.TypedQuery;
 import jakarta.persistence.criteria.*;
 import org.springframework.batch.core.*;
@@ -90,7 +92,7 @@ public class DemoService {
     }
 
 
-//    public Page<DemoCSV> showData(int pageNumber, int pageSize, String sortDirection,String date1,String date2){
+//    public HttpResponse showData(int pageNumber, int pageSize, String sortDirection,String date1,String date2){
 //        Sort sort = (sortDirection.equalsIgnoreCase("asc")) ?
 //                Sort.by("date").ascending().and(Sort.by("time").ascending())
 //                : Sort.by("date").descending().and(Sort.by("time").descending());
@@ -105,17 +107,29 @@ public class DemoService {
 //
 //        Page<DemoCSV> response = demoRepository.findByDateBetween(date_1,date_2,pageable);
 //
-//        return response;
+//        List<DemoCSV> result = response.stream().toList();
+//
+//        return HttpResponse.builder()
+//                .pageNumber(response.getNumber())
+//                .pageSize(response.getSize())
+//                .totalElements(response.getTotalElements())
+//                .totalPages(response.getTotalPages())
+//                .isLastPage(response.isLast())
+//                .data(result)
+//                .build();
 //    }
 
-    public Page<DemoCSV> showData(int pageNumber, int pageSize, String sortDirection,String date1,String date2){
+    public HttpResponse showData(int pageNumber, int pageSize, String sortDirection,String date1,String date2){
+
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
+
         LocalDate startDate = LocalDate.parse(date1, formatter);
         LocalDate endDate = LocalDate.parse(date2, formatter);
 
         PageRequest pageRequest = PageRequest.of(pageNumber, pageSize);
 
         CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
+
         CriteriaQuery<DemoCSV> criteriaQuery = criteriaBuilder.createQuery(DemoCSV.class);
         Root<DemoCSV> root = criteriaQuery.from(DemoCSV.class);
 
@@ -129,6 +143,7 @@ public class DemoService {
         Order timeOrder = sortDirection.equalsIgnoreCase("asc") ? criteriaBuilder.asc(timePath) : criteriaBuilder.desc(timePath);
 
         criteriaQuery.orderBy(dateOrder, timeOrder);
+
 
         TypedQuery<DemoCSV> query = entityManager.createQuery(criteriaQuery);
         query.setFirstResult((int) pageRequest.getOffset());
@@ -148,9 +163,17 @@ public class DemoService {
 
         Page<DemoCSV> result = new PageImpl<>(yourResultsList, pageRequest, totalCount);
 
-        return result;
+        return HttpResponse.builder()
+                .pageNumber(result.getNumber())
+                .pageSize(result.getSize())
+                .totalElements(result.getTotalElements())
+                .totalPages(result.getTotalPages())
+                .isLastPage(result.isLast())
+                .data(result.stream().toList())
+                .build();
     }
-//    public Page<DemoCSV> showData(int pageNumber, int pageSize, String sortDirection,String date1,String date2){
+
+//    public HttpResponse showData(int pageNumber, int pageSize, String sortDirection, String date1, String date2){
 //        Sort sort = (sortDirection.equalsIgnoreCase("asc")) ?
 //                Sort.by("date").ascending().and(Sort.by("time").ascending())
 //                : Sort.by("date").descending().and(Sort.by("time").descending());
@@ -174,7 +197,7 @@ public class DemoService {
 //
 //        List<DemoCSV> yourResultsList = query.getResultList();
 //
-//        String countJpql = "SELECT COUNT(d) FROM DemoCSV d " +
+//        String countJpql = "SELECT COUNT(d.id) FROM DemoCSV d " +
 //                "WHERE d.date BETWEEN :startDate AND :endDate";
 //        TypedQuery<Long> countQuery = entityManager.createQuery(countJpql, Long.class);
 //        countQuery.setParameter("startDate", startDate);
@@ -182,8 +205,59 @@ public class DemoService {
 //        long totalCount = countQuery.getSingleResult();
 //
 //        Page<DemoCSV> result = new PageImpl<>(yourResultsList, pageRequest, totalCount);
+//        List<DemoCSV> respose  = result.stream().toList();
 //
-//        return result;
+//        return HttpResponse.builder()
+//                .pageNumber(result.getNumber())
+//                .pageSize(result.getSize())
+//                .totalElements(result.getTotalElements())
+//                .totalPages(result.getTotalPages())
+//                .isLastPage(result.isLast())
+//                .data(respose)
+//                .build();
+//    }
+//    public HttpResponse showData(int pageNumber, int pageSize, String sortDirection, String date1, String date2){
+//        Sort sort = (sortDirection.equalsIgnoreCase("asc")) ?
+//                Sort.by("date").ascending().and(Sort.by("time").ascending())
+//                : Sort.by("date").descending().and(Sort.by("time").descending());
+//
+//        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
+//        LocalDate startDate = LocalDate.parse(date1, formatter);
+//        LocalDate endDate = LocalDate.parse(date2, formatter);
+//
+//        PageRequest pageRequest = PageRequest.of(pageNumber,pageSize,sort);
+//
+//        // Your custom JPQL query
+//        String jpql = "SELECT d FROM DemoCSV d " +
+//                "WHERE d.date BETWEEN :startDate AND :endDate " +
+//                "ORDER BY d.date,d.time";
+//
+//        TypedQuery<DemoCSV> query = entityManager.createQuery(jpql, DemoCSV.class);
+//        query.setParameter("startDate", startDate);
+//        query.setParameter("endDate", endDate);
+//        query.setFirstResult(pageRequest.getPageNumber() * pageRequest.getPageSize());
+//        query.setMaxResults(pageRequest.getPageSize());
+//
+//        List<DemoCSV> yourResultsList = query.getResultList();
+//
+//        String countJpql = "SELECT COUNT(d.id) FROM DemoCSV d " +
+//                "WHERE d.date BETWEEN :startDate AND :endDate";
+//
+//        TypedQuery<Long> countQuery = entityManager.createQuery(countJpql, Long.class);
+//        countQuery.setParameter("startDate", startDate);
+//        countQuery.setParameter("endDate", endDate);
+//        long totalCount = countQuery.getSingleResult();
+//
+//        Page<DemoCSV> result = new PageImpl<>(yourResultsList, pageRequest, totalCount);
+//
+//        return HttpResponse.builder()
+//                .pageNumber(result.getNumber())
+//                .pageSize(result.getSize())
+//                .totalElements(result.getTotalElements())
+//                .totalPages(result.getTotalPages())
+//                .isLastPage(result.isLast())
+//                .data(result.stream().toList())
+//                .build();
 //    }
 
     public List<DemoCSV> temp(){

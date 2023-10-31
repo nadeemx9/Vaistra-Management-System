@@ -1,9 +1,6 @@
 package com.vaistra.entities;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -17,6 +14,9 @@ import java.time.LocalTime;
 @Setter
 @RequiredArgsConstructor
 @AllArgsConstructor
+@Table(name = "democsv", indexes = {
+        @Index(name = "date_index",columnList = "date,time")
+})
 public class DemoCSV {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
