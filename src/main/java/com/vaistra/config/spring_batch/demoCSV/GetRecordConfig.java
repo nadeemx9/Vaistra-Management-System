@@ -1,70 +1,71 @@
 package com.vaistra.config.spring_batch.demoCSV;
 
 import com.vaistra.entities.DemoCSV;
-import com.vaistra.repositories.DemoRepository;
-import org.springframework.batch.core.Job;
-import org.springframework.batch.core.Step;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
+import jakarta.persistence.TypedQuery;
+import jakarta.persistence.criteria.*;
+import org.springframework.batch.core.*;
+import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
 import org.springframework.batch.core.configuration.annotation.StepScope;
 import org.springframework.batch.core.job.builder.JobBuilder;
 import org.springframework.batch.core.launch.support.RunIdIncrementer;
 import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.batch.core.step.builder.StepBuilder;
-import org.springframework.batch.item.ItemProcessor;
-import org.springframework.batch.item.ItemReader;
-import org.springframework.batch.item.ItemWriter;
+import org.springframework.batch.core.step.tasklet.Tasklet;
+import org.springframework.batch.item.*;
 import org.springframework.batch.item.file.FlatFileItemReader;
-import org.springframework.batch.item.file.builder.FlatFileItemReaderBuilder;
-import org.springframework.batch.item.file.mapping.BeanWrapperFieldSetMapper;
-import org.springframework.batch.item.support.CompositeItemProcessor;
-import org.springframework.batch.item.support.ListItemReader;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.batch.item.file.FlatFileItemWriter;
+import org.springframework.batch.repeat.RepeatStatus;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.task.TaskExecutor;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.transaction.PlatformTransactionManager;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.Collection;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 @Configuration
+@EnableBatchProcessing
 public class GetRecordConfig {
 
-    @Autowired
-    private DemoRepository demoRepository;
-
+    @PersistenceContext
+    private EntityManager entityManager;
     @Bean
-    @Qualifier("demoGetDataJob")
-    public Job demoGetDataJob(JobRepository jobRepository, PlatformTransactionManager transactionManager){
-        return new JobBuilder("countryReadJob",jobRepository)
+    @Qualifier("exportDemoJob")
+    public Job exportDemoJob(JobRepository jobRepository, PlatformTransactionManager transactionManager, FlatFileItemWriter<DemoCSV> writer, ItemReader<DemoCSV> reader){
+        return new JobBuilder("exportDemoJob",jobRepository)
                 .incrementer(new RunIdIncrementer())
-                .start(chunkStepGetData(jobRepository,transactionManager))
+                .start(exportChunkStepdemo(jobRepository,transactionManager,writer,reader))
                 .build();
     }
 
     @Bean
-    public Step chunkStepGetData(JobRepository jobRepository, PlatformTransactionManager transactionManager){
+    public Step exportChunkStepdemo(JobRepository jobRepository, PlatformTransactionManager transactionManager, FlatFileItemWriter<DemoCSV> writer, ItemReader<DemoCSV> reader){
         return new StepBuilder("countryReaderStep",jobRepository)
                 .<DemoCSV, DemoCSV>chunk(10000,transactionManager)
-                .reader(demoCSVFlatFileItemDataReader())
-                .writer(demoCSVItemWriterData())
+                .writer(writer)
+                .reader(reader)
+                .listener(zipCsvFileTasklet())
                 .allowStartIfComplete(true)
-                .taskExecutor(taskExecutorData())
+                .taskExecutor(exportTaskExecutor())
                 .build();
     }
 
     @Bean
-    public TaskExecutor taskExecutorData(){
+    public TaskExecutor exportTaskExecutor(){
         ThreadPoolTaskExecutor taskExecutor = new ThreadPoolTaskExecutor();
         taskExecutor.setCorePoolSize(10); // Set the number of concurrent threads
         taskExecutor.setMaxPoolSize(20); // Set the maximum number of threads
@@ -72,47 +73,103 @@ public class GetRecordConfig {
         return taskExecutor;
     }
 
-    @Bean
-    @StepScope
-    public ItemWriter<DemoCSV> demoCSVItemWriterData(){
-        List<DemoCSV> collectedData = new ArrayList<>();
+    public ItemReader<DemoCSV> reader(@Value("#{jobParameters[date1]}") String date1,@Value("#{jobParameters[date2]}") String date2){
+        return new ItemReader<DemoCSV>() {
+            private int page = 0;
+            private int pageSize = 10000;
+            @Override
+            public DemoCSV read() throws Exception, UnexpectedInputException, ParseException, NonTransientResourceException {
+                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
+                LocalDate startDate = LocalDate.parse(date1, formatter);
+                LocalDate endDate = LocalDate.parse(date2, formatter);
 
-        return items -> {
-            // Collect the items in a list
-            collectedData.addAll((Collection<? extends DemoCSV>) items);
+                // Create a query to retrieve data for the current page
+                CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
+                CriteriaQuery<DemoCSV> criteriaQuery = criteriaBuilder.createQuery(DemoCSV.class);
+                Root<DemoCSV> root = criteriaQuery.from(DemoCSV.class);
+                criteriaQuery.select(root)
+                        .where(criteriaBuilder.between(root.get("date"), startDate, endDate));
+
+                // Define sorting based on date and time
+                Path<LocalDate> datePath = root.get("date");
+                Path<LocalTime> timePath = root.get("time");
+                Order dateOrder = criteriaBuilder.asc(datePath);
+                Order timeOrder = criteriaBuilder.asc(timePath);
+                criteriaQuery.orderBy(dateOrder, timeOrder);
+
+                TypedQuery<DemoCSV> query = entityManager.createQuery(criteriaQuery);
+                query.setFirstResult(page * pageSize);
+                query.setMaxResults(pageSize);
+
+                List<DemoCSV> pageData = query.getResultList();
+
+                if (pageData.isEmpty()) {
+                    // No more data to read
+                    return null;
+                }
+
+                // Increment the page counter for the next read
+                page++;
+
+                // Return the current item
+                return pageData.get(0);
+
+            }
         };
     }
 
-//    @Bean
-//    @StepScope
-//    public ItemProcessor<DemoCSV, DemoCSV> demoCSVItemProcessorData(){
-//        // Create and configure your item processor if needed
-//        return item -> {
-//            // Process the item (e.g., apply business logic)
-//            return item;
-//        };
-//    }
-
     @Bean
     @StepScope
-    public ItemReader<DemoCSV> demoCSVFlatFileItemDataReader(){
-//        Sort sort = Sort.by("asc");
-//
-//        Pageable pageable = PageRequest.of(1000, 0, sort);
-//
-//        Page<DemoCSV> demoCSV = demoRepository.findAll(pageable);
-//
-//        System.out.println(demoCSV.iterator().next().getDate() + ":" + demoCSV.iterator().next().getTime());
+    public FlatFileItemWriter<DemoCSV> exportItemWriter(){
 
-        LocalDate date1 = LocalDate.of(2000,1,1);
-        LocalDate date2 = LocalDate.of(2007,10,18);
 
-//        List<DemoCSV> demoCSV = demoRepository.findMinuteTimestamps(date1,date2);
 
-//        List<DemoCSV> d1 = (List<DemoCSV>) demoCSV;
-
-//        return new ListItemReader<>(demoCSV);
         return null;
     }
 
+    @Bean
+    public StepExecutionListener zipCsvFileTasklet() {
+        return new StepExecutionListener() {
+            public void beforeStep(StepExecution stepExecution) {
+                // Implement logic before executing the tasklet step
+            }
+
+            @Override
+            public ExitStatus afterStep(StepExecution stepExecution) {
+                // Implement the logic to zip the CSV file here
+                try {
+                    // Create the zip file and add the CSV file to it
+                    String outputCsvPath = "output.csv"; // Specify the path to the CSV file
+                    String outputZipPath = "output.zip"; // Specify the path for the zip file
+
+                    try (ZipOutputStream zipOutputStream = new ZipOutputStream(new FileOutputStream(outputZipPath));
+                         FileInputStream csvInputStream = new FileInputStream(outputCsvPath)) {
+                        ZipEntry zipEntry = new ZipEntry("output.csv");
+                        zipOutputStream.putNextEntry(zipEntry);
+
+                        byte[] buffer = new byte[1024];
+                        int len;
+                        while ((len = csvInputStream.read(buffer)) > 0) {
+                            zipOutputStream.write(buffer, 0, len);
+                        }
+
+                        zipOutputStream.closeEntry();
+                    }
+
+                    // Optionally, you can delete the CSV file if it's no longer needed
+                    File csvFile = new File(outputCsvPath);
+                    if (csvFile.delete()) {
+                        System.out.println("CSV file deleted.");
+                    } else {
+                        System.out.println("Failed to delete CSV file.");
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    throw new RuntimeException("Error zipping CSV file");
+                }
+
+                return ExitStatus.COMPLETED;
+            }
+        };
+    }
 }

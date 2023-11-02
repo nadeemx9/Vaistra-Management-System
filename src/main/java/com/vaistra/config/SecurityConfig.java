@@ -68,6 +68,7 @@ public class SecurityConfig {
                         .requestMatchers("/demo/getData").permitAll()
                         .requestMatchers("/state/UploadCsv").permitAll()
                         .requestMatchers("/country/UploadCsv").permitAll()
+                        .requestMatchers("/demo/exportData/{date1}/{date2}").permitAll()
                         .anyRequest().authenticated()
                 )
                 .exceptionHandling(ex -> ex.authenticationEntryPoint(authenticationEntryPoint))

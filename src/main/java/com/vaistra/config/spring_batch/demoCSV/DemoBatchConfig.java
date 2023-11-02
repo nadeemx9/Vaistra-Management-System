@@ -100,10 +100,8 @@ public class DemoBatchConfig {
                         LocalTime time = LocalTime.parse(tm,timeFormatter);
 
                         DemoCSV csv = new DemoCSV();
-
                         csv.setDate(date);
                         csv.setTime(time);
-
                         return csv;
                     }
                     {

@@ -1,5 +1,6 @@
 package com.vaistra.services;
 
+import com.opencsv.CSVWriter;
 import com.vaistra.config.spring_batch.CountryBatch.CountryWriter;
 import com.vaistra.dto.HttpResponse;
 import com.vaistra.entities.DemoCSV;
@@ -8,29 +9,49 @@ import com.vaistra.repositories.DemoRepository;
 import com.vaistra.utils.AppUtils;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
-import jakarta.persistence.Tuple;
 import jakarta.persistence.TypedQuery;
 import jakarta.persistence.criteria.*;
+import jakarta.servlet.ServletOutputStream;
 import org.springframework.batch.core.*;
+import org.springframework.batch.core.job.builder.JobBuilder;
 import org.springframework.batch.core.launch.JobLauncher;
+import org.springframework.batch.core.launch.support.RunIdIncrementer;
+import org.springframework.batch.core.repository.JobRepository;
+import org.springframework.batch.core.step.builder.StepBuilder;
+import org.springframework.batch.item.database.JdbcCursorItemReader;
+import org.springframework.batch.item.file.FlatFileHeaderCallback;
+import org.springframework.batch.item.file.FlatFileItemWriter;
+import org.springframework.batch.item.file.transform.DelimitedLineAggregator;
+import org.springframework.batch.item.support.PassThroughItemProcessor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.data.domain.*;
+import org.springframework.context.annotation.Bean;
+import org.springframework.core.io.FileSystemResource;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
+import java.io.*;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
-import java.util.*;
+import java.util.List;
+import java.util.Objects;
 
 @Service
 public class DemoService {
     private final DemoRepository demoRepository;
     private final JobLauncher jobLauncher;
     private final Job job;
-    private final Job job2;
+    private final JobRepository jobRepository;
+    private final PlatformTransactionManager transactionManager;
     private final AppUtils appUtils;
     private final DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyyMMdd");
     private final DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HHmmss");
@@ -39,11 +60,12 @@ public class DemoService {
     private EntityManager entityManager;
 
     @Autowired
-    public DemoService(DemoRepository demoRepository, JobLauncher jobLauncher, @Qualifier("demoReaderJob")  Job job,@Qualifier("demoGetDataJob") Job job2, AppUtils appUtils) {
+    public DemoService(DemoRepository demoRepository, JobLauncher jobLauncher, @Qualifier("demoReaderJob")  Job job, JobRepository jobRepository, PlatformTransactionManager transactionManager, AppUtils appUtils) {
         this.demoRepository = demoRepository;
         this.jobLauncher = jobLauncher;
         this.job = job;
-        this.job2 = job2;
+        this.jobRepository = jobRepository;
+        this.transactionManager = transactionManager;
         this.appUtils = appUtils;
     }
 
@@ -89,6 +111,10 @@ public class DemoService {
             e.printStackTrace();
             return e.getMessage();
         }
+    }
+
+    public byte[] exportCsvToZip() throws IOException, JobExecutionException {
+        return null;
     }
 
 
@@ -260,7 +286,39 @@ public class DemoService {
 //                .build();
 //    }
 
-    public List<DemoCSV> temp(){
-        return null;
+    public void getChunkedData(ServletOutputStream outputStream, String date1, String date2) throws IOException {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
+
+        LocalDate startDate = LocalDate.parse(date1, formatter);
+        LocalDate endDate = LocalDate.parse(date2, formatter);
+
+        CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
+        CriteriaQuery<DemoCSV> criteriaQuery = criteriaBuilder.createQuery(DemoCSV.class);
+        Root<DemoCSV> root = criteriaQuery.from(DemoCSV.class);
+
+        criteriaQuery.select(root)
+                .where(criteriaBuilder.between(root.get("date"), startDate, endDate));
+
+        TypedQuery<DemoCSV> query = entityManager.createQuery(criteriaQuery);
+
+        // Use the query result to create a CSV format and write it to the output stream
+        try (CSVWriter csvWriter = new CSVWriter(new OutputStreamWriter(outputStream, StandardCharsets.UTF_8))) {
+            // Write the header row if needed
+            String[] header = {"Column1", "Column2", "Column3"}; // Replace with your column names
+            csvWriter.writeNext(header);
+
+            query.getResultList().forEach(demoCSV -> {
+                String[] row = {
+                        demoCSV.getId().toString(),
+                        demoCSV.getDate().toString(),
+                        demoCSV.getTime().toString()
+                };
+                csvWriter.writeNext(row);
+            });
+        }
     }
+
+
+
+
 }
