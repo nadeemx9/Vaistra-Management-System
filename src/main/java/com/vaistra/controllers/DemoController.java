@@ -1,15 +1,19 @@
 package com.vaistra.controllers;
 
-import com.opencsv.CSVWriter;
+import com.vaistra.config.spring_batch.CountryBatch.CountryWriter;
+import com.vaistra.config.spring_batch.demoCSV.GetRecordConfig;
 import com.vaistra.dto.HttpResponse;
-import com.vaistra.entities.DemoCSV;
 import com.vaistra.services.DemoService;
-import jakarta.servlet.ServletOutputStream;
 import jakarta.servlet.http.HttpServletResponse;
-import org.apache.commons.io.FileUtils;
-import org.springframework.batch.core.JobExecutionException;
+import org.springframework.batch.core.*;
+import org.springframework.batch.core.launch.JobLauncher;
+import org.springframework.batch.core.repository.JobExecutionAlreadyRunningException;
+import org.springframework.batch.core.repository.JobInstanceAlreadyCompleteException;
+import org.springframework.batch.core.repository.JobRestartException;
+import org.springframework.batch.item.ExecutionContext;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.ByteArrayResource;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -18,21 +22,25 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.*;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.util.List;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipOutputStream;
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 
 @RestController
 @RequestMapping("demo")
 public class DemoController {
     private final DemoService demoService;
+    private final JobLauncher jobLauncher;
+    private final Job job;
+
+    private final DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("ddMMyyyy");
+    private final DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HHmmss");
 
     @Autowired
-    public DemoController(DemoService demoService) {
+    public DemoController(DemoService demoService, JobLauncher jobLauncher,@Qualifier("exportDemoJob") Job job) {
         this.demoService = demoService;
+        this.jobLauncher = jobLauncher;
+        this.job = job;
     }
 
     @PostMapping("csvImport")
@@ -50,23 +58,40 @@ public class DemoController {
     }
 
     @GetMapping("exportData/{date1}/{date2}")
-    public void exportCSV(HttpServletResponse response,
+    public ResponseEntity<Resource> exportCSV(HttpServletResponse response,
                                               @PathVariable String date1,
-                                              @PathVariable String date2) throws IOException {
+                                              @PathVariable String date2) throws IOException, JobInstanceAlreadyCompleteException, JobExecutionAlreadyRunningException, JobParametersInvalidException, JobRestartException {
 
-        // Set the content type and headers for CSV response
-        response.setContentType("text/csv");
-        response.setHeader(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=data.csv");
 
-        // Use a ServletOutputStream to write the CSV data directly to the response
-        try (ServletOutputStream outputStream = response.getOutputStream()) {
-            demoService.getChunkedData(outputStream,date1,date2);
-        } catch (Exception e) {
-            // Handle exceptions, such as database or file I/O errors
-            e.printStackTrace();
-            // You might want to send an error response to the client
-            response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-        }
+        File tempFile = File.createTempFile(LocalDate.now().format(dateFormatter) + "_" + LocalTime.now().format(timeFormatter) + "demo_export", ".csv");
+
+        JobParameters jobParameters = new JobParametersBuilder()
+                .addString("path",tempFile.getAbsolutePath())
+                .addString("date1", date1)
+                .addString("date2", date2)
+                .toJobParameters();
+
+        Resource fileResource = new FileSystemResource(tempFile.getAbsolutePath());
+
+        System.out.println(tempFile.getAbsolutePath());
+
+        JobExecution jobExecution = jobLauncher.run(job, jobParameters);
+
+//        if (jobExecution.getExitStatus().equals(ExitStatus.COMPLETED)){
+//            if(tempFile.exists()){
+//                if(tempFile.delete()){}
+//            }
+//            CountryWriter.setCounter(0);
+//        }
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Content-Disposition", "attachment; filename=exported_data.csv");
+
+        return ResponseEntity.ok()
+                .headers(headers)
+                .contentLength(fileResource.contentLength())
+                .contentType(MediaType.parseMediaType("text/csv"))
+                .body(fileResource);
     }
 
     @PostMapping("/launch-job")

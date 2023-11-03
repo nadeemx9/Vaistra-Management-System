@@ -167,7 +167,6 @@ public class DemoService {
         Path<LocalTime> timePath = root.get("time");
         Order dateOrder = sortDirection.equalsIgnoreCase("asc") ? criteriaBuilder.asc(datePath) : criteriaBuilder.desc(datePath);
         Order timeOrder = sortDirection.equalsIgnoreCase("asc") ? criteriaBuilder.asc(timePath) : criteriaBuilder.desc(timePath);
-
         criteriaQuery.orderBy(dateOrder, timeOrder);
 
 

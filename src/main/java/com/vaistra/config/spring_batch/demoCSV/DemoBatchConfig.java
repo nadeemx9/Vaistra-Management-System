@@ -54,18 +54,18 @@ public class DemoBatchConfig {
                 .processor(demoCSVItemProcessorprocessor())
                 .writer(demoCSVItemWriterwriter())
                 .allowStartIfComplete(true)
-                .taskExecutor(taskExecutor())
+//                .taskExecutor(taskExecutor())
                 .build();
     }
 
-    @Bean
-    public TaskExecutor taskExecutor(){
-        ThreadPoolTaskExecutor taskExecutor = new ThreadPoolTaskExecutor();
-        taskExecutor.setCorePoolSize(10); // Set the number of concurrent threads
-        taskExecutor.setMaxPoolSize(20); // Set the maximum number of threads
-        taskExecutor.setQueueCapacity(30); // Set the queue capacity for pending tasks
-        return taskExecutor;
-    }
+//    @Bean
+//    public TaskExecutor taskExecutor(){
+//        ThreadPoolTaskExecutor taskExecutor = new ThreadPoolTaskExecutor();
+//        taskExecutor.setCorePoolSize(10); // Set the number of concurrent threads
+//        taskExecutor.setMaxPoolSize(20); // Set the maximum number of threads
+//        taskExecutor.setQueueCapacity(30); // Set the queue capacity for pending tasks
+//        return taskExecutor;
+//    }
 
     @Bean
     @StepScope
