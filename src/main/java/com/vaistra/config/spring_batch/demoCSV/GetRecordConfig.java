@@ -95,14 +95,14 @@ public class GetRecordConfig {
             criteriaQuery.select(root)
                     .where(criteriaBuilder.between(root.get("date"), startDate, endDate));
 
-            Path<LocalDate> datePath = root.get("date");
-            Path<LocalTime> timePath = root.get("time");
-            Order dateOrder = criteriaBuilder.asc(datePath);
-            Order timeOrder = criteriaBuilder.asc(timePath);
-            criteriaQuery.orderBy(dateOrder, timeOrder);
+//            Path<LocalDate> datePath = root.get("date");
+//            Path<LocalTime> timePath = root.get("time");
+//            Order dateOrder = criteriaBuilder.asc(datePath);
+//            Order timeOrder = criteriaBuilder.asc(timePath);
+//            criteriaQuery.orderBy(dateOrder, timeOrder);
 
             TypedQuery<DemoCSV> query = entityManager.createQuery(criteriaQuery);
-//            query.setFirstResult(0);
+            query.setFirstResult((int) pageRequest.getOffset());
             query.setMaxResults(pageRequest.getPageSize());
 
             Iterator<DemoCSV> iterator = query.getResultList().iterator();
@@ -110,33 +110,8 @@ public class GetRecordConfig {
             localDate = localDate.plusDays(280); // Adjust based on your requirement
             System.out.println(localDate);
             page++;
+            System.out.println(page);
         }
-//        for(LocalDate date = localDate; date.isBefore(endDate);){
-//            PageRequest pageRequest = PageRequest.of(page, pageSize);
-//
-//            CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
-//            CriteriaQuery<DemoCSV> criteriaQuery = criteriaBuilder.createQuery(DemoCSV.class);
-//            Root<DemoCSV> root = criteriaQuery.from(DemoCSV.class);
-//            criteriaQuery.select(root)
-//                    .where(criteriaBuilder.between(root.get("date"), startDate, endDate));
-//
-//            Path<LocalDate> datePath = root.get("date");
-//            Path<LocalTime> timePath = root.get("time");
-//            Order dateOrder = criteriaBuilder.asc(datePath);
-//            Order timeOrder = criteriaBuilder.asc(timePath);
-//            criteriaQuery.orderBy(dateOrder, timeOrder);
-//
-//            TypedQuery<DemoCSV> query = entityManager.createQuery(criteriaQuery);
-//            query.setFirstResult(0);
-//            query.setMaxResults(pageRequest.getPageSize());
-//
-//            Iterator<DemoCSV> iterator = query.getResultList().iterator();
-//            demoCSVIterators.add(page,iterator);
-//            localDate = startDate.plusDays(280); // Adjust based on your requirement
-//            System.out.println(localDate);
-//            page++;
-//        }
-
         return new ItemReader<DemoCSV>() {
             @Override
             public DemoCSV read() throws Exception, UnexpectedInputException, ParseException, NonTransientResourceException {
