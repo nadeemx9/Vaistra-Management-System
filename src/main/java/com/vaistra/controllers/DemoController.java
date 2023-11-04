@@ -3,6 +3,7 @@ package com.vaistra.controllers;
 import com.vaistra.config.spring_batch.CountryBatch.CountryWriter;
 import com.vaistra.config.spring_batch.demoCSV.GetRecordConfig;
 import com.vaistra.dto.HttpResponse;
+import com.vaistra.dto.MessageResponse;
 import com.vaistra.services.DemoService;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.batch.core.*;
@@ -16,6 +17,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -61,8 +63,6 @@ public class DemoController {
     public ResponseEntity<Resource> exportCSV(HttpServletResponse response,
                                               @PathVariable String date1,
                                               @PathVariable String date2) throws IOException, JobInstanceAlreadyCompleteException, JobExecutionAlreadyRunningException, JobParametersInvalidException, JobRestartException {
-
-
         File tempFile = File.createTempFile(LocalDate.now().format(dateFormatter) + "_" + LocalTime.now().format(timeFormatter) + "demo_export", ".csv");
 
         JobParameters jobParameters = new JobParametersBuilder()
@@ -99,7 +99,28 @@ public class DemoController {
         return null;
     }
 
-
+//    @GetMapping("/export/excel")
+//    public ResponseEntity<MessageResponse> exportToExcel(HttpServletResponse response) throws IOException {
+//        return new ResponseEntity<>(demoService.exportToExcel(response), HttpStatus.OK);
+//
+//    }
+//
+//    @GetMapping("/export/csv")
+//
+//    public ResponseEntity<String> exportToCSV(HttpServletResponse response) throws IOException {
+////        return new ResponseEntity<>(userService.exportToCSV(response),HttpStatus.OK);
+//        demoService.exportToCSV(response);
+//        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+//
+//    }
+//
+//    @GetMapping(value ="/export/pdf")
+//
+//    public ResponseEntity<MessageResponse> exportToPDF(HttpServletResponse response) throws IOException {
+//        return new ResponseEntity<>( demoService.exportToPDF(response),HttpStatus.OK);
+//
+//
+//    }
 }
 //    @GetMapping("getData")
 //    public List<DemoCSV> getData(){

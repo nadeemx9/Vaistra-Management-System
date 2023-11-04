@@ -54,8 +54,8 @@ public class GetRecordConfig {
 
     @Bean
     public Step exportChunkStepdemo(JobRepository jobRepository, PlatformTransactionManager transactionManager, FlatFileItemWriter<DemoCSV> exportItemWriter, ItemReader<DemoCSV> exportReader){
-        return new StepBuilder("countryReaderStep",jobRepository)
-                .<DemoCSV, DemoCSV>chunk(10000,transactionManager)
+        return new StepBuilder("exportChunkStepdemo",jobRepository)
+                .<DemoCSV, DemoCSV>chunk(50000,transactionManager)
                 .writer(exportItemWriter)
                 .reader(exportReader)
                 .allowStartIfComplete(true)
@@ -72,6 +72,9 @@ public class GetRecordConfig {
         return taskExecutor;
     }
 
+    static LocalDate localDate;
+    static LocalDate date;
+
     @Bean
     @StepScope
     public ItemReader<DemoCSV> exportReader(@Value("#{jobParameters[date1]}") String date1,@Value("#{jobParameters[date2]}") String date2){
@@ -84,16 +87,18 @@ public class GetRecordConfig {
 
         int page = 0;
 
-        LocalDate localDate = startDate;
+        localDate = startDate;
 
-        while (localDate.isBefore(endDate)) {
-            PageRequest pageRequest = PageRequest.of(page, pageSize);
+        do{
+            date = localDate.plusDays(280);
+//        while (localDate.isBefore(endDate.plusDays(1)) || localDate.isEqual(endDate)) {
+//            PageRequest pageRequest = PageRequest.of(page, pageSize);
 
             CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
             CriteriaQuery<DemoCSV> criteriaQuery = criteriaBuilder.createQuery(DemoCSV.class);
             Root<DemoCSV> root = criteriaQuery.from(DemoCSV.class);
             criteriaQuery.select(root)
-                    .where(criteriaBuilder.between(root.get("date"), startDate, endDate));
+                    .where(criteriaBuilder.between(root.get("date"), localDate,date.isAfter(endDate)? endDate : date.isEqual(endDate) ? endDate : date)); // 1-1-2010 31-12-2030
 
 //            Path<LocalDate> datePath = root.get("date");
 //            Path<LocalTime> timePath = root.get("time");
@@ -102,16 +107,17 @@ public class GetRecordConfig {
 //            criteriaQuery.orderBy(dateOrder, timeOrder);
 
             TypedQuery<DemoCSV> query = entityManager.createQuery(criteriaQuery);
-            query.setFirstResult((int) pageRequest.getOffset());
-            query.setMaxResults(pageRequest.getPageSize());
+//            query.setFirstResult((int) pageRequest.getOffset());
+//            query.setMaxResults(pageRequest.getPageSize());
 
             Iterator<DemoCSV> iterator = query.getResultList().iterator();
-            demoCSVIterators.add(page,iterator);
-            localDate = localDate.plusDays(280); // Adjust based on your requirement
-            System.out.println(localDate);
+            demoCSVIterators.add(iterator);
+            localDate = localDate.plusDays(280);
+            System.out.println(localDate); // 08-10-2010 11-3-2011
             page++;
             System.out.println(page);
-        }
+        }while (localDate.isBefore(endDate.plusDays(1))); // 60,48,000 enough
+
         return new ItemReader<DemoCSV>() {
             @Override
             public DemoCSV read() throws Exception, UnexpectedInputException, ParseException, NonTransientResourceException {
@@ -142,6 +148,7 @@ public class GetRecordConfig {
                 });
             }
         });
+        System.out.println(writer);
         return writer;
     }
 }
