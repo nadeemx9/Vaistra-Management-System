@@ -1,5 +1,6 @@
 package com.vaistra.controllers;
 
+import com.vaistra.config.spring_batch.demoCSV.ExportPDFWriter;
 import com.vaistra.dto.HttpResponse;
 import com.vaistra.services.DemoService;
 import com.vaistra.services.export.PdfGenerator;
@@ -126,8 +127,6 @@ public class DemoController {
                 .addString("date1", date1)
                 .addString("date2", date2)
                 .toJobParameters();
-
-//        Resource fileResource = new FileSystemResource(tempFile.getAbsolutePath());
 
         response.setContentType("application/pdf");
         String headerkey = "Content-Disposition";

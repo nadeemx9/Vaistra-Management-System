@@ -9,10 +9,8 @@ import com.vaistra.entities.DemoCSV;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.batch.item.Chunk;
 
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
+import javax.print.Doc;
+import java.io.*;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -22,60 +20,48 @@ import static java.awt.Color.BLACK;
 public class PdfGenerator {
 
 
-    private final String currentDateTime; // Add this field
+    private PdfGenerator generator;
+    private PdfWriter writer;
+    public static Document document;
 
 
-    public PdfGenerator(String listofUsers, String currentDateTime) {
-        this.currentDateTime = currentDateTime;
-    }
-
-
-    public PdfGenerator(String currentDateTime) {
-
-        this.currentDateTime = currentDateTime;
-    }
-
-
-    public void generate(Chunk<? extends DemoCSV> user) throws DocumentException, IOException {
-
-
-        String filePath = DemoController.tempFile.getAbsolutePath();
-
-        Document document = new Document(PageSize.A4);
-
+    public PdfGenerator() {
+        document = new Document(PageSize.A4);
         try {
-
-            PdfWriter writer = PdfWriter.getInstance(document, new FileOutputStream(filePath));
+            writer = PdfWriter.getInstance(document, new FileOutputStream(DemoController.tempFile.getAbsolutePath()));
             writer.setPageEvent(new PageNumberEvent());
+        } catch (Exception e) {
+            System.out.println(e);
+        }
+    }
 
+    public void generate(Chunk<? extends DemoCSV> chunk){
+        try {
             document.open();
 
-
-            Date now = new Date(); // Get the current date and time
-            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"); // Define the format
-
-            String formattedDateTime = dateFormat.format(now); // Format the date and time
+            Date now = new Date();
+            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
             Font dateTimeFont = FontFactory.getFont(FontFactory.TIMES_ROMAN);
             dateTimeFont.setSize(10);
             dateTimeFont.setColor(BLACK);
 
-            Paragraph dateTimeParagraph = new Paragraph(formattedDateTime, dateTimeFont);
+            Paragraph dateTimeParagraph = new Paragraph(dateFormat.format(now), dateTimeFont);
             dateTimeParagraph.setAlignment(Element.ALIGN_RIGHT);
 
             document.add(dateTimeParagraph);
 
-            Font fontTiltle = FontFactory.getFont(FontFactory.TIMES_ROMAN);
-            fontTiltle.setSize(20);
+            Font fontTitle = FontFactory.getFont(FontFactory.TIMES_ROMAN);
+            fontTitle.setSize(20);
 
-            Paragraph paragraph1 = new Paragraph("Date and Time Data", fontTiltle);
+            Paragraph paragraph1 = new Paragraph("Date and Time Data", fontTitle);
             paragraph1.setAlignment(Paragraph.ALIGN_CENTER);
 
             document.add(paragraph1);
 
             PdfPTable table = new PdfPTable(2);
             table.setWidthPercentage(100f);
-            table.setWidths(new int[]{8, 8});
+            table.setWidths(new float[]{1, 1});
             table.setSpacingBefore(10);
 
             PdfPCell cell = new PdfPCell();
@@ -88,24 +74,27 @@ public class PdfGenerator {
             cell.setPhrase(new Phrase("Time", font));
             table.addCell(cell);
 
-            for (DemoCSV d : user) {
-//                System.out.println(d.getDate() + "\t" + d.getTime());
+            for (DemoCSV d : chunk) {
                 table.addCell(d.getDate().toString());
                 table.addCell(d.getTime().toString());
             }
+
             document.add(table);
-
-        } finally {
-            document.close();
+        } catch (Exception e) {
+            System.out.println(e);
         }
-
+        finally {
+            if(chunk.isEnd())
+                document.close();
+        }
     }
 
     public static void downloadFle(HttpServletResponse response,String filePath){
+//        document.close();
         System.out.println("Inside Download Method");
         // Set the response headers for file download.
         response.setContentType("application/pdf");
-        response.setHeader("Content-Disposition", "attachment; filename= export_PDF.pdf");
+        response.setHeader("Content-Disposition", "attachment; filename= exportPDF.pdf");
 
         // Stream the file to the client.
         try (FileInputStream fileInputStream = new FileInputStream(filePath);
@@ -119,10 +108,13 @@ public class PdfGenerator {
         } catch (IOException e) {
             e.printStackTrace();
         }
+        finally {
+            document.close();
+        }
     }
 
 
-    public static class PageNumberEvent extends PdfPageEventHelper {
+    class PageNumberEvent extends PdfPageEventHelper {
         public void onEndPage(PdfWriter writer, Document document) {
             // Add page number on each page
             PdfContentByte cb = writer.getDirectContent();

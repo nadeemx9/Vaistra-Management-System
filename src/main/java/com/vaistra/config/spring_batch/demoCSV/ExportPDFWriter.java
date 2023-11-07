@@ -10,8 +10,6 @@ import org.springframework.batch.item.Chunk;
 import org.springframework.batch.item.ItemWriter;
 
 import java.io.FileOutputStream;
-import java.io.IOException;
-import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -19,18 +17,14 @@ import static java.awt.Color.BLACK;
 
 @Slf4j
 public class ExportPDFWriter implements ItemWriter<DemoCSV> {
-
-    String exportFilePath;
-
-    public ExportPDFWriter(String path){
-        exportFilePath = path;
+    private PdfGenerator generator;
+    public ExportPDFWriter(String path) {
+        generator = new PdfGenerator();
     }
 
-    DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd : HH:mm:ss");
-    String currentDateTime = dateFormat.format(new Date());
-    PdfGenerator generator = new PdfGenerator(exportFilePath, currentDateTime);
     @Override
     public void write(Chunk<? extends DemoCSV> chunk) throws Exception {
         generator.generate(chunk);
     }
+
 }
