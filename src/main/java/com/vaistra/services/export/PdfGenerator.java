@@ -37,6 +37,7 @@ public class PdfGenerator {
 
     public void generate(Chunk<? extends DemoCSV> chunk){
         try {
+
             document.open();
 
             Date now = new Date();
@@ -83,14 +84,13 @@ public class PdfGenerator {
         } catch (Exception e) {
             System.out.println(e);
         }
-        finally {
-            if(chunk.isEnd())
-                document.close();
-        }
+//        finally {
+//            document.close();
+//        }
     }
 
     public static void downloadFle(HttpServletResponse response,String filePath){
-//        document.close();
+        document.close();
         System.out.println("Inside Download Method");
         // Set the response headers for file download.
         response.setContentType("application/pdf");
