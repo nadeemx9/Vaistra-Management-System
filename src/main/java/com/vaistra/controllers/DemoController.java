@@ -1,8 +1,8 @@
 package com.vaistra.controllers;
 
-import com.vaistra.config.spring_batch.demoCSV.ExportPDFWriter;
 import com.vaistra.dto.HttpResponse;
 import com.vaistra.services.DemoService;
+import com.vaistra.services.export.ExcelGenerator;
 import com.vaistra.services.export.PdfGenerator;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.batch.core.*;
@@ -31,19 +31,28 @@ public class DemoController {
     private final DemoService demoService;
     private final JobLauncher jobLauncher;
     private final JobLauncher ExportPDFjobLauncher;
+    private final JobLauncher ExportExceljobLauncher;
     private final Job job;
     private final Job exportPDFJob;
+    private final Job exportExcelJob;
 
     private final DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("ddMMyyyy");
     private final DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HHmmss");
 
     @Autowired
-    public DemoController(DemoService demoService, JobLauncher jobLauncher, JobLauncher exportPDFjobLauncher, @Qualifier("exportDemoJob") Job job, @Qualifier("exportPDF") Job exportPDFJob) {
+    public DemoController(DemoService demoService, JobLauncher jobLauncher, JobLauncher exportPDFjobLauncher,
+                          JobLauncher exportExceljobLauncher,
+                          @Qualifier("exportDemoJob") Job job,
+                          @Qualifier("exportPDF") Job exportPDFJob
+                          ,@Qualifier("exportExcel") Job exportExcelJob
+    ) {
         this.demoService = demoService;
         this.jobLauncher = jobLauncher;
         ExportPDFjobLauncher = exportPDFjobLauncher;
+        ExportExceljobLauncher = exportExceljobLauncher;
         this.job = job;
         this.exportPDFJob = exportPDFJob;
+        this.exportExcelJob = exportExcelJob;
     }
 
     @PostMapping("csvImport")
@@ -99,62 +108,62 @@ public class DemoController {
         return null;
     }
 
-//    @GetMapping("/export/excel")
-//    public ResponseEntity<MessageResponse> exportToExcel(HttpServletResponse response) throws IOException {
-//        return new ResponseEntity<>(demoService.exportToExcel(response), HttpStatus.OK);
-//
-//    }
-//
-//    @GetMapping("/export/csv")
-//
-//    public ResponseEntity<String> exportToCSV(HttpServletResponse response) throws IOException {
-////        return new ResponseEntity<>(userService.exportToCSV(response),HttpStatus.OK);
-//        demoService.exportToCSV(response);
-//        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-//
-//    }
-//
-    public static File tempFile;
+    public static File tempPDFFile;
 
     @GetMapping(value ="/export/pdf/{date1}/{date2}")
     public ResponseEntity<Resource> exportToPDF(HttpServletResponse response,
                                                 @PathVariable String date1,
                                                 @PathVariable String date2) throws IOException, JobInstanceAlreadyCompleteException, JobExecutionAlreadyRunningException, JobParametersInvalidException, JobRestartException {
-        tempFile = File.createTempFile(LocalDate.now().format(dateFormatter) + "_" + LocalTime.now().format(timeFormatter) + "demo_PDF_export", ".pdf");
+        tempPDFFile = File.createTempFile(LocalDate.now().format(dateFormatter) + "_" + LocalTime.now().format(timeFormatter) + "demo_PDF_export", ".pdf");
 
         JobParameters jobParametersPDF = new JobParametersBuilder()
-                .addString("pdfPath",tempFile.getAbsolutePath())
+                .addString("pdfPath", tempPDFFile.getAbsolutePath())
                 .addString("date1", date1)
                 .addString("date2", date2)
                 .toJobParameters();
 
         response.setContentType("application/pdf");
         String headerkey = "Content-Disposition";
-        String headervalue = "attachment; filename=" +tempFile.getAbsolutePath() + ".pdf";
+        String headervalue = "attachment; filename=" + tempPDFFile.getAbsolutePath() + ".pdf";
         response.setHeader(headerkey, headervalue);
 
-        System.out.println(tempFile.getAbsolutePath());
+        System.out.println(tempPDFFile.getAbsolutePath());
 
         JobExecution jobExecution = ExportPDFjobLauncher.run(exportPDFJob, jobParametersPDF);
 
         if (jobExecution.getExitStatus().equals(ExitStatus.COMPLETED)){
             System.out.println("Job is Completed");
-            PdfGenerator.downloadFle(response,tempFile.getAbsolutePath());
+            PdfGenerator.downloadFle(response, tempPDFFile.getAbsolutePath());
         }
-
-//        HttpHeaders headers = new HttpHeaders();
-//        headers.add("Content-Disposition", "attachment; filename=PDF_data.pdf");
-
-//        return ResponseEntity.ok()
-//                .headers(headers)
-//                .contentLength(fileResource.contentLength())
-//                .contentType(MediaType.parseMediaType("application/pdf"))
-//               .body(fileResource);
         return null;
     }
+
+    public static File tempExcelFile;
+
+    @GetMapping(value ="/export/excel/{date1}/{date2}")
+    public void exportToExcel(HttpServletResponse response,
+                              @PathVariable String date1,
+                              @PathVariable String date2)
+            throws IOException, JobInstanceAlreadyCompleteException, JobExecutionAlreadyRunningException, JobParametersInvalidException, JobRestartException {
+        tempExcelFile = File.createTempFile(LocalDate.now().format(dateFormatter) + "_" + LocalTime.now().format(timeFormatter) + "demoEXCELExport", ".xlsx");
+        JobParameters jobParametersExcel = new JobParametersBuilder()
+                .addString("excelFilePath",tempExcelFile.getAbsolutePath())
+                .addString("date1", date1)
+                .addString("date2", date2)
+                .toJobParameters();
+
+        response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+
+        String headerkey = "Content-Disposition";
+        String headervalue = "attachment; filename=ExcelExport.xlsx";
+        response.setHeader(headerkey, headervalue);
+
+        JobExecution jobExecution = ExportExceljobLauncher.run(exportExcelJob,jobParametersExcel);
+
+        if (jobExecution.getExitStatus().equals(ExitStatus.COMPLETED)){
+            System.out.println("Job is Completed");
+            ExcelGenerator.downloadFle(response, tempPDFFile.getAbsolutePath());
+        }
+    }
 }
-//    @GetMapping("getData")
-//    public List<DemoCSV> getData(){
-//        return demoService.temp();
-//    }
 

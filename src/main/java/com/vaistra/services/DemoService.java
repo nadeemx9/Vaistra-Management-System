@@ -4,14 +4,18 @@ import com.opencsv.CSVWriter;
 import com.vaistra.config.spring_batch.CountryBatch.CountryWriter;
 import com.vaistra.dto.HttpResponse;
 import com.vaistra.entities.DemoCSV;
+import com.vaistra.entities.cscv.Country;
 import com.vaistra.exception.ResourceNotFoundException;
 import com.vaistra.repositories.DemoRepository;
+import com.vaistra.repositories.cscv.CountryRepository;
+import com.vaistra.services.export.ExcelGenerator;
 import com.vaistra.utils.AppUtils;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.TypedQuery;
 import jakarta.persistence.criteria.*;
 import jakarta.servlet.ServletOutputStream;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.batch.core.*;
 import org.springframework.batch.core.launch.JobLauncher;
 import org.springframework.batch.core.repository.JobRepository;
@@ -26,9 +30,14 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeFormatterBuilder;
+import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 
@@ -37,6 +46,7 @@ public class DemoService {
     private final DemoRepository demoRepository;
     private final JobLauncher jobLauncher;
     private final Job job;
+    private final CountryRepository countryRepository;
     private final JobRepository jobRepository;
     private final PlatformTransactionManager transactionManager;
     private final AppUtils appUtils;
@@ -47,10 +57,11 @@ public class DemoService {
     private EntityManager entityManager;
 
     @Autowired
-    public DemoService(DemoRepository demoRepository, JobLauncher jobLauncher, @Qualifier("demoReaderJob")  Job job, JobRepository jobRepository, PlatformTransactionManager transactionManager, AppUtils appUtils) {
+    public DemoService(DemoRepository demoRepository, JobLauncher jobLauncher, @Qualifier("demoReaderJob")  Job job, CountryRepository countryRepository, JobRepository jobRepository, PlatformTransactionManager transactionManager, AppUtils appUtils) {
         this.demoRepository = demoRepository;
         this.jobLauncher = jobLauncher;
         this.job = job;
+        this.countryRepository = countryRepository;
         this.jobRepository = jobRepository;
         this.transactionManager = transactionManager;
         this.appUtils = appUtils;
@@ -185,4 +196,30 @@ public class DemoService {
             });
         }
     }
+
+//    public void exportExcelData(String absolutePath, HttpServletResponse response, String date1, String date2) {
+//
+//        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
+//
+//        LocalDate startDate = LocalDate.parse(date1, formatter);
+//        LocalDate endDate = LocalDate.parse(date2, formatter);
+//
+//        response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+////        response.setContentType("application/octet-stream");
+////        response.setHeader("Content-Disposition", "attachment; filename=\"User.xlsx\"");
+//
+//        DateFormat dateFormatter = new SimpleDateFormat("yyyy-MM-dd_HH:mm:ss");
+//
+//        String headerKey = "Content-Disposition";
+//        String headerValue = "attachment; filename=ExportExcel"+ "demoEXCELExport.xlsx";
+//        response.setHeader(headerKey, headerValue);
+//
+//        List<Country> csvList = countryRepository.findAll();
+//
+//        try {
+//            excelGenerator.export(response,absolutePath);
+//        } catch (IOException e) {
+//            System.out.println(e);
+//        }
+//    }
 }

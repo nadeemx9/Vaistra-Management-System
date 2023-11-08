@@ -70,6 +70,7 @@ public class SecurityConfig {
                         .requestMatchers("/country/UploadCsv").permitAll()
                         .requestMatchers("/demo/exportData/{date1}/{date2}").permitAll()
                         .requestMatchers("demo/export/pdf/{date1}/{date2}").permitAll()
+                        .requestMatchers("demo/export/excel/{date1}/{date2}").permitAll()
 //                        .requestMatchers("/demo/export/excel").permitAll()
 //                        .requestMatchers("/demo/export/csv").permitAll()
 //                        .requestMatchers("/demo/export/pdf").permitAll()

@@ -9,7 +9,6 @@ import com.vaistra.entities.DemoCSV;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.batch.item.Chunk;
 
-import javax.print.Doc;
 import java.io.*;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -28,7 +27,7 @@ public class PdfGenerator {
     public PdfGenerator() {
         document = new Document(PageSize.A4);
         try {
-            writer = PdfWriter.getInstance(document, new FileOutputStream(DemoController.tempFile.getAbsolutePath()));
+            writer = PdfWriter.getInstance(document, new FileOutputStream(DemoController.tempPDFFile.getAbsolutePath()));
             writer.setPageEvent(new PageNumberEvent());
         } catch (Exception e) {
             System.out.println(e);
