@@ -52,18 +52,18 @@ public class ExportExcelConfig {
                 .writer(exportExcelWriter)
                 .reader(exportExcelReader)
                 .allowStartIfComplete(true)
-                .taskExecutor(exportExcelTaskExecutor())
+//                .taskExecutor(exportExcelTaskExecutor())
                 .build();
     }
 
-    @Bean
-    public TaskExecutor exportExcelTaskExecutor(){
-        ThreadPoolTaskExecutor taskExecutor = new ThreadPoolTaskExecutor();
-        taskExecutor.setCorePoolSize(15); // Set the number of concurrent threads
-        taskExecutor.setMaxPoolSize(25); // Set the maximum number of threads
-        taskExecutor.setQueueCapacity(50); // Set the queue capacity for pending tasks
-        return taskExecutor;
-    }
+//    @Bean
+//    public TaskExecutor exportExcelTaskExecutor(){
+//        ThreadPoolTaskExecutor taskExecutor = new ThreadPoolTaskExecutor();
+//        taskExecutor.setCorePoolSize(15); // Set the number of concurrent threads
+//        taskExecutor.setMaxPoolSize(25); // Set the maximum number of threads
+//        taskExecutor.setQueueCapacity(50); // Set the queue capacity for pending tasks
+//        return taskExecutor;
+//    }
 
     static LocalDate localDate;
     static LocalDate date;
@@ -118,6 +118,6 @@ public class ExportExcelConfig {
     @Bean
     @StepScope
     public ItemWriter<DemoCSV> exportExcelWriter(@Value("#{jobParameters[excelFilePath]}") String filePath){
-        return new ExportExcelWriter();
+        return new ExportExcelWriter(filePath);
     }
 }

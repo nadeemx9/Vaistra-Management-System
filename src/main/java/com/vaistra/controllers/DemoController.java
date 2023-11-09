@@ -1,8 +1,8 @@
 package com.vaistra.controllers;
 
+import com.vaistra.config.spring_batch.demoCSV.ExportExcelWriter;
 import com.vaistra.dto.HttpResponse;
 import com.vaistra.services.DemoService;
-import com.vaistra.services.export.ExcelGenerator;
 import com.vaistra.services.export.PdfGenerator;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.batch.core.*;
@@ -162,7 +162,7 @@ public class DemoController {
 
         if (jobExecution.getExitStatus().equals(ExitStatus.COMPLETED)){
             System.out.println("Job is Completed");
-            ExcelGenerator.downloadFle(response, tempPDFFile.getAbsolutePath());
+            ExportExcelWriter.downloadFle(response, tempExcelFile.getAbsolutePath());
         }
     }
 }
