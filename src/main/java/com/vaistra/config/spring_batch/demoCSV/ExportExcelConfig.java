@@ -48,7 +48,7 @@ public class ExportExcelConfig {
     @Bean
     public Step exportChunkExcel(JobRepository jobRepository, PlatformTransactionManager transactionManager, ItemWriter<DemoCSV> exportExcelWriter, ItemReader<DemoCSV> exportExcelReader){
         return new StepBuilder("exportChunkExcel",jobRepository)
-                .<DemoCSV, DemoCSV>chunk(50000,transactionManager)
+                .<DemoCSV, DemoCSV>chunk(500000,transactionManager)
                 .writer(exportExcelWriter)
                 .reader(exportExcelReader)
                 .allowStartIfComplete(true)

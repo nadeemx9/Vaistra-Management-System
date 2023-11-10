@@ -25,17 +25,20 @@ import java.util.List;
 
 @Slf4j
 public class ExportExcelWriter implements ItemWriter<DemoCSV> {
-//    private static XSSFWorkbook workbook;
+    private static final int MAX_ROWS_PER_SHEET = 1048575; // Maximum number of rows per sheet
     private static SXSSFWorkbook workbook;
-    private SXSSFSheet sheet;
-    private SXSSFSheet sheet1;
+    private int currentSheetIndex = 0;
+    private SXSSFSheet currentSheet;
 
     public ExportExcelWriter(String path) {
         workbook = new SXSSFWorkbook();
-        sheet = workbook.createSheet("Date-Time Data");
-        sheet1 = workbook.createSheet("Date-Time Data - 2");
-        writeHeaderLine(sheet);
-        writeHeaderLine(sheet1);
+        createNewSheet();
+    }
+
+    private void createNewSheet() {
+        currentSheet = workbook.createSheet("Data - " + (currentSheetIndex + 1));
+        writeHeaderLine(currentSheet);
+        currentSheetIndex++;
     }
 
     private void writeHeaderLine(SXSSFSheet sheet) {
@@ -58,7 +61,7 @@ public class ExportExcelWriter implements ItemWriter<DemoCSV> {
         // Set the title in the merged cells
         Row titleRow = sheet.createRow(0);
         Cell titleCell = titleRow.createCell(0);
-        titleCell.setCellValue("Country_list"); // Your title text
+        titleCell.setCellValue("Date-Time Data"); // Your title text
         titleCell.setCellStyle(style);
 
         // Merge the cells for the title
@@ -82,14 +85,10 @@ public class ExportExcelWriter implements ItemWriter<DemoCSV> {
         cell.setCellStyle(style);
     }
 
-    int rowCount = 2;
-    int rowCount1 = 2;
     @Override
     public void write(Chunk<? extends DemoCSV> chunk) throws Exception {
         try {
             System.out.println("In Data Write Method");
-//            List<DemoCSV> dataToWrite = new ArrayList<>();
-
             CellStyle style = workbook.createCellStyle();
             XSSFFont font = (XSSFFont) workbook.createFont();
             font.setFontHeight(14);
@@ -97,24 +96,15 @@ public class ExportExcelWriter implements ItemWriter<DemoCSV> {
             style.setWrapText(true);
 
             for (DemoCSV demoCSV : chunk) {
-//                dataToWrite.add(demoCSV);
-                if(!chunk.isEnd()) {
-                    Row row ;
-                    if(rowCount > 1048575) {
-                        row = sheet1.createRow(rowCount1++);
-                        createCell(row, 0, demoCSV.getDate().toString(), style);
-                        createCell(row, 1, demoCSV.getTime().toString(), style);
-                        System.out.println(" If " +demoCSV.getDate() + "\t" + demoCSV.getTime() + "\t" + rowCount1);
-                    }
-                    else {
-                        row = sheet.createRow(rowCount++);
-                        createCell(row, 0, demoCSV.getDate().toString(), style);
-                        createCell(row, 1, demoCSV.getTime().toString(), style);
-                        System.out.println(" Else  " +demoCSV.getDate() + "\t" + demoCSV.getTime() + "\t" + rowCount);
-                    }
+                if (currentSheet.getLastRowNum() >= MAX_ROWS_PER_SHEET) {
+                    // If the current sheet is full, create a new sheet
+                    createNewSheet();
                 }
-                else
-                    break;
+
+                Row row = currentSheet.createRow(currentSheet.getLastRowNum() + 1);
+                createCell(row, 0, demoCSV.getDate().toString(), style);
+                createCell(row, 1, demoCSV.getTime().toString(), style);
+                System.out.println(demoCSV.getDate() + "\t" + demoCSV.getTime() + "\t" + currentSheetIndex);
             }
 //            writeDataToExcel(dataToWrite,style);
             System.out.println("Out Of Loop From write Method");
