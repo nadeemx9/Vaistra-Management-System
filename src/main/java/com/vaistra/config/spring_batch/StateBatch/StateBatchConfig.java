@@ -1,12 +1,9 @@
 package com.vaistra.config.spring_batch.StateBatch;
 
-import com.vaistra.dto.cscv.StateDto;
 import com.vaistra.entities.cscv.Country;
 import com.vaistra.entities.cscv.State;
 import com.vaistra.repositories.cscv.CountryRepository;
 import com.vaistra.repositories.cscv.StateRepository;
-import com.vaistra.utils.AppUtils;
-import lombok.Getter;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.configuration.annotation.StepScope;
@@ -28,25 +25,24 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.task.TaskExecutor;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.validation.BindException;
 
 import java.io.File;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 @Configuration
 public class StateBatchConfig {
-    @Getter
-    private static long counter;
     private final StateRepository stateRepository;
-    private final AppUtils appUtils;
     private final CountryRepository countryRepository;
 
     @Autowired
-    public StateBatchConfig(StateRepository stateRepository, AppUtils appUtils, CountryRepository countryRepository) {
+    public StateBatchConfig(StateRepository stateRepository,  CountryRepository countryRepository) {
         this.stateRepository = stateRepository;
-        this.appUtils = appUtils;
         this.countryRepository = countryRepository;
     }
 
@@ -62,7 +58,7 @@ public class StateBatchConfig {
     @Bean
     public Step chunkStepState(JobRepository jobRepository, PlatformTransactionManager transactionManager, FlatFileItemReader<State> reader){
         return new StepBuilder("stateReaderStep",jobRepository)
-                .<State,State>chunk(500000,transactionManager)
+                .<State,State>chunk(50000,transactionManager)
                 .reader(reader)
                 .processor(stateProcessor())
                 .writer(stateWriter())
@@ -105,30 +101,20 @@ public class StateBatchConfig {
                 .names(new String[]{
                         "countryName","stateName","status"
                 })
-                .fieldSetMapper(    new BeanWrapperFieldSetMapper<State>() {
+                .fieldSetMapper(    new BeanWrapperFieldSetMapper<>() {
                     @Override
-                    public State mapFieldSet(FieldSet fs) throws BindException {
+                    public State mapFieldSet(FieldSet fs)  {
                         String stateName = fs.readString("stateName");
                         String countryName = fs.readString("countryName");
                         boolean active = fs.readString("status").equalsIgnoreCase("true");
-
-                        Country country = countryRepository.findByCountryNameIgnoreCase(countryName);
-
-                            State state = new State();
-                            state.setStateName(stateName);
-                            state.setStatus(active);
-
-                            if (country == null) {
-                                country = new Country();
-                                country.setCountryName(countryName);
-                                country.setStatus(true);
-                                countryRepository.save(country);
-                            }
-                            state.setCountry(country);
-
+                        State state = new State();
+                        synchronized (this) {
+                            state.setCountry(getCountry(countryName));
+                        }
+                        state.setStateName(stateName);
+                        state.setStatus(active);
                         return state;
                     }
-
                     @Override
                     public void setTargetType(Class<? extends State> type) {
                         super.setTargetType(type);
@@ -137,5 +123,31 @@ public class StateBatchConfig {
                 .linesToSkip(1)
                 .strict(false)  // Set to non-strict mode
                 .build();
+    }
+//    private final ConcurrentHashMap<String, Country> countries = new ConcurrentHashMap<>();
+
+    private final Map<String, Lock> countryLocks = new ConcurrentHashMap<>();
+
+    private Country getCountry(String countryName){
+        // Use a dedicated lock object for each countryName
+        countryLocks.putIfAbsent(countryName, new ReentrantLock());
+        Lock countryLock = countryLocks.get(countryName);
+        countryLock.lock();
+        try {
+            Country country = countryRepository.findByCountryNameIgnoreCase(countryName);
+            if (country == null) {
+                // Double-check inside the synchronized block
+                synchronized (this) {
+                    country = new Country();
+                    country.setCountryName(countryName);
+                    country.setStatus(true);
+                    countryRepository.saveAndFlush(country);
+                }
+            }
+            System.out.print(country.getCountryName() + "\t");
+            return country;
+        } finally {
+            countryLock.unlock();
+        }
     }
 }
