@@ -1,7 +1,6 @@
 package com.vaistra.services.cscv.impl;
 
 import com.opencsv.CSVWriter;
-import com.vaistra.config.spring_batch.StateBatch.StateBatchConfig;
 import com.vaistra.config.spring_batch.StateBatch.StateWriter;
 import com.vaistra.dto.cscv.StateUpdateDto;
 import com.vaistra.entities.cscv.Country;

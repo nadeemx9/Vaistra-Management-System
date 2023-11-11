@@ -1,6 +1,6 @@
 package com.vaistra.config.spring_batch.StateBatch;
 
-import com.vaistra.entities.cscv.Country;
+import com.vaistra.dto.cscv.StateDto;
 import com.vaistra.entities.cscv.State;
 import com.vaistra.repositories.cscv.CountryRepository;
 import com.vaistra.repositories.cscv.StateRepository;
@@ -16,7 +16,6 @@ import org.springframework.batch.item.ItemWriter;
 import org.springframework.batch.item.file.FlatFileItemReader;
 import org.springframework.batch.item.file.builder.FlatFileItemReaderBuilder;
 import org.springframework.batch.item.file.mapping.BeanWrapperFieldSetMapper;
-import org.springframework.batch.item.file.transform.FieldSet;
 import org.springframework.batch.item.support.CompositeItemProcessor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -27,13 +26,8 @@ import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.task.TaskExecutor;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.transaction.PlatformTransactionManager;
-import org.springframework.validation.BindException;
 
 import java.io.File;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
 
 @Configuration
 public class StateBatchConfig {
@@ -48,7 +42,7 @@ public class StateBatchConfig {
 
     @Bean
     @Qualifier("stateReaderJob")
-    public Job stateReaderJob(JobRepository jobRepository, PlatformTransactionManager platformTransactionManager, FlatFileItemReader<State> reader){
+    public Job stateReaderJob(JobRepository jobRepository, PlatformTransactionManager platformTransactionManager, FlatFileItemReader<StateDto> reader){
         return new JobBuilder("stateReaderJob",jobRepository)
                 .incrementer(new RunIdIncrementer())
                 .start(chunkStepState(jobRepository,platformTransactionManager,reader))
@@ -56,9 +50,9 @@ public class StateBatchConfig {
     }
 
     @Bean
-    public Step chunkStepState(JobRepository jobRepository, PlatformTransactionManager transactionManager, FlatFileItemReader<State> reader){
+    public Step chunkStepState(JobRepository jobRepository, PlatformTransactionManager transactionManager, FlatFileItemReader<StateDto> reader){
         return new StepBuilder("stateReaderStep",jobRepository)
-                .<State,State>chunk(50000,transactionManager)
+                .<StateDto,State>chunk(5000,transactionManager)
                 .reader(reader)
                 .processor(stateProcessor())
                 .writer(stateWriter())
@@ -85,69 +79,53 @@ public class StateBatchConfig {
 
     @Bean
     @StepScope
-    public ItemProcessor<State,State> stateProcessor(){
+    public ItemProcessor<StateDto,State> stateProcessor(){
         System.out.println("In Processor Method");
-        return new CompositeItemProcessor<>(new StateProcessor());
+        return new CompositeItemProcessor<>(new StateProcessor(countryRepository));
     }
 
     @Bean
     @StepScope
-    public FlatFileItemReader<State> stateReader(@Value("#{jobParameters[inputFileState]}") String pathToFile){
+    public FlatFileItemReader<StateDto> stateReader(@Value("#{jobParameters[inputFileState]}") String pathToFile){
         System.out.println("In Reader Method");
-        return new FlatFileItemReaderBuilder<State>()
+        return new FlatFileItemReaderBuilder<StateDto>()
                 .name("stateReader")
                 .resource(new FileSystemResource(new File(pathToFile)))
                 .delimited()
                 .names(new String[]{
                         "countryName","stateName","status"
                 })
-                .fieldSetMapper(    new BeanWrapperFieldSetMapper<>() {
-                    @Override
-                    public State mapFieldSet(FieldSet fs)  {
-                        String stateName = fs.readString("stateName");
-                        String countryName = fs.readString("countryName");
-                        boolean active = fs.readString("status").equalsIgnoreCase("true");
-                        State state = new State();
-                        synchronized (this) {
-                            state.setCountry(getCountry(countryName));
-                        }
-                        state.setStateName(stateName);
-                        state.setStatus(active);
-                        return state;
-                    }
-                    @Override
-                    public void setTargetType(Class<? extends State> type) {
-                        super.setTargetType(type);
-                    }
-                })
+                .fieldSetMapper(new BeanWrapperFieldSetMapper<>() {{
+                    setTargetType(StateDto.class);
+                }})
                 .linesToSkip(1)
                 .strict(false)  // Set to non-strict mode
                 .build();
     }
 //    private final ConcurrentHashMap<String, Country> countries = new ConcurrentHashMap<>();
 
-    private final Map<String, Lock> countryLocks = new ConcurrentHashMap<>();
-
-    private Country getCountry(String countryName){
-        // Use a dedicated lock object for each countryName
-        countryLocks.putIfAbsent(countryName, new ReentrantLock());
-        Lock countryLock = countryLocks.get(countryName);
-        countryLock.lock();
-        try {
-            Country country = countryRepository.findByCountryNameIgnoreCase(countryName);
-            if (country == null) {
-                // Double-check inside the synchronized block
-                synchronized (this) {
-                    country = new Country();
-                    country.setCountryName(countryName);
-                    country.setStatus(true);
-                    countryRepository.saveAndFlush(country);
-                }
-            }
-            System.out.print(country.getCountryName() + "\t");
-            return country;
-        } finally {
-            countryLock.unlock();
-        }
-    }
+//    private final Map<String, Lock> countryLocks = new ConcurrentHashMap<>();
+//
+//    private Country getCountry(String countryName){
+//        // Use a dedicated lock object for each countryName
+//        countryLocks.putIfAbsent(countryName, new ReentrantLock());
+//        Lock countryLock = countryLocks.get(countryName);
+//        countryLock.lock();
+//        try {
+//            Country country = countryRepository.findByCountryNameIgnoreCase(countryName);
+//            if (country == null) {
+//                // Double-check inside the synchronized block
+//                synchronized (this) {
+//                    country = new Country();
+//                    country.setCountryName(countryName);
+//                    country.setStatus(true);
+//                    countryRepository.saveAndFlush(country);
+//                }
+//            }
+//            System.out.print(country.getCountryName() + "\t");
+//            return country;
+//        } finally {
+//            countryLock.unlock();
+//        }
+//    }
 }

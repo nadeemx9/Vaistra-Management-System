@@ -19,8 +19,8 @@ public class StateWriter implements ItemWriter<State> {
 
     @Override
     public void write(Chunk<? extends State> chunk) throws Exception {
-        synchronized (this) {
-            for (State state: chunk) {
+        for (State state: chunk) {
+            synchronized (this) {
                 if(!stateRepository.existsByStateNameIgnoreCase(state.getStateName())){
                     stateRepository.save(state);
                     counter++;
