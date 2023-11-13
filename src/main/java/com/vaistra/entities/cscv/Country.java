@@ -1,10 +1,7 @@
 package com.vaistra.entities.cscv;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -37,5 +34,4 @@ public class Country {
 
     @Column(name = "status")
     private Boolean status;
-
 }

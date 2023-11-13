@@ -1,6 +1,7 @@
 package com.vaistra.controllers.cscv;
 
 import com.vaistra.dto.HttpResponse;
+import com.vaistra.dto.MessageListResponse;
 import com.vaistra.dto.cscv.StateDto;
 import com.vaistra.dto.cscv.StateUpdateDto;
 import com.vaistra.services.cscv.StateService;
@@ -95,7 +96,7 @@ public class StateController {
 //    }
 
     @PostMapping("/UploadCsv")
-    public ResponseEntity<String> uploadStateCSV(@RequestParam(required = false) MultipartFile file) {
+    public ResponseEntity<MessageListResponse> uploadStateCSV(@RequestParam(required = false) MultipartFile file) {
         return new ResponseEntity<>(stateService.uploadStateCSV(file),HttpStatus.OK);
     }
 

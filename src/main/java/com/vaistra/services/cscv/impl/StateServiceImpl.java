@@ -1,7 +1,9 @@
 package com.vaistra.services.cscv.impl;
 
 import com.opencsv.CSVWriter;
+import com.vaistra.config.spring_batch.StateBatch.StateProcessor;
 import com.vaistra.config.spring_batch.StateBatch.StateWriter;
+import com.vaistra.dto.MessageListResponse;
 import com.vaistra.dto.cscv.StateUpdateDto;
 import com.vaistra.entities.cscv.Country;
 import com.vaistra.entities.cscv.State;
@@ -252,7 +254,7 @@ public class StateServiceImpl implements StateService {
 
 
     @Override
-    public String uploadStateCSV(MultipartFile file) {
+    public MessageListResponse uploadStateCSV(MultipartFile file) {
         if(file == null)
             throw new ResourceNotFoundException("CSV File is not Uploaded   ");
 
@@ -266,7 +268,7 @@ public class StateServiceImpl implements StateService {
             throw new ResourceNotFoundException("Only CSV and Excel File is Accepted");
 
         try {
-            File tempFile = File.createTempFile(LocalDate.now().format(dateFormatter) + "_" + LocalTime.now().format(timeFormatter) + "_Country_" + "temp", ".csv");
+            File tempFile = File.createTempFile(LocalDate.now().format(dateFormatter) + "_" + LocalTime.now().format(timeFormatter) + "_State_" + "temp", ".csv");
             String orignalFileName = file.getOriginalFilename();
             assert orignalFileName != null;
             file.transferTo(tempFile);
@@ -278,24 +280,49 @@ public class StateServiceImpl implements StateService {
             JobExecution execution =  jobLauncher.run(job, jobParameters);
 
             long records = 0;
+            long failedState = 0;
 
             if (execution.getExitStatus().equals(ExitStatus.COMPLETED)){
                 System.out.println("Job is Completed....");
-                records = StateWriter.getCounter();
+                records = StateWriter.getInsertedCounter();
+                failedState = StateWriter.getFailedCounter();
                 if(tempFile.exists()) {
                     if (tempFile.delete())
                         System.out.println("File Deleted");
                     else
                         System.out.println("Can't Delete File");
                 }
-                StateWriter.setCounter(0);
+                StateWriter.setInsertedCounter(0);
+                StateWriter.setFailedCounter(0);
             }
 
-            return "CSV file uploaded successfully. " + records + " states uploaded.";
+            if(records == 0){
+                return MessageListResponse.builder()
+                        .success(true)
+                        .message("Can't Upload Any Data because of There are No relavant Countries exist in our Record" +
+                                " Following "+ failedState +" listed States Failed to Upload")
+                        .data(StateProcessor.getCountries())
+                        .build();
+            }else if (failedState == 0) {
+                return MessageListResponse.builder()
+                        .success(true)
+                        .message("All (" + records + ") State Data Uploaded Successfully")
+                        .build();
+            }else {
+                return MessageListResponse.builder()
+                        .success(true)
+                        .message(records + " State Data Partially Uploaded Successfully" +
+                                " Following " + failedState + " listed States are Failed to Upload Because of There are No relavant Countries exist in our Record")
+                        .data(StateProcessor.getCountries())
+                        .build();
+            }
 
         }catch (Exception e){
             e.printStackTrace();
-            return e.getMessage();
+            return MessageListResponse.builder()
+                    .success(false)
+                    .message(e.toString())
+                    .build();
         }
     }
 

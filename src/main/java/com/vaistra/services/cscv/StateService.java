@@ -1,6 +1,7 @@
 package com.vaistra.services.cscv;
 
 import com.vaistra.dto.HttpResponse;
+import com.vaistra.dto.MessageListResponse;
 import com.vaistra.dto.cscv.StateDto;
 import com.vaistra.dto.cscv.StateUpdateDto;
 import org.springframework.web.multipart.MultipartFile;
@@ -25,7 +26,7 @@ public interface StateService {
 
     HttpResponse searchStateByKeyword(String keyword, int pageNumber, int pageSize, String sortBy, String sortDirection);
 
-    public String uploadStateCSV(MultipartFile file);
+    public MessageListResponse uploadStateCSV(MultipartFile file);
 
     String generateCsvData();
 }

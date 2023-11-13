@@ -52,7 +52,7 @@ public class StateBatchConfig {
     @Bean
     public Step chunkStepState(JobRepository jobRepository, PlatformTransactionManager transactionManager, FlatFileItemReader<StateDto> reader){
         return new StepBuilder("stateReaderStep",jobRepository)
-                .<StateDto,State>chunk(5000,transactionManager)
+                .<StateDto,State>chunk(10000,transactionManager)
                 .reader(reader)
                 .processor(stateProcessor())
                 .writer(stateWriter())
@@ -64,30 +64,27 @@ public class StateBatchConfig {
     @Bean
     public TaskExecutor stateTaskExecutor() {
         ThreadPoolTaskExecutor taskExecutor = new ThreadPoolTaskExecutor();
-        taskExecutor.setCorePoolSize(10); // Set the number of concurrent threads
-        taskExecutor.setMaxPoolSize(20); // Set the maximum number of threads
-        taskExecutor.setQueueCapacity(30); // Set the queue capacity for pending tasks
+        taskExecutor.setCorePoolSize(15);
+        taskExecutor.setMaxPoolSize(25);
+        taskExecutor.setQueueCapacity(50);
         return taskExecutor;
     }
 
     @Bean
     @StepScope
     public ItemWriter<State> stateWriter(){
-        System.out.println("In Writer Method");
         return new StateWriter();
     }
 
     @Bean
     @StepScope
     public ItemProcessor<StateDto,State> stateProcessor(){
-        System.out.println("In Processor Method");
         return new CompositeItemProcessor<>(new StateProcessor(countryRepository));
     }
 
     @Bean
     @StepScope
     public FlatFileItemReader<StateDto> stateReader(@Value("#{jobParameters[inputFileState]}") String pathToFile){
-        System.out.println("In Reader Method");
         return new FlatFileItemReaderBuilder<StateDto>()
                 .name("stateReader")
                 .resource(new FileSystemResource(new File(pathToFile)))
